@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import App from './components/Main';
+import Cesium from 'cesium';
 
 // Render the main component into the dom
 ReactDOM.render(
@@ -10,6 +11,8 @@ ReactDOM.render(
     <App />
   </AppContainer>,
   document.getElementById('app'));
+
+const viewer = new Cesium.Viewer('cesiumContainer');
 
 // Hot Module Replacement API
 if (module.hot) {

@@ -24,7 +24,12 @@ let config = Object.assign({}, baseConfig, {
       searchResolveModulesDirectories: false
     })
   ],
-  module: defaultSettings.getDefaultModules()
+  module: defaultSettings.getDefaultModules(),
+  externals: [
+    {
+      cesium: "var Cesium"
+    }
+  ]
 });
 
 // Add needed loaders to the defaults here
