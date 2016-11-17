@@ -90,6 +90,8 @@ if (options.displayTileCoordinates) {
 
 viewer.camera.setView(options.initialCameraView);
 
+viewer.scene.fxaa = false;
+
 viewer.scene.skyBox.show = false;
 viewer.scene.sun.show = false;
 viewer.scene.screenSpaceCameraController.enableLook = false;

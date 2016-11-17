@@ -6,7 +6,7 @@ export default function createStopEntity(stop) {
     // don't use custom font here, it doesn't have to be loaded yet
     font: "32px 'Verdana' ",
     stroke: true,
-    strokeWidth: 13,
+    strokeWidth: 12,
     fillColor: Cesium.Color.WHITE,
     strokeColor: new Cesium.Color(0.3,0.3,0.3,1)
   });
