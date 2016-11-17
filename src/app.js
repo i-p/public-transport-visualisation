@@ -3,6 +3,7 @@ import createStopEntity from "./cesium/createStopEntity"
 import createShapeEntity from "./cesium/createShapeEntity"
 import createVehicleEntity, { updateVehicles, initUpdateVehicles } from "./cesium/createVehicleEntity"
 import options from "./options"
+import labelPresenter from "./cesium/labelPresenter";
 
 function init(viewer, transitData, start, stop) {
   console.log(start.toString(), stop.toString());
@@ -53,9 +54,8 @@ function init(viewer, transitData, start, stop) {
 
   viewer.scene.preRender.addEventListener(() => updateVehicles(viewer));
 
-  // let updateLabelsPreRender = () => labelPresenter(viewer, transitData);
-  //
-  // viewer.scene.preRender.addEventListener(() => updateLabelsPreRender());
+  let updateLabelsPreRender = () => labelPresenter(viewer, transitData);
+  viewer.scene.preRender.addEventListener(() => updateLabelsPreRender());
 
   viewer.vehiclePrimitivesOrderedByStart = [];
   viewer.vehiclePrimitivesOrderedByEnd = [];
