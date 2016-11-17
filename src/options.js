@@ -38,7 +38,9 @@ export default {
     }
   },
 
+  //TODO calculate
   start: Cesium.JulianDate.fromDate(new Date(2016, 2, 1, 6, 0)),
+  //TODO calculate (last schedule time + last timetable entry + dwell time)
   stop: Cesium.JulianDate.fromDate(new Date(2016, 2, 1, 23, 0)),
 
   showFramesPerSecond: false
