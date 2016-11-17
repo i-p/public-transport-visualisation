@@ -165,6 +165,11 @@ export default function (viewer, transitData) {
       continue;
     }
 
+    if (cameraHeight > 3000 && l1.routeCount < 3) {
+      l1.next = HIDDEN;
+      continue;
+    }
+
     if (l1.next === VISIBLE) {
       if (intersectsWithVisibleLabel(l1, labels, 40, 0, i)) {
         l1.next = HIDDEN;
