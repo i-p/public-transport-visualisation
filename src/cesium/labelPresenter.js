@@ -65,21 +65,12 @@ function compare(l1, l2) {
 
 
 
-function findBillboardCollection(primitives) {
-  let length = primitives.length;
+function findBillboardCollection(viewer) {
+  for (let i = 0; i < viewer.dataSources.length; i++) {
+    var dataSource = viewer.dataSources.get(i);
 
-  for (let i = 0; i < length; i++) {
-    var primitive = primitives.get(i);
-
-    //TODO add additional check for BillboardCollection?
-    if (primitive instanceof Cesium.EntityCluster) {
-      // In order to render transparent labels correctly, we need to draw the labels after the stop points
-      // Otherwise we would get visual issues:
-      // https://github.com/AnalyticalGraphicsInc/cesium/issues/2130
-      if (primitives.get(length - 1) !== primitive) {
-        primitives.raiseToTop(primitive);
-      }
-      return primitive._billboardCollection;
+    if (dataSource.name == "stops") {
+      return dataSource._entityCluster._billboardCollection;
     }
   }
 }
@@ -112,7 +103,7 @@ const HIDDEN = -1;
 export default function (viewer, transitData) {
   frameNum++;
 
-  let labels = findBillboardCollection(viewer.scene.primitives);
+  let labels = findBillboardCollection(viewer);
 
   if (!labels) return;
 

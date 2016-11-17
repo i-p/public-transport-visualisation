@@ -83,31 +83,30 @@ function makeBus(positionProperty, trip) {
   };
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
 
-  entity._label = createVehicleLabel(trip);
+  //entity._label = createVehicleLabel(trip);
 
-  // vehicle labels with billboards - it looks better, but it doesn't work with the labelPresenter yet
+  if (billboardCache.has(trip.route.id)) {
+    entity._billboard = billboardCache.get(trip.route.id);
+  } else {
+    let canvas = Cesium.writeTextToCanvas(trip.route.id, {
+      // don't use custom font here, it doesn't have to be loaded yet
+      font: "32px 'Verdana' ",
+      stroke: true,
+      strokeWidth: 12,
+      fillColor: Cesium.Color.WHITE,
+      strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
+      backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
+    });
 
-  // if (billboardCache.has(trip.route.id)) {
-  //   entity._billboard = billboardCache.get(trip.route.id);
-  // } else {
-  //   let canvas = Cesium.writeTextToCanvas(trip.route.id, {
-  //     // don't use custom font here, it doesn't have to be loaded yet
-  //     font: "32px 'Verdana' ",
-  //     stroke: true,
-  //     strokeWidth: 12,
-  //     fillColor: Cesium.Color.WHITE,
-  //     strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
-  //     backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
-  //   });
-  //
-  //   let bg = new Cesium.BillboardGraphics({
-  //     scale: 0.4,
-  //     image: canvas,
-  //     pixelOffset : new Cesium.Cartesian2(0, -9)
-  //   });
-  //   billboardCache.set(trip.route.id, bg);
-  //   entity._billboard = bg;
-  // }
+    let bg = new Cesium.BillboardGraphics({
+      scale: 0.4,
+      image: canvas,
+      pixelOffset : new Cesium.Cartesian2(0, -9),
+      distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY
+    });
+    billboardCache.set(trip.route.id, bg);
+    entity._billboard = bg;
+  }
 
   return entity;
 }
@@ -300,7 +299,7 @@ export function updateVehiclesOld(viewer) {
 }
 
 
-export default function createVehicleEntity(viewer, trip, toDate) {
+export default function createVehicleEntity(viewer, vehicles, trip, toDate) {
   const positionProperty = new Cesium.CompositePositionProperty();
   const intervalCollection = new Cesium.TimeIntervalCollection();
 
@@ -330,7 +329,8 @@ export default function createVehicleEntity(viewer, trip, toDate) {
   entity.show = false;
   primitive.show = false;
 
-  viewer.entities.add(entity);
+  vehicles.entities.add(entity);
+  //viewer.entities.add(entity);
   viewer.scene.primitives.add(primitive);
 }
 

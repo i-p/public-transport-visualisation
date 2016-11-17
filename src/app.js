@@ -39,10 +39,15 @@ function init(viewer, transitData, start, stop) {
 
   var entityMap = new WeakMap();
 
+  var stops = new Cesium.CustomDataSource("stops");
+  stops.entities.suspendEvents();
+
   Array.from(transitData.stops.values()).slice(0).forEach(stop => {
-    const entity = entities.add(createStopEntity(stop));
+    const entity = stops.entities.add(createStopEntity(stop));
     entityMap.set(stop, entity);
   });
+
+  stops.entities.resumeEvents();
 
   transitData.shapes.forEach(shape => {
     const entity = entities.add(createShapeEntity(shape));
@@ -52,6 +57,8 @@ function init(viewer, transitData, start, stop) {
   //TODO find a better way
   transitData.entityMap = entityMap;
 
+  viewer.dataSources.add(stops);
+
   viewer.scene.preRender.addEventListener(() => updateVehicles(viewer));
 
   let updateLabelsPreRender = () => labelPresenter(viewer, transitData);
@@ -60,7 +67,13 @@ function init(viewer, transitData, start, stop) {
   viewer.vehiclePrimitivesOrderedByStart = [];
   viewer.vehiclePrimitivesOrderedByEnd = [];
 
-  transitData.trips.forEach(trip => createVehicleEntity(viewer, trip, toDate));
+  var vehicles = new Cesium.CustomDataSource("vehicles");
+  vehicles.entities.suspendEvents();
+
+  transitData.trips.forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate));
+
+  vehicles.entities.resumeEvents();
+  viewer.dataSources.add(vehicles);
 
   const tileRange = options.tileRange;
 
