@@ -45,6 +45,8 @@ function makeRunningTimeInterval(trip, toDate, current) {
 
 const ENTITY_VIEWFROM_PROPERTY =  new Cesium.ConstantProperty(new Cesium.Cartesian3(0, -300, 300));
 
+const billboardCache = new Map();
+
 //TODO rename to makeVehicle + fix transit.type
 function makeBus(positionProperty, trip) {
 
@@ -80,7 +82,32 @@ function makeBus(positionProperty, trip) {
     trip: trip
   };
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
+
   entity._label = createVehicleLabel(trip);
+
+  // vehicle labels with billboards - it looks better, but it doesn't work with the labelPresenter yet
+
+  // if (billboardCache.has(trip.route.id)) {
+  //   entity._billboard = billboardCache.get(trip.route.id);
+  // } else {
+  //   let canvas = Cesium.writeTextToCanvas(trip.route.id, {
+  //     // don't use custom font here, it doesn't have to be loaded yet
+  //     font: "32px 'Verdana' ",
+  //     stroke: true,
+  //     strokeWidth: 12,
+  //     fillColor: Cesium.Color.WHITE,
+  //     strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
+  //     backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
+  //   });
+  //
+  //   let bg = new Cesium.BillboardGraphics({
+  //     scale: 0.4,
+  //     image: canvas,
+  //     pixelOffset : new Cesium.Cartesian2(0, -9)
+  //   });
+  //   billboardCache.set(trip.route.id, bg);
+  //   entity._billboard = bg;
+  // }
 
   return entity;
 }
@@ -296,7 +323,7 @@ export default function createVehicleEntity(viewer, trip, toDate) {
   // TODO maybe Composite(Position)Property should accept TimeIntervalCollection in constructor
   positionProperty._composite._intervals = intervalCollection;
   positionProperty._composite._intervals.changedEvent.addEventListener(Cesium.CompositeProperty.prototype._intervalsChanged, positionProperty._composite);
-  
+
   const entity = makeBus(positionProperty, trip);
   const primitive = createVehiclePrimitive(entity, positionProperty, trip.route.getType());
 
