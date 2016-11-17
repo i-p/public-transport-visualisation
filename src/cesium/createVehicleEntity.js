@@ -91,6 +91,7 @@ const LABEL_OUTLINE_WIDTH_PROPERTY = new Cesium.ConstantProperty(2);
 const LABEL_VERTICAL_ORIGIN_PROPERTY = new Cesium.ConstantProperty(Cesium.VerticalOrigin.BOTTOM);
 const LABEL_PIXEL_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, -9));
 const LABEL_FILL_COLOR_PROPERTY = new Cesium.ConstantProperty(Cesium.Color.fromAlpha(Cesium.Color.WHITE, 1.0));
+const LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY = new Cesium.ConstantProperty(new Cesium.DistanceDisplayCondition(0, 3000));
 
 function createVehicleLabel(trip) {
   const label = new Cesium.LabelGraphics();
@@ -102,7 +103,7 @@ function createVehicleLabel(trip) {
   label._verticalOrigin = LABEL_VERTICAL_ORIGIN_PROPERTY;
   label._pixelOffset = LABEL_PIXEL_OFFSET_PROPERTY;
   label._fillColor = LABEL_FILL_COLOR_PROPERTY;
-
+  label._distanceDisplayCondition = LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY;
   return label;
 }
 
