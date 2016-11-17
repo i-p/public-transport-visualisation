@@ -8,7 +8,8 @@ export default function createStopEntity(stop) {
     stroke: true,
     strokeWidth: 12,
     fillColor: Cesium.Color.WHITE,
-    strokeColor: new Cesium.Color(0.3,0.3,0.3,1)
+    strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
+    backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
   });
 
   /*var d = document.createElement("div");
@@ -21,7 +22,7 @@ export default function createStopEntity(stop) {
     name: stop.name,
     position: stop.pos,
     billboard: {
-      scale: 0.5,
+      scale: 0.4,
       image: canvas,
       pixelOffset : new Cesium.Cartesian2(0, -14)
     },
