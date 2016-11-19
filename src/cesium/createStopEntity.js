@@ -24,7 +24,8 @@ export default function createStopEntity(stop) {
     billboard: {
       scale: 0.4,
       image: canvas,
-      pixelOffset : new Cesium.Cartesian2(0, -14)
+      pixelOffset : new Cesium.Cartesian2(0, -14),
+      eyeOffset: new Cesium.Cartesian3(0, 0, -5)
     },
     point: {
       pixelSize: 3,

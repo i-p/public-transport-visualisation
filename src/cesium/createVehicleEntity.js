@@ -102,7 +102,8 @@ function makeBus(positionProperty, trip) {
       scale: 0.4,
       image: canvas,
       pixelOffset : new Cesium.Cartesian2(0, -9),
-      distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY
+      distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,
+      eyeOffset: LABEL_EYE_OFFSET_PROPERTY
     });
     billboardCache.set(trip.route.id, bg);
     entity._billboard = bg;
@@ -118,6 +119,7 @@ const LABEL_VERTICAL_ORIGIN_PROPERTY = new Cesium.ConstantProperty(Cesium.Vertic
 const LABEL_PIXEL_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, -9));
 const LABEL_FILL_COLOR_PROPERTY = new Cesium.ConstantProperty(Cesium.Color.fromAlpha(Cesium.Color.WHITE, 1.0));
 const LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY = new Cesium.ConstantProperty(new Cesium.DistanceDisplayCondition(0, 3000));
+const LABEL_EYE_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian3(0, 0, -2));
 
 function createVehicleLabel(trip) {
   const label = new Cesium.LabelGraphics();
