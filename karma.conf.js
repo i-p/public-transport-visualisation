@@ -8,6 +8,7 @@ module.exports = function(config) {
     basePath: '',
     browsers: [ 'PhantomJS' ],
     files: [
+      'node_modules/cesium/Build/CesiumUnminified/Cesium.js',
       'test/loadtests.js'
     ],
     port: 8000,
