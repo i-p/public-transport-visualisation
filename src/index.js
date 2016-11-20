@@ -43,10 +43,12 @@ window.CESIUM_BASE_URL = "http://localhost:8000/Cesium/";
 Cesium.BingMapsApi.defaultKey = "AjCgBPI90qGuC4qk0K75MVgl6HCdbVkH_r7jJWtiPq8VBmcb74aGvUOekz-7hBuE";
 
 const tileRange = options.tileRange;
-const imageryProvider = new Cesium.BingMapsImageryProvider({
-  url: "//dev.virtualearth.net"
+// const imageryProvider = new Cesium.BingMapsImageryProvider({
+//   url: "//dev.virtualearth.net"
+// });
+const imageryProvider = new Cesium.MapboxImageryProvider({
+  mapId: 'mapbox.streets'
 });
-
 
 
 imageryProvider.readyPromise.then(() => {
@@ -156,6 +158,8 @@ dataPromise.then(([data, routeTimetables]) => {
 
   //TODO process warnings
   const [transitData] = loadCityData(data, routeTimetables);
+
+  window.transitData = transitData;
 
   app.init(viewer, transitData, options.start, options.stop);
 
