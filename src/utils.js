@@ -111,8 +111,24 @@ export class VehicleSimulator {
     return Cesium.Cartesian3.add(this.position, v, new Cesium.Cartesian3());
   }
 
+  orientationAtPoint(index) {
+    return this._calculateVehicleOrientation(index, this._points[index], this._alphas[index]);
+  }
+
+  positionAlongVehicleAtPoint(index, distance) {
+    const orientation = this.orientationAtPoint(index);
+    const position = this._points[index];
+    const v = Cesium.Cartesian3.multiplyByScalar(orientation, distance, new Cesium.Cartesian3());
+    return Cesium.Cartesian3.add(position, v, new Cesium.Cartesian3());
+  }
+
   _calculateVehicleOrientation(index, point, alpha) {
     const points = this._points;
+
+    // Treat last point as a point inside last segment
+    if (index == points.length - 1) {
+      index--;
+    }
 
     let direction = Cesium.Cartesian3.normalize(
       Cesium.Cartesian3.subtract(points[index + 1], points[index], new Cesium.Cartesian3()), new Cesium.Cartesian3());

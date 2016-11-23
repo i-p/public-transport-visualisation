@@ -6,6 +6,7 @@ const scale = 3;
 const [height] = [2.0];
 const polylineHeightAboveGround = 1;
 const zOffset = (height / 2) * scale + polylineHeightAboveGround;
+const L = 10;
 
 function makeDwellTimeInterval(trip, toDate, stopTime) {
   const interval = new Cesium.TimeInterval();
@@ -13,8 +14,12 @@ function makeDwellTimeInterval(trip, toDate, stopTime) {
   toDate(stopTime.arrivalTime, interval.start);
   toDate(stopTime.departureTime, interval.stop);
 
+  const pointIndex = stopTime.stopSequence - 1;
+  var position = trip.shape.simulator.positionAlongVehicleAtPoint(pointIndex, -L/2);
+  
   //TODO add getter (getBySequenceNumber)
-  interval.data = new Cesium.ConstantPositionProperty(trip.shape.points[stopTime.stopSequence - 1].pos);
+  interval.data = new Cesium.ConstantPositionProperty(position);
+  interval.data.pointIndex = pointIndex;
   interval.isStartIncluded = true;
   interval.isStopIncluded = false;
 
@@ -46,6 +51,7 @@ function makeRunningTimeInterval(trip, toDate, current) {
 const ENTITY_VIEWFROM_PROPERTY =  new Cesium.ConstantProperty(new Cesium.Cartesian3(0, -300, 300));
 
 const billboardCache = new Map();
+const rotationScratch = new Cesium.Matrix3();
 
 //TODO rename to makeVehicle + fix transit.type
 function makeBus(positionProperty, trip) {
@@ -77,13 +83,19 @@ function makeBus(positionProperty, trip) {
   entity._name = trip.route.id;
   entity._position = actualPosition;
   entity._orientation = new Cesium.CallbackProperty((time, result) => {
-
     var prop = positionProperty.intervals.findDataForIntervalContainingDate(time);
 
     if (prop instanceof KinematicPositionProperty) {
       // This depends on implementation detail of getModelMatrix
       // that position is calculated before orientation
       return prop.getOrientation(result);
+    } else if (prop instanceof Cesium.ConstantPositionProperty) {
+      var position = trip.shape.simulator._points[prop.pointIndex];
+      var orientation = trip.shape.simulator.orientationAtPoint(prop.pointIndex);
+
+      //TODO move to VehicleSimulator
+      Cesium.Transforms.rotationMatrixFromPositionVelocity(position, orientation, Cesium.Ellipsoid.WGS84, rotationScratch);
+      return Cesium.Quaternion.fromRotationMatrix(rotationScratch, result);
     }
     return undefined;
 
