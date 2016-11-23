@@ -5,6 +5,7 @@ import {TransitFeed} from "../models/TransitFeed";
 import {Stop} from "../models/Stop";
 import {Shape} from "../models/Shape";
 import {Route} from "../models/Route";
+import {VehicleSimulator} from "../utils";
 
 function createMissingWay(id) {
   return {id, type: "way", nodes:[], missing: true}
@@ -246,6 +247,19 @@ export default class OsmLoader {
         }
       });
     });
+
+    path._points = path.points.map(p => p.pos);
+    path._distances = path.points.map(p => p.distance);
+
+    path.simulator =
+      new VehicleSimulator({
+        points: path._points,
+        distances: path._distances,
+        stepCount: 100,
+        wheelbase: 10,
+        storeResultPoints: path.id == 131484
+      });
+
     this.transitData.addShape(path);
   }
   addRoute(osmRelation) {

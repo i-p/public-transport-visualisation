@@ -196,16 +196,36 @@ KinematicPositionProperty.prototype.getValueInReferenceFrame = function(time, re
     }
   }
 
-  let pFrom = this.shape.points[toIndex - 1];
+  let fromIndex = toIndex - 1;
+
+  let pFrom = this.shape.points[fromIndex];
   let pTo = this.shape.points[toIndex];
 
   let t = ((distance + this.firstPoint.distance) - pFrom.distance) / (pTo.distance - pFrom.distance);
 
   if (t < 0) throw new Error("Assertion error");
 
-  let value = Cesium.Cartesian3.lerp(pFrom.pos, pTo.pos, t, cartesian3Scratch);
+  //TODO add to options
+  const L = 10;
+  this.shape.simulator.interpolate(fromIndex, t);
+  var position = this.shape.simulator.positionAlongVehicle(- L / 2);
 
-  return Cesium.PositionProperty.convertToReferenceFrame(time, value, this._referenceFrame, referenceFrame, result);
+  return Cesium.PositionProperty.convertToReferenceFrame(time, position, this._referenceFrame, referenceFrame, result);
+
+
+  // Simple interpolation
+  //let value = Cesium.Cartesian3.lerp(pFrom.pos, pTo.pos, t, cartesian3Scratch);
+  //return Cesium.PositionProperty.convertToReferenceFrame(time, value, this._referenceFrame, referenceFrame, result);
+};
+
+KinematicPositionProperty.prototype.getOrientation = function(result) {
+
+  var rotationScratch = new Cesium.Matrix3();
+
+  Cesium.Transforms.rotationMatrixFromPositionVelocity(
+    this.shape.simulator.position,
+    this.shape.simulator.orientation, Cesium.Ellipsoid.WGS84, rotationScratch);
+  return Cesium.Quaternion.fromRotationMatrix(rotationScratch, result);
 };
 
 /**

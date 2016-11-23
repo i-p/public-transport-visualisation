@@ -76,7 +76,18 @@ function makeBus(positionProperty, trip) {
   entity._availability = availability;
   entity._name = trip.route.id;
   entity._position = actualPosition;
-  entity._orientation = orientationProperty;
+  entity._orientation = new Cesium.CallbackProperty((time, result) => {
+
+    var prop = positionProperty.intervals.findDataForIntervalContainingDate(time);
+
+    if (prop instanceof KinematicPositionProperty) {
+      // This depends on implementation detail of getModelMatrix
+      // that position is calculated before orientation
+      return prop.getOrientation(result);
+    }
+    return undefined;
+
+  }, false);
   entity.transit = {
     type: "bus",
     trip: trip
