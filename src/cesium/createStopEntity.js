@@ -1,5 +1,8 @@
 import Cesium from "cesium"
 
+const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
+const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
+
 export default function createStopEntity(stop) {
 
   let canvas = Cesium.writeTextToCanvas(" " + stop.name + " ", {
@@ -24,8 +27,8 @@ export default function createStopEntity(stop) {
     billboard: {
       scale: 0.4,
       image: canvas,
-      pixelOffset : new Cesium.Cartesian2(0, -14),
-      eyeOffset: new Cesium.Cartesian3(0, 0, -5)
+      pixelOffset : STOP_LABEL_PIXEL_OFFSET,
+      eyeOffset: STOP_LABEL_EYE_OFFSET
     },
     point: {
       pixelSize: 3,

@@ -8,6 +8,7 @@ var scratchPixelOffset = new Cesium.Cartesian2(0.0, 0.0);
 Cesium.Billboard.prototype.computeScreenSpacePositionSafe = function(scene, result) {
   var billboardCollection = this._billboardCollection;
   if (!Cesium.defined(result)) {
+    // eslint-disable-next-line limit-cesium-allocations
     result = new Cesium.Cartesian2();
   }
 

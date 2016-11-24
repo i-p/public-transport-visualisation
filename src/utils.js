@@ -56,17 +56,20 @@ export function formatTimeAsHMS(time) {
   return h + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 }
 
+const curScratch = new Cesium.Cartesian3();
+const prevScratch = new Cesium.Cartesian3();
+const crossScratch = new Cesium.Cartesian3();
+
 export function angleChangeAtTheEndOfSegment(index, points) {
   if (index >= points.length - 2) return 0;
-
-  //TODO create scratch variables
-  let cur = Cesium.Cartesian3.subtract(points[index + 1], points[index], new Cesium.Cartesian3());
-  let prev = Cesium.Cartesian3.subtract(points[index + 2], points[index + 1], new Cesium.Cartesian3());
+  
+  let cur = Cesium.Cartesian3.subtract(points[index + 1], points[index], curScratch);
+  let prev = Cesium.Cartesian3.subtract(points[index + 2], points[index + 1], prevScratch);
   let angleChange = Cesium.Cartesian3.angleBetween(cur, prev);
 
   if (Math.abs(angleChange) > 1e-6) {
     // we need to return oriented angle (angleBetween returns positive angle)
-    if (Cesium.Cartesian3.dot(points[index], Cesium.Cartesian3.cross(cur, prev, new Cesium.Cartesian3())) > 0) {
+    if (Cesium.Cartesian3.dot(points[index], Cesium.Cartesian3.cross(cur, prev, crossScratch)) > 0) {
       angleChange *= -1;
     }
   }
@@ -76,6 +79,10 @@ export function angleChangeAtTheEndOfSegment(index, points) {
 function step(alpha, L, ds) {
   return alpha + (- Math.sin(alpha) / L) * ds;
 }
+
+const cartesian3Scratch = new Cesium.Cartesian3();
+const quaternionScratch = new Cesium.Quaternion();
+const matrix3Scratch = new Cesium.Matrix3();
 
 //TODO find a better name for alpha
 export class VehicleSimulator {
@@ -92,8 +99,10 @@ export class VehicleSimulator {
 
     this._calculateAlphas();
 
-    this.position = null;
-    this.orientation = null;
+    // eslint-disable-next-line limit-cesium-allocations
+    this.position = new Cesium.Cartesian3();
+    // eslint-disable-next-line limit-cesium-allocations
+    this.orientation = new Cesium.Cartesian3();
   }
 
   interpolate(index, t) {
@@ -102,27 +111,27 @@ export class VehicleSimulator {
 
     const alpha = this._interpolateAlpha(index, t);
 
-    this.position =  Cesium.Cartesian3.lerp(pFrom, pTo, t, new Cesium.Cartesian3());
-    this.orientation = this._calculateVehicleOrientation(index, this.position, alpha);
+    Cesium.Cartesian3.lerp(pFrom, pTo, t, this.position);
+    this._calculateVehicleOrientation(index, this.position, alpha, this.orientation);
   }
 
-  positionAlongVehicle(distance) {
-    const v = Cesium.Cartesian3.multiplyByScalar(this.orientation, distance, new Cesium.Cartesian3());
-    return Cesium.Cartesian3.add(this.position, v, new Cesium.Cartesian3());
+  positionAlongVehicle(distance, result) {
+    Cesium.Cartesian3.multiplyByScalar(this.orientation, distance, result);
+    return Cesium.Cartesian3.add(this.position, result, result);
   }
 
-  orientationAtPoint(index) {
-    return this._calculateVehicleOrientation(index, this._points[index], this._alphas[index]);
+  orientationAtPoint(index, result) {
+    return this._calculateVehicleOrientation(index, this._points[index], this._alphas[index], result);
   }
 
-  positionAlongVehicleAtPoint(index, distance) {
-    const orientation = this.orientationAtPoint(index);
+  positionAlongVehicleAtPoint(index, distance, result) {
+    this.orientationAtPoint(index, result);
     const position = this._points[index];
-    const v = Cesium.Cartesian3.multiplyByScalar(orientation, distance, new Cesium.Cartesian3());
-    return Cesium.Cartesian3.add(position, v, new Cesium.Cartesian3());
+    Cesium.Cartesian3.multiplyByScalar(result, distance, result);
+    return Cesium.Cartesian3.add(position, result, result);
   }
 
-  _calculateVehicleOrientation(index, point, alpha) {
+  _calculateVehicleOrientation(index, point, alpha, result) {
     const points = this._points;
 
     // Treat last point as a point inside last segment
@@ -130,17 +139,17 @@ export class VehicleSimulator {
       index--;
     }
 
-    let direction = Cesium.Cartesian3.normalize(
-      Cesium.Cartesian3.subtract(points[index + 1], points[index], new Cesium.Cartesian3()), new Cesium.Cartesian3());
+    let direction = Cesium.Cartesian3.subtract(points[index + 1], points[index], result);
+    Cesium.Cartesian3.normalize(direction, direction);
 
-    var quaternion = Cesium.Quaternion.fromAxisAngle(
-      Cesium.Cartesian3.normalize(point, new Cesium.Cartesian3()), alpha, new Cesium.Quaternion());
-    var rotation = Cesium.Matrix3.fromQuaternion(quaternion, new Cesium.Matrix3());
+    let axis = Cesium.Cartesian3.normalize(point, cartesian3Scratch);
 
-    var orientation = Cesium.Matrix3.multiplyByVector(rotation, direction, new Cesium.Cartesian3());
-    Cesium.Cartesian3.normalize(orientation, orientation);
+    var quaternion = Cesium.Quaternion.fromAxisAngle(axis, alpha, quaternionScratch);
+    var rotation = Cesium.Matrix3.fromQuaternion(quaternion, matrix3Scratch);
 
-    return orientation;
+    Cesium.Matrix3.multiplyByVector(rotation, direction, result);
+    Cesium.Cartesian3.normalize(result, result);
+    return result;
   }
 
   _interpolateAlpha(index, t) {
@@ -180,14 +189,16 @@ export class VehicleSimulator {
         alpha = step(alpha, this._wheelbase, ds);
 
         if (this._storeResultPoints) {
+          // eslint-disable-next-line limit-cesium-allocations
+          const result = new Cesium.Cartesian3();
+
           //TODO duplicate code
-          const point = Cesium.Cartesian3.lerp(points[i], points[i + 1], j/stepCount, new Cesium.Cartesian3());
-          const orientation = this._calculateVehicleOrientation(i, point, alpha);
+          const point = Cesium.Cartesian3.lerp(points[i], points[i + 1], j/stepCount, cartesian3Scratch);
+          this._calculateVehicleOrientation(i, point, alpha, result);
+          Cesium.Cartesian3.multiplyByScalar(result, this._wheelbase, result);
+          Cesium.Cartesian3.add(point, result, result);
 
-          const v = Cesium.Cartesian3.multiplyByScalar(orientation, this._wheelbase, new Cesium.Cartesian3());
-          const resultPoint = Cesium.Cartesian3.add(point, v, new Cesium.Cartesian3());
-
-          this._resultPoints.push(resultPoint);
+          this._resultPoints.push(result);
         }
 
         if (j == stepCount) {

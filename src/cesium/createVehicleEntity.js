@@ -15,8 +15,10 @@ function makeDwellTimeInterval(trip, toDate, stopTime) {
   toDate(stopTime.departureTime, interval.stop);
 
   const pointIndex = stopTime.stopSequence - 1;
-  var position = trip.shape.simulator.positionAlongVehicleAtPoint(pointIndex, -L/2);
-  
+
+  // eslint-disable-next-line limit-cesium-allocations
+  var position = trip.shape.simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, new Cesium.Cartesian3());
+
   //TODO add getter (getBySequenceNumber)
   interval.data = new Cesium.ConstantPositionProperty(position);
   interval.data.pointIndex = pointIndex;
@@ -52,6 +54,7 @@ const ENTITY_VIEWFROM_PROPERTY =  new Cesium.ConstantProperty(new Cesium.Cartesi
 
 const billboardCache = new Map();
 const rotationScratch = new Cesium.Matrix3();
+const orientationScratch = new Cesium.Cartesian3();
 
 //TODO rename to makeVehicle + fix transit.type
 function makeBus(positionProperty, trip) {
@@ -91,7 +94,7 @@ function makeBus(positionProperty, trip) {
       return prop.getOrientation(result);
     } else if (prop instanceof Cesium.ConstantPositionProperty) {
       var position = trip.shape.simulator._points[prop.pointIndex];
-      var orientation = trip.shape.simulator.orientationAtPoint(prop.pointIndex);
+      var orientation = trip.shape.simulator.orientationAtPoint(prop.pointIndex, orientationScratch);
 
       //TODO move to VehicleSimulator
       Cesium.Transforms.rotationMatrixFromPositionVelocity(position, orientation, Cesium.Ellipsoid.WGS84, rotationScratch);
@@ -124,7 +127,7 @@ function makeBus(positionProperty, trip) {
     let bg = new Cesium.BillboardGraphics({
       scale: 0.4,
       image: canvas,
-      pixelOffset : new Cesium.Cartesian2(0, -9),
+      pixelOffset : LABEL_PIXEL_OFFSET_PROPERTY,
       distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,
       eyeOffset: LABEL_EYE_OFFSET_PROPERTY
     });

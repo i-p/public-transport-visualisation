@@ -18,6 +18,7 @@ function solveQuadratic(a,b,c, results) {
 
 const resultsScratch = [null, null];
 const cartesian3Scratch = new Cesium.Cartesian3();
+const matrix3Scratch = new Cesium.Matrix3();
 
 function KinematicPositionProperty(startTime, endTime, shape, fromStopTime, toStopTime, referenceFrame) {
   if (shape.length < 2) throw new Error("Minimal length of positions array is 2.");
@@ -208,7 +209,7 @@ KinematicPositionProperty.prototype.getValueInReferenceFrame = function(time, re
   //TODO add to options
   const L = 10;
   this.shape.simulator.interpolate(fromIndex, t);
-  var position = this.shape.simulator.positionAlongVehicle(- L / 2);
+  var position = this.shape.simulator.positionAlongVehicle(- L / 2, cartesian3Scratch);
 
   return Cesium.PositionProperty.convertToReferenceFrame(time, position, this._referenceFrame, referenceFrame, result);
 
@@ -218,14 +219,13 @@ KinematicPositionProperty.prototype.getValueInReferenceFrame = function(time, re
   //return Cesium.PositionProperty.convertToReferenceFrame(time, value, this._referenceFrame, referenceFrame, result);
 };
 
+
+
 KinematicPositionProperty.prototype.getOrientation = function(result) {
-
-  var rotationScratch = new Cesium.Matrix3();
-
   Cesium.Transforms.rotationMatrixFromPositionVelocity(
     this.shape.simulator.position,
-    this.shape.simulator.orientation, Cesium.Ellipsoid.WGS84, rotationScratch);
-  return Cesium.Quaternion.fromRotationMatrix(rotationScratch, result);
+    this.shape.simulator.orientation, Cesium.Ellipsoid.WGS84, matrix3Scratch);
+  return Cesium.Quaternion.fromRotationMatrix(matrix3Scratch, result);
 };
 
 /**
