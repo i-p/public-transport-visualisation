@@ -1,5 +1,6 @@
 import Cesium from "cesium"
 import "./computeScreenSpacePositionSafe"
+import {LabelIntersections} from "./LabelIntersections";
 
 function calculateLabelRect(billboard, viewer) {
 
@@ -11,16 +12,6 @@ function calculateLabelRect(billboard, viewer) {
 
   //TODO optimize - if screenSpacePosition is undefined, than Cartesian2 is created unecessarily
   billboard.screenSpacePosition = billboard.computeScreenSpacePositionSafe(viewer.scene, billboard.screenSpacePosition);
-}
-
-function getSeparationDistance(l1, l2) {
-  let dx = Math.abs(l1.screenSpacePosition.x - l2.screenSpacePosition.x);
-  let dy = Math.abs(l1.screenSpacePosition.y - l2.screenSpacePosition.y);
-
-  let sx = dx - (l1.width * l1.scale  + l2.width * l2.scale)/2;
-  let sy = dy - (l1.height * l1.scale + l2.height * l2.scale)/2;
-
-  return Math.max(sx, sy);
 }
 
 function compare(l1, l2) {
@@ -80,6 +71,8 @@ const HIDDEN = -1;
 
 let labelsInitialized = false;
 
+const labelIntersections = new LabelIntersections({ columns: 10, rows: 10 });
+
 export default function (viewer, transitData) {
   frameNum++;
 
@@ -116,7 +109,7 @@ export default function (viewer, transitData) {
   }
 
   recalculateLabelsPositions(labels, viewer);
-  
+
   const cameraHeight = viewer.scene.camera.positionCartographic.height;
 
   labels.get(0).next = VISIBLE;
@@ -127,6 +120,8 @@ export default function (viewer, transitData) {
   if (cameraHeight > maxCameraHeight && !labels.get(0).id.showAlways) {
     labels.get(0).next = HIDDEN;
   }
+
+  labelIntersections.prepare(labels, viewer.scene.canvas);
 
   for (let i=1; i<len; i++) {
     let l1 = labels.get(i);
@@ -149,13 +144,13 @@ export default function (viewer, transitData) {
     }
 
     if (l1.next === VISIBLE) {
-      if (intersectsWithVisibleLabel(l1, labels, 40, 0, i)) {
+      if (labelIntersections.intersectsWithVisibleLabel(l1, 40)) {
         l1.next = HIDDEN;
         l1.lastChange = frameNum;
         //console.log('H', l1.id.name, l1.id.id);
       }
     } else {
-      if (!intersectsWithVisibleLabel(l1, labels, 50, 0, i)) {
+      if (!labelIntersections.intersectsWithVisibleLabel(l1, 50)) {
         l1.next = VISIBLE;
         l1.lastChange = frameNum;
         //console.log('V', l1.id.name, l1.id.id);
@@ -164,18 +159,5 @@ export default function (viewer, transitData) {
   }
 }
 
-function intersectsWithVisibleLabel(labelToTest, labels, minimalSeparation, fromIndex, toIndex) {
-  for (let j=fromIndex; j<toIndex; j++) {
-    let otherLabel = labels.get(j);
 
-    if (!otherLabel.screenSpacePosition || otherLabel.next == HIDDEN) continue;
-
-    let dist = getSeparationDistance(labelToTest, otherLabel);
-
-    if (dist <= minimalSeparation) {
-      return true;
-    }
-  }
-  return false;
-}
 
