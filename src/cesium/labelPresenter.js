@@ -17,7 +17,6 @@ function getSeparationDistance(l1, l2) {
 }
 
 function compare(l1, l2) {
-
   if (l1.id.showAlways && !l2.id.showAlways) {
     return -1;
   }
@@ -25,34 +24,13 @@ function compare(l1, l2) {
     return 1;
   }
 
-  let l1Visible = l1.next === VISIBLE;
-  let l2Visible = l2.next === VISIBLE;
-
-  let timeDifference = 0;
-
-  if (l1Visible && l2Visible) {
-    timeDifference = l2.lastChange - l1.lastChange;
-  } else if (!l1Visible && !l2Visible) {
-    timeDifference = l1.lastChange - l2.lastChange;
-  } else if (l1Visible) {
-    timeDifference = -1;
-  } else {
-    timeDifference = 1;
-  }
-
   let l1RouteCount = Math.floor(l1.routeCount / 3);
   let l2RouteCount = Math.floor(l2.routeCount / 3);
 
-  if (l1Visible === l2Visible) {
-    if (l2RouteCount > l1RouteCount) {
-      return 1;
-    } else if (l2RouteCount < l1RouteCount) {
-      return -1;
-    }
-  }
-
-  if (timeDifference != 0) {
-    return timeDifference;
+  if (l2RouteCount > l1RouteCount) {
+    return 1;
+  } else if (l2RouteCount < l1RouteCount) {
+    return -1;
   }
 
   if (l1.id.id > l2.id.id) {
@@ -60,7 +38,6 @@ function compare(l1, l2) {
   } else {
     return -1;
   }
-
 }
 
 
@@ -81,24 +58,20 @@ function clamp(x, min, max) {
 
 let frameNum = 0;
 
-function recalculateNextBatchOfLabels(labels, viewer) {
+function recalculateLabelsPositions(labels, viewer) {
   const len = labels.length;
-  const batchSize = Math.ceil(len / 10);
-  const batchIndex = frameNum % 10;
-  const isFinalBatch = (batchIndex == 9);
-  const start = batchSize * batchIndex;
-  const end = batchSize * (batchIndex + 1);
 
-  for (let i = start; i < end; i++) {
+  for (let i = 0; i < len; i++) {
     var l = labels.get(i);
     if (l)
       calculateLabelRect(l, viewer);
   }
-  return isFinalBatch;
 }
 
 const VISIBLE = 1;
 const HIDDEN = -1;
+
+let labelsInitialized = false;
 
 export default function (viewer, transitData) {
   frameNum++;
@@ -107,30 +80,37 @@ export default function (viewer, transitData) {
 
   if (!labels) return;
 
-
   var len = labels.length;
+
+  if (!labelsInitialized) {
+    for (let i = 0; i < len; i++) {
+      var l = labels.get(i);
+
+      if (typeof l.routeCount === "undefined" && l.id.transit) {
+        l.routeCount = transitData.getRouteSetForStop(l.id.transit.stop).size;
+        l.alpha = 0;
+        l.next = HIDDEN;
+        l.lastChange = 0;
+      }
+    }
+
+    labels._billboards.sort(compare);
+
+    labelsInitialized = true;
+  }
+
   for (let i = 0; i < len; i++) {
     var l = labels.get(i);
 
-    if (typeof l.routeCount === "undefined" && l.id.transit) {
-      l.routeCount = transitData.getRouteSetForStop(l.id.transit.stop).size;
-      l.alpha = 0;
-      l.next = HIDDEN;
-      l.lastChange = 0;
-    }
     l.alpha = clamp(l.alpha + ((l.next == VISIBLE) ? 0.1 : -0.1), 0.0, 1.0);
 
     l.show = l.alpha > 0;
     l.color = Cesium.Color.fromAlpha(l.color, l.alpha);
   }
 
-  let wasFinalBatch = recalculateNextBatchOfLabels(labels, viewer);
-  if (!wasFinalBatch)
-    return;
-
+  recalculateLabelsPositions(labels, viewer);
+  
   const cameraHeight = viewer.scene.camera.positionCartographic.height;
-
-  labels._billboards.sort(compare);
 
   labels.get(0).next = VISIBLE;
 
