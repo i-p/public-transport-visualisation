@@ -4,6 +4,7 @@ import createShapeEntity from "./cesium/createShapeEntity"
 import createVehicleEntity, { updateVehicles, initUpdateVehicles } from "./cesium/createVehicleEntity"
 import options from "./options"
 import labelPresenter from "./cesium/labelPresenter";
+import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 
 function init(viewer, transitData, start, stop) {
   console.log(start.toString(), stop.toString());
@@ -74,6 +75,10 @@ function init(viewer, transitData, start, stop) {
 
   vehicles.entities.resumeEvents();
   viewer.dataSources.add(vehicles);
+
+  // This must come after viewer.dataSources.add(stops), otherwise the _visualizers field wouldn't be initialized
+  const index = stops._visualizers.findIndex(v => v instanceof Cesium.PointVisualizer);
+  stops._visualizers[index] = new UpdateOnceVisualizer(stops._visualizers[index]);
 
   const tileRange = options.tileRange;
 
