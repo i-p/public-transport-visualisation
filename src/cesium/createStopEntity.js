@@ -3,13 +3,14 @@ import Cesium from "cesium"
 const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
 const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
 
+//TODO cache by stop name
 export default function createStopEntity(stop) {
 
   let canvas = Cesium.writeTextToCanvas(" " + stop.name + " ", {
     // don't use custom font here, it doesn't have to be loaded yet
-    font: "32px 'Verdana' ",
+    font: "24px 'Verdana' ",
     stroke: true,
-    strokeWidth: 12,
+    strokeWidth: 10,
     fillColor: Cesium.Color.WHITE,
     strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
     backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
@@ -25,7 +26,7 @@ export default function createStopEntity(stop) {
     name: stop.name,
     position: stop.pos,
     billboard: {
-      scale: 0.4,
+      scale: 0.5,
       image: canvas,
       pixelOffset : STOP_LABEL_PIXEL_OFFSET,
       eyeOffset: STOP_LABEL_EYE_OFFSET
