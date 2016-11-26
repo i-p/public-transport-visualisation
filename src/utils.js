@@ -98,26 +98,21 @@ export class VehicleSimulator {
     this._wheelbase = wheelbase;
 
     this._calculateAlphas();
-
-    // eslint-disable-next-line limit-cesium-allocations
-    this.position = new Cesium.Cartesian3();
-    // eslint-disable-next-line limit-cesium-allocations
-    this.orientation = new Cesium.Cartesian3();
   }
 
-  interpolate(index, t) {
+  interpolate(index, t, positionResult, orientationResult) {
     let pFrom = this._points[index];
     let pTo = this._points[index + 1];
 
     const alpha = this._interpolateAlpha(index, t);
 
-    Cesium.Cartesian3.lerp(pFrom, pTo, t, this.position);
-    this._calculateVehicleOrientation(index, this.position, alpha, this.orientation);
+    Cesium.Cartesian3.lerp(pFrom, pTo, t, positionResult);
+    this._calculateVehicleOrientation(index, positionResult, alpha, orientationResult);
   }
 
-  positionAlongVehicle(distance, result) {
-    Cesium.Cartesian3.multiplyByScalar(this.orientation, distance, result);
-    return Cesium.Cartesian3.add(this.position, result, result);
+  positionAlongVehicle(position, orientation, distance, result) {
+    Cesium.Cartesian3.multiplyByScalar(orientation, distance, cartesian3Scratch);
+    return Cesium.Cartesian3.add(position, cartesian3Scratch, result);
   }
 
   orientationAtPoint(index, result) {
@@ -208,8 +203,6 @@ export class VehicleSimulator {
 
       alphas[i + 1] = alpha;
     }
-    this.point = null;
-    this.orientation = null;
   }
 }
 
