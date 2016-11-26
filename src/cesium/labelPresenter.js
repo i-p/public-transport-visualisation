@@ -2,6 +2,13 @@ import Cesium from "cesium"
 import "./computeScreenSpacePositionSafe"
 
 function calculateLabelRect(billboard, viewer) {
+
+  var visibility = viewer.scene.frameState.cullingVolume.computeVisibility(new Cesium.BoundingSphere(billboard.position, 20));
+
+  if (visibility == Cesium.Intersect.OUTSIDE)
+    return;
+
+
   //TODO optimize - if screenSpacePosition is undefined, than Cartesian2 is created unecessarily
   billboard.screenSpacePosition = billboard.computeScreenSpacePositionSafe(viewer.scene, billboard.screenSpacePosition);
 }
