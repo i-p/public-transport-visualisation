@@ -1,65 +1,19 @@
 import Cesium from "cesium"
-import createOrientationProperty from "./createOrientationProperty"
-import KinematicPositionProperty from "./KinematicPositionProperty"
+import {VehicleSpeedProfile} from "../models/VehicleSpeedProfile";
+import {VehicleState} from "../models/VehicleState";
+import {updateVehicleState} from "./updateVehicleState";
 
 const scale = 3;
 const [height] = [2.0];
 const polylineHeightAboveGround = 1;
 const zOffset = (height / 2) * scale + polylineHeightAboveGround;
-const L = 10;
-
-function makeDwellTimeInterval(trip, toDate, stopTime) {
-  const interval = new Cesium.TimeInterval();
-
-  toDate(stopTime.arrivalTime, interval.start);
-  toDate(stopTime.departureTime, interval.stop);
-
-  const pointIndex = stopTime.stopSequence - 1;
-
-  // eslint-disable-next-line limit-cesium-allocations
-  var position = trip.shape.simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, new Cesium.Cartesian3());
-
-  //TODO add getter (getBySequenceNumber)
-  interval.data = new Cesium.ConstantPositionProperty(position);
-  interval.data.pointIndex = pointIndex;
-  interval.isStartIncluded = true;
-  interval.isStopIncluded = false;
-
-  return interval;
-}
-
-// TODO add "previous" parameter
-function makeRunningTimeInterval(trip, toDate, current) {
-  const previous = trip.stopTimes[trip.stopTimes.indexOf(current) - 1];
-
-  const interval = new Cesium.TimeInterval();
-
-  toDate(previous.departureTime, interval.start);
-  toDate(current.arrivalTime, interval.stop);
-
-  interval.data = new KinematicPositionProperty(
-    interval.start,
-    interval.stop,
-    trip.shape,
-    previous,
-    current);
-
-  interval.isStartIncluded = true;
-  interval.isStopIncluded = false;
-
-  return interval;
-}
 
 const ENTITY_VIEWFROM_PROPERTY =  new Cesium.ConstantProperty(new Cesium.Cartesian3(0, -300, 300));
 
 const billboardCache = new Map();
-const rotationScratch = new Cesium.Matrix3();
-const orientationScratch = new Cesium.Cartesian3();
 
 //TODO rename to makeVehicle + fix transit.type
 function makeBus(positionProperty, trip) {
-
-  const orientationProperty = createOrientationProperty(positionProperty);
 
   const propertyWithOffset = (zOffset, property) => new Cesium.CallbackProperty((time, result) => {
     let value = property.getValue(time, result);
@@ -77,8 +31,8 @@ function makeBus(positionProperty, trip) {
   const availability = new Cesium.TimeIntervalCollection();
 
   const interval = new Cesium.TimeInterval();
-  Cesium.JulianDate.clone(positionProperty.intervals.start, interval.start);
-  Cesium.JulianDate.clone(positionProperty.intervals.stop, interval.stop);
+  Cesium.JulianDate.clone(trip.speedProfile._startTime, interval.start);
+  Cesium.JulianDate.clone(trip.speedProfile._endTime, interval.stop);
 
   availability.addInterval(interval);
 
@@ -86,22 +40,8 @@ function makeBus(positionProperty, trip) {
   entity._name = trip.route.id;
   entity._position = actualPosition;
   entity._orientation = new Cesium.CallbackProperty((time, result) => {
-    var prop = positionProperty.intervals.findDataForIntervalContainingDate(time);
-
-    if (prop instanceof KinematicPositionProperty) {
-      // This depends on implementation detail of getModelMatrix
-      // that position is calculated before orientation
-      return prop.getOrientation(result);
-    } else if (prop instanceof Cesium.ConstantPositionProperty) {
-      var position = trip.shape.simulator._points[prop.pointIndex];
-      var orientation = trip.shape.simulator.orientationAtPoint(prop.pointIndex, orientationScratch);
-
-      //TODO move to VehicleSimulator
-      Cesium.Transforms.rotationMatrixFromPositionVelocity(position, orientation, Cesium.Ellipsoid.WGS84, rotationScratch);
-      return Cesium.Quaternion.fromRotationMatrix(rotationScratch, result);
-    }
-    return undefined;
-
+    //TODO check time
+    return trip.vehicleState.getQuaternion(result);
   }, false);
   entity.transit = {
     type: "bus",
@@ -163,8 +103,8 @@ function createVehicleLabel(trip) {
 
 const modelMatrixScratch = new Cesium.Matrix3();
 
-function createVehiclePrimitive(vehicleEntity, positionProperty, type) {
-  vehicleEntity._getModelMatrix(positionProperty.intervals.start, modelMatrixScratch);
+function createVehiclePrimitive(vehicleEntity, trip, type) {
+  vehicleEntity._getModelMatrix(trip.speedProfile._startTime, modelMatrixScratch);
 
   //TODO move model path to options
   return Cesium.Model.fromGltf({
@@ -307,52 +247,26 @@ export function updateVehicles(viewer) {
 
 let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
-
-
-export function updateVehiclesOld(viewer) {
-  const time = viewer.clock.currentTime;
-
-  for (let i=0; i<viewer.scene.primitives.length; i++) {
-    const p = viewer.scene.primitives.get(i);
-    const entity = p.id;
-
-    if (entity && entity.transit && entity.transit.trip) {
-      p.show = entity.isAvailable(time);
-
-      if (p.show) {
-        entity._getModelMatrix(time, p.modelMatrix);
-      }
-    }
-  }
-}
-
-
 export default function createVehicleEntity(viewer, vehicles, trip, toDate) {
-  const positionProperty = new Cesium.CompositePositionProperty();
-  const intervalCollection = new Cesium.TimeIntervalCollection();
+  // TODO this should be calculated somewhere else
+  trip.speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate);
+  trip.vehicleState = new VehicleState();
 
-  const length = trip.stopTimes.length;
+  const positionProperty = new Cesium.CallbackProperty((time, result) => {
+    if (Cesium.JulianDate.lessThan(time, trip.speedProfile._startTime)) return undefined;
+    if (Cesium.JulianDate.greaterThan(time, trip.speedProfile._endTime)) return undefined;
 
-  intervalCollection._intervals = new Array((2 * length) - 1);
-
-  // Directly push to the intervals array, since we know that the intervals are not overlapping.
-  // Common case in addInterval doesn't handle our intervals, because endpoints have the same value (but one is exclusive and the other is inclusive)
-  for (let i=0; i<length; i++) {
-    const stopTime = trip.stopTimes[i];
-
-    if (i > 0) {
-      intervalCollection._intervals[(i * 2) - 1] = makeRunningTimeInterval(trip, toDate, stopTime);
-    }
-    intervalCollection._intervals[i * 2] = makeDwellTimeInterval(trip, toDate, stopTime);
-  }
-
-  // this is much more effective, because no events are raised when adding intervals (TimeIntervalCollection has no suspend/resume events)
-  // TODO maybe Composite(Position)Property should accept TimeIntervalCollection in constructor
-  positionProperty._composite._intervals = intervalCollection;
-  positionProperty._composite._intervals.changedEvent.addEventListener(Cesium.CompositeProperty.prototype._intervalsChanged, positionProperty._composite);
+    //TODO check time
+    //TODO VehicleState.set(position, orientation, time)
+    return Cesium.Cartesian3.clone(trip.vehicleState.position, result);
+  }, false);
 
   const entity = makeBus(positionProperty, trip);
-  const primitive = createVehiclePrimitive(entity, positionProperty, trip.route.getType());
+
+  // Vehicle primitive needs correct initial values
+  updateVehicleState(entity, trip.speedProfile._startTime);
+
+  const primitive = createVehiclePrimitive(entity, trip, trip.route.getType());
 
   entity.show = false;
   primitive.show = false;

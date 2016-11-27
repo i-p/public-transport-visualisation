@@ -1,3 +1,6 @@
+import Cesium from "cesium"
+import {toSecondsOfDay} from "../utils";
+
 export class Trip {
   constructor({tripId, route, shape}) {
     this.id = tripId;
@@ -12,6 +15,7 @@ export class Trip {
     return this.stopTimes[this.stopTimes.length - 1].arrivalTime;
   }
   appendStopTime(stopTime) {
+    //TODO FIX
     if (!stopTime.sequence) {
       stopTime.sequence = this.stopTimes.size + 1;
     }
@@ -22,5 +26,36 @@ export class Trip {
   }
   get lastStop() {
     return this.stopTimes[this.stopTimes.length - 1].stop;
+  }
+
+  //TODO consider using return value with the same semantics as TimeIntervalCollection.indexOf
+  //TODO remember last index and use it as a starting index
+  indexOfStop(time) {
+    if (!this.isActive(time)) return -1;
+
+    let seconds = toSecondsOfDay(time);
+
+    for (let i=0; i<this.stopTimes.length; i++) {
+      const stopTime = this.stopTimes[i];
+
+      if (stopTime.contains(seconds)) {
+        return i * 2;
+      }
+      else if (seconds < stopTime.arrivalTime) {
+        return (i - 1) * 2 + 1;
+      }
+    }
+    return -1;
+  }
+
+  //TODO better name
+  isActive(time) {
+    return Cesium.JulianDate.greaterThanOrEquals(time, this.speedProfile._startTime)
+      && Cesium.JulianDate.lessThan(time, this.speedProfile._endTime);
+  }
+
+  pointFor(stopTime) {
+    //TODO getBySequenceId()
+    return this.shape.points[stopTime.stopSequence - 1];
   }
 }

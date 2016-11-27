@@ -56,6 +56,22 @@ export function formatTimeAsHMS(time) {
   return h + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 }
 
+export function solveQuadratic(a,b,c, results) {
+  //TODO use more precise calculation
+  const d = b*b - 4*a*c;
+  if (d == 0) {
+    results[0] = -b/(2*a);
+  } else if (d < 0) {
+    results[0] = null;
+    results[1] = null;
+  } else {
+    results[0] = (-b - Math.sqrt(d))/(2*a);
+    results[1] = (-b + Math.sqrt(d))/(2*a);
+  }
+
+  return results;
+}
+
 const curScratch = new Cesium.Cartesian3();
 const prevScratch = new Cesium.Cartesian3();
 const crossScratch = new Cesium.Cartesian3();

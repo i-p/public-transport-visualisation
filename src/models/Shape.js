@@ -74,4 +74,20 @@ export class Shape {
     let newPoint = { pos, distance, sequence, osmNode };
     this.points.push(newPoint);
   }
+
+  //TODO check if distance is not greater then lastPoint - firstPoint
+  getSegmentIndexByDistance(distance, firstPoint, lastPoint) {
+    let toIndex = lastPoint.sequence - 1;
+
+    for (let i = firstPoint.sequence; i <= lastPoint.sequence; i++) {
+      let relativeDistance = this.points[i - 1].distance - firstPoint.distance;
+
+      if (relativeDistance > distance) {
+        toIndex = i - 1;
+        break;
+      }
+    }
+
+    return toIndex - 1;
+  }
 }

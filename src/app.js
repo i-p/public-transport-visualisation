@@ -5,6 +5,7 @@ import createVehicleEntity, { updateVehicles, initUpdateVehicles } from "./cesiu
 import options from "./options"
 import labelPresenter from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
+import {updateVehicleState} from "./cesium/updateVehicleState";
 
 function init(viewer, transitData, start, stop) {
   console.log(start.toString(), stop.toString());
@@ -73,6 +74,15 @@ function init(viewer, transitData, start, stop) {
 
   transitData.trips.forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate));
 
+  vehicles.update = function(time) {
+    for (var i=0; i<this.entities.values.length; i++) {
+      let entity = this.entities.values[i];
+      if (entity.show) {
+        updateVehicleState(entity, time);
+      }
+    }
+    return true;
+  };
   vehicles.entities.resumeEvents();
   viewer.dataSources.add(vehicles);
 

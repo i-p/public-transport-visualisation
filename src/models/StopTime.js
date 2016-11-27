@@ -1,3 +1,5 @@
+import Cesium from "cesium"
+
 export class StopTime {
   constructor({trip, arrivalTime, departureTime, stop, stopSequence}) {
     if (!stop) throw new Error("stop");
@@ -8,4 +10,9 @@ export class StopTime {
     this.stop = stop;
     this.stopSequence = stopSequence;
   }
+
+  contains(time) {
+    return time >= this.arrivalTime && time < this.departureTime;
+  }
 }
+
