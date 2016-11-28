@@ -122,4 +122,40 @@ Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.n
       }
     });
   });
+
+  calculateTripIndices(transitData);
+}
+
+const EVENT_START = 0;
+const EVENT_END = 1;
+
+function calculateTripIndices(transitData) {
+  const events = [];
+  const unusedIndices = [];
+  let indexSize = 0;
+
+  for (let trip of transitData.trips.values()) {
+    let from = trip.stopTimes[0];
+    let to = trip.stopTimes[trip.stopTimes.length - 1];
+
+    events.push({type: EVENT_START, stopTime: from, time: from.arrivalTime },
+                {type: EVENT_END,   stopTime: to,   time: to.departureTime });
+  }
+
+  events.sort((e1, e2) => e1.time - e2.time);
+
+  events.forEach(e => {
+    if (e.type === EVENT_START) {
+      if (unusedIndices.length > 0) {
+        e.stopTime.trip.index = unusedIndices.pop();
+      } else {
+        e.stopTime.trip.index = indexSize;
+        indexSize++;
+      }
+    } else {
+      unusedIndices.push(e.stopTime.trip.index);
+    }
+  });
+
+  transitData.indexSize = indexSize;
 }

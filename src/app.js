@@ -83,6 +83,9 @@ function init(viewer, transitData, start, stop) {
     }
     return true;
   };
+
+  modifyEntityClusterBillboardProcessing(transitData.indexSize);
+
   vehicles.entities.resumeEvents();
   viewer.dataSources.add(vehicles);
 
@@ -117,3 +120,48 @@ function init(viewer, transitData, start, stop) {
 
 export default { init };
 
+function modifyEntityClusterBillboardProcessing(indexSize) {
+
+  // Method removeBillboard called from returnPrimitive function in BillboardVisualizer was too expensive.
+  // By using precomputed mapping between entities and billboards
+  // this optimization reduced time of BillboardVisualizer.update() from 5.4 to 2.1ms.
+  let originalRemoveBillboard = Cesium.EntityCluster.prototype.removeBillboard;
+
+  Cesium.EntityCluster.prototype.removeBillboard = function(entity){
+    if (!(entity.transit && entity.transit.trip)) {
+      return originalRemoveBillboard.call(this, entity);
+    }
+
+    if (this._billboardCollection) {
+      const billboard = this._billboardCollection.get(entity.transit.trip.index);
+
+      // Hide billboard only if it's not used by other entity
+      if (billboard.id === entity) {
+        billboard.id = undefined;
+        billboard.show = false;
+      }
+    }
+  };
+
+  let originalGetBillboard = Cesium.EntityCluster.prototype.getBillboard;
+
+  Cesium.EntityCluster.prototype.getBillboard = function(entity){
+
+    if (!(entity.transit && entity.transit.trip)) {
+      return originalGetBillboard.call(this, entity);
+    }
+
+    let collection = this._billboardCollection;
+    if (!Cesium.defined(collection)) {
+      collection = this._billboardCollection = new Cesium.BillboardCollection({
+        scene : this._scene
+      });
+      for (var i=0; i<indexSize; i++) {
+        const billboard = collection.add();
+        billboard.show = true;
+      }
+    }
+
+    return collection.get(entity.transit.trip.index);
+  };
+}

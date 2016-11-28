@@ -34,6 +34,9 @@ function makeBus(positionProperty, trip) {
   Cesium.JulianDate.clone(trip.speedProfile._startTime, interval.start);
   Cesium.JulianDate.clone(trip.speedProfile._endTime, interval.stop);
 
+  interval.isStartIncluded = true;
+  interval.isStopIncluded = false;
+
   availability.addInterval(interval);
 
   entity._availability = availability;
