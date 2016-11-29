@@ -136,11 +136,10 @@ function modifyEntityClusterBillboardProcessing(indexSize) {
     }
 
     if (this._billboardCollection) {
-      const billboard = this._billboardCollection.get(entity.transit.trip.index);
+      let billboard = this._billboardCollection._billboards[entity.transit.trip.index];
 
-      // Hide billboard only if it's not used by other entity
+      // Hide billboard only if it's not already used by other entity
       if (billboard.id === entity) {
-        billboard.id = undefined;
         billboard.show = false;
       }
     }
