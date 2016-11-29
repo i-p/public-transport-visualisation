@@ -70,6 +70,7 @@ const VISIBLE = 1;
 const HIDDEN = -1;
 
 let labelsInitialized = false;
+let cameraMoving = false;
 
 const labelIntersections = new LabelIntersections({ columns: 10, rows: 10 });
 
@@ -96,8 +97,13 @@ export default function (viewer, transitData) {
 
     labels._billboards.sort(compare);
 
+    viewer.camera.moveStart.addEventListener(() => cameraMoving = true);
+    viewer.camera.moveEnd.addEventListener(() => cameraMoving = false);
+
     labelsInitialized = true;
   }
+
+  let labelsAreSteady = true;
 
   for (let i = 0; i < len; i++) {
     var l = labels.get(i);
@@ -106,6 +112,12 @@ export default function (viewer, transitData) {
 
     l.show = l.alpha > 0;
     l.color = Cesium.Color.fromAlpha(l.color, l.alpha);
+
+    labelsAreSteady = labelsAreSteady && ((l.alpha == 0.0 && l.next == HIDDEN) || (l.alpha == 1.0 && l.next == VISIBLE));
+  }
+
+  if (!cameraMoving && labelsAreSteady) {
+    return;
   }
 
   recalculateLabelsPositions(labels, viewer);
