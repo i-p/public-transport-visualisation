@@ -93,6 +93,9 @@ function init(viewer, transitData, start, stop) {
   const index = stops._visualizers.findIndex(v => v instanceof Cesium.PointVisualizer);
   stops._visualizers[index] = new UpdateOnceVisualizer(stops._visualizers[index]);
 
+  const index2 = stops._visualizers.findIndex(v => v instanceof Cesium.BillboardVisualizer);
+  stops._visualizers[index2] = new UpdateOnceVisualizer(stops._visualizers[index2]);
+
   const tileRange = options.tileRange;
 
   function isInVisibleTile(carto) {
