@@ -119,7 +119,8 @@ function createVehiclePrimitive(vehicleEntity, trip, type) {
                                  url: type + ".glb",
                                  modelMatrix: modelMatrixScratch,
                                  scale: 2.54/100 * 100,
-                                 id: vehicleEntity
+                                 id: vehicleEntity,
+                                 minimumPixelSize: 6
                                });
 }
 
