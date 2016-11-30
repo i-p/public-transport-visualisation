@@ -12,6 +12,13 @@ const ENTITY_VIEWFROM_PROPERTY =  new Cesium.ConstantProperty(new Cesium.Cartesi
 
 const billboardCache = new Map();
 
+const colorsByType = {
+  "bus": "#0E6BB0",
+  "tram": "#C23030",
+  "trolleybus": "#007C1E"
+};
+
+
 //TODO rename to makeVehicle + fix transit.type
 function makeBus(positionProperty, trip) {
 
@@ -59,16 +66,14 @@ function makeBus(positionProperty, trip) {
   } else {
     let canvas = Cesium.writeTextToCanvas(trip.route.id, {
       // don't use custom font here, it doesn't have to be loaded yet
-      font: "32px 'Verdana' ",
-      stroke: true,
-      strokeWidth: 12,
+      font: "24px 'Verdana' ",
+      padding: 6,
       fillColor: Cesium.Color.WHITE,
-      strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
-      backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
+      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[trip.route.getType()])
     });
 
     let bg = new Cesium.BillboardGraphics({
-      scale: 0.4,
+      scale: 0.5,
       image: canvas,
       pixelOffset : LABEL_PIXEL_OFFSET_PROPERTY,
       distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,

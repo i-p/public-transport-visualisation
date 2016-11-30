@@ -6,13 +6,13 @@ const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
 //TODO cache by stop name
 export default function createStopEntity(stop) {
 
-  let canvas = Cesium.writeTextToCanvas(" " + stop.name + " ", {
+  let canvas = Cesium.writeTextToCanvas(stop.name, {
     // don't use custom font here, it doesn't have to be loaded yet
     font: "24px 'Verdana' ",
     stroke: true,
-    strokeWidth: 10,
+    strokeWidth: 0,
+    padding: 6,
     fillColor: Cesium.Color.WHITE,
-    strokeColor: new Cesium.Color(0.3,0.3,0.3,1),
     backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
   });
 
