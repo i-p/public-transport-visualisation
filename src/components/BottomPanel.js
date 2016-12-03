@@ -32,7 +32,9 @@ class BottomPanelComponent extends React.Component {
   shouldComponentUpdate(nextProps) {
     let {speed} = this.props;
 
-    if (nextProps.speed !== speed || this._shouldUpdateTimeline(nextProps.time)) {
+    if (nextProps.speed !== speed
+      || this._shouldUpdateTimeline(nextProps.time)
+      || this.refs.svg.clientWidth !== this.width) {
       return true;
     }
 
