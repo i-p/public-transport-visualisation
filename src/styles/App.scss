@@ -59,7 +59,7 @@ aside {
   line-height: 2;
 
   cursor: default;
-  
+
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -89,13 +89,14 @@ aside {
 }
 
 .modes {
-  height: 30px;
-  width: 150px;
+  margin-top: 2px;
+  margin-bottom: 2px;
   button {
     background-color: white;
     border: 0;
     border-radius: 5px;
-    margin: 4px;
+    margin-right: 2px;
+    height: 100%;
     cursor: pointer;
 
     &.active {
@@ -137,9 +138,7 @@ aside {
 .speed {
   position: relative;
   width: 2.5em;
-  line-height: 2;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin: 2px 2px 2px 0;
 }
 .speed-selector {
   position: absolute;
@@ -173,24 +172,24 @@ aside {
   display: block;
 }
 .speed-current {
-  button {
-    border: 0;
-    background: white;
-    text-align: center;
-    display: block;
-    width: 100%;
-    border-radius: 5px;
-    cursor: pointer;
-    &.active {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
-    &:hover {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
+  height: 100%;
+  border: 0;
+  background: white;
+  text-align: center;
+  display: block;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  &.active {
+    background-color: $color-neutral-dark;
+    color: $color-neutral-light;
+  }
+  &:hover {
+    background-color: $color-neutral-dark;
+    color: $color-neutral-light;
   }
 }
+
 
 
 

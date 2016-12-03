@@ -83,13 +83,11 @@ class BottomPanelComponent extends React.Component {
                   <SpeedButton speed={5} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
                   <SpeedButton speed={1} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
                 </div>
-                <div className="speed-current">
-                  <button onClick={() => this.toggleSpeedSelector()}>
-                    {
-                      this.state.speedSelectorVisible ? "^" : this.props.speed + "x"
-                    }
-                  </button>
-                </div>
+                <button className="speed-current" onClick={() => this.toggleSpeedSelector()}>
+                  {
+                    this.state.speedSelectorVisible ? "^" : this.props.speed + "x"
+                  }
+                </button>
               </div>
               <svg className="timeline" height="30"
                    preserveAspectRatio="none" ref="svg"
