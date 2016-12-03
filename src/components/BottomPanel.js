@@ -4,15 +4,12 @@ import _ from "lodash"
 import * as utils from "../utils"
 import classNames from "classnames"
 
-const speeds = [-20, -10, -5, 0, 5, 10, 20];
-
 class BottomPanelComponent extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.onMouseMove = this.onMouseMove.bind(this);
     this._lastSecondOfDay = 0;
-
-    this._lastSpeed = 0;
+    this.state = { speedSelectorVisible: false };
   }
   componentDidMount() {
     document.addEventListener("mousemove", this.onMouseMove);
@@ -29,50 +26,31 @@ class BottomPanelComponent extends React.Component {
     }
     return false;
   }
-  shouldComponentUpdate(nextProps) {
-    let {speed} = this.props;
+  shouldComponentUpdate(nextProps, nextState) {
+    let {speed, direction} = this.props;
 
     if (nextProps.speed !== speed
+      || nextProps.direction !== direction
       || this._shouldUpdateTimeline(nextProps.time)
-      || this.refs.svg.clientWidth !== this.width) {
+      || this.refs.svg.clientWidth !== this.width
+      || nextState.speedSelectorVisible !== this.state.speedSelectorVisible) {
       return true;
     }
 
     this.refs.timeString.textContent = utils.formatTimeAsHMS(nextProps.time);
     return false;
   }
-  changeSpeed(type) {
-    const speed = this.props.speed;
-    let newSpeed;
-    let index = speeds.indexOf(speed);
+  setDirection(direction) {
+    this.props.setDirection(direction);
+  }
 
-    switch (type) {
-      case "forwards":
-        if (index < 3) {
-          newSpeed = speeds[speeds.length - 1 - index];
-        } else {
-          newSpeed = speeds[Math.min(speeds.length - 1, index + 1)];
-        }
-        break;
-      case "backwards":
-        if (index > 3) {
-          newSpeed = speeds[speeds.length - 1 - index];
-        } else {
-          newSpeed = speeds[Math.max(0, index - 1)];
-        }
-        break;
-      case "pause":
-        if (index == 3) {
-          newSpeed = this._lastSpeed;
-        } else {
-          newSpeed = 0;
-        }
-    }
+  toggleSpeedSelector() {
+    this.setState({ speedSelectorVisible: !this.state.speedSelectorVisible });
+  }
 
+  changeSpeed(newSpeed) {
     this.props.setSpeed(newSpeed);
-    if (newSpeed !== 0) {
-      this._lastSpeed = newSpeed;
-    }
+    this.setState({ speedSelectorVisible: false });
   }
 
   render() {
@@ -94,9 +72,24 @@ class BottomPanelComponent extends React.Component {
                 {timeString}
               </div>
               <div className="modes">
-                <button className={classNames({active: this.props.speed < 0 })} onClick={()=>this.changeSpeed("backwards")}>&lt;</button>
-                <button className={classNames({active: this.props.speed === 0 })} onClick={()=>this.changeSpeed("pause")}>||</button>
-                <button className={classNames({active: this.props.speed > 0 })} onClick={()=>this.changeSpeed("forwards")}>&gt;</button>
+                <button className={classNames({active: this.props.direction == -1 })} onClick={()=>this.setDirection(-1)}>&lt;</button>
+                <button className={classNames({active: this.props.direction == 0 })} onClick={()=>this.setDirection(0)}>||</button>
+                <button className={classNames({active: this.props.direction == 1 })} onClick={()=>this.setDirection(1)}>&gt;</button>
+              </div>
+              <div className="speed">
+                <div className={classNames({"speed-selector": true, "speed-selector-visible": this.state.speedSelectorVisible })}>
+                  <SpeedButton speed={20} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
+                  <SpeedButton speed={10} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
+                  <SpeedButton speed={5} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
+                  <SpeedButton speed={1} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
+                </div>
+                <div className="speed-current">
+                  <button onClick={() => this.toggleSpeedSelector()}>
+                    {
+                      this.state.speedSelectorVisible ? "^" : this.props.speed + "x"
+                    }
+                  </button>
+                </div>
               </div>
               <svg className="timeline" height="30"
                    preserveAspectRatio="none" ref="svg"
@@ -159,7 +152,7 @@ class BottomPanelComponent extends React.Component {
       let x = width / 24;
 
       let hourLabels = [];
-      
+
       for (let i=0; i<=24;i+=24/hoursToDisplay) {
         hourLabels.push(<text key={i} x={i*x} y={21}>{i + ":00"}</text>)
       }
@@ -171,8 +164,14 @@ class BottomPanelComponent extends React.Component {
   }
 }
 
-export default connect((state) => ({time: state.time, speed: state.speed }), (dispatch) => ({
+let SpeedButton = ({currentSpeed, speed, onClick}) => {
+  return <button onClick={() => onClick(speed)}>{speed + "x"}</button>;
+};
+
+
+export default connect((state) => ({time: state.time, speed: state.speed.speed, direction: state.speed.direction }), (dispatch) => ({
   setTime: (sec) => dispatch({ type: "SELECT_STOP_TIME",
                                stopTime: { arrivalTime: sec }}),
-  setSpeed: (speed) => dispatch({type: "SET_SPEED", speed})
+  setSpeed: (speed) => dispatch({type: "SET_SPEED", speed}),
+  setDirection: (direction) => dispatch({type: "SET_DIRECTION", direction})
 }))(BottomPanelComponent);

@@ -134,7 +134,63 @@ aside {
   fill: $color-neutral-dark;
 }
 
-
+.speed {
+  position: relative;
+  width: 2.5em;
+  line-height: 2;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.speed-selector {
+  position: absolute;
+  display: none;
+  bottom: 100%;
+  width: 100%;
+  background-color: white;
+  text-align: center;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  padding: 2px;
+  margin-left: -2px;
+  button {
+    border-radius: 5px;
+    border: 0;
+    background: white;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    &.active {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+    &:hover {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+  }
+}
+.speed-selector-visible {
+  display: block;
+}
+.speed-current {
+  button {
+    border: 0;
+    background: white;
+    text-align: center;
+    display: block;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    &.active {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+    &:hover {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+  }
+}
 
 
 
