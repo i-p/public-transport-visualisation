@@ -57,6 +57,13 @@ aside {
   width: 6em;
   text-align: center;
   line-height: 2;
+
+  cursor: default;
+  
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .timeline {
@@ -89,6 +96,7 @@ aside {
     border: 0;
     border-radius: 5px;
     margin: 4px;
+    cursor: pointer;
 
     &.active {
       background-color: $color-neutral-dark;
