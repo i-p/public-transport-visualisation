@@ -68,8 +68,8 @@ class BottomPanelComponent extends React.Component {
 
     let x = (width * sec / 24 / 3600);
     return <div className="time-panel">
-              <div ref="timeString" className="time">
-                {timeString}
+              <div className="time">
+                <span ref="timeString">{timeString}</span>
               </div>
               <div className="modes">
                 <button className={classNames({active: this.props.direction == -1 })} onClick={()=>this.setDirection(-1)}>&lt;</button>

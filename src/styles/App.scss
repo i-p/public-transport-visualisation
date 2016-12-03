@@ -55,9 +55,10 @@ aside {
   color: #343D46;
   font-weight: bold;
   width: 6em;
-  text-align: center;
-  line-height: 2;
-
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  
   cursor: default;
 
   user-select: none;
