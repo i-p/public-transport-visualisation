@@ -1,8 +1,8 @@
 require('normalize.css/normalize.css');
-require('styles/App.css');
+require('styles/App.scss');
 
 import React from "react"
-// import BottomPanel from "./BottomPanel"
+import BottomPanel from "./BottomPanel"
 // import AppContainer from "./Main"
 // import InfoPanel from "./InfoPanel"
 
@@ -17,10 +17,8 @@ class AppLayout extends React.Component {
   render() {
     return <div>
       <div className="viewer">
-        <div className="section-canvas">
-          <div id="cesiumContainer"></div>
-        </div>
-        {/*<BottomPanel/>*/}
+        <div id="cesiumContainer"></div>
+        <BottomPanel/>
         <div id="credits"></div>
       </div>
       <aside id="panel">

@@ -1,0 +1,132 @@
+$colors: (
+  tram: #C23030,
+  trolleybus: #007C1E,
+  bus: #0E6BB0
+);
+
+$color-neutral-light: #BDDEFF;
+$color-neutral-dark: #343D46;
+
+$inactive-colors: (
+  tram: #FCF5F5,
+  trolleybus: #F5FCF7,
+  bus: #F5F9FC,
+);
+@function inactive-color($type) {
+  @return map_get($inactive-colors, $type)
+}
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Lato:400,900,700|Montserrat:400,700|Roboto:400,700);
+
+html {
+  height: 100%;
+}
+
+#cesiumContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+body {
+  height: 100%;
+  font-family: "Lato";
+}
+
+main {
+  height: 100%;
+}
+main > div {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.viewer {
+  flex: 3;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+aside {
+  flex: 1;
+}
+
+.time {
+  //TODO add to colors
+  color: #343D46;
+  font-weight: bold;
+  width: 6em;
+  text-align: center;
+  line-height: 2;
+}
+
+.timeline {
+  flex-grow: 1;
+  //TODO add to colors
+  background-color: ghostwhite;
+  cursor: pointer;
+  text {
+    font-family: "Lato", sans-serif;
+    font-size: 14px;
+
+    /* TODO mixin */
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+
+    text-anchor: middle;
+  }
+  line {
+    stroke: $color-neutral-dark;
+  }
+}
+
+.modes {
+  height: 30px;
+  width: 150px;
+  button {
+    background-color: white;
+    border: 0;
+    border-radius: 5px;
+    margin: 4px;
+
+    &.active {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+    &:hover {
+      background-color: $color-neutral-dark;
+      color: $color-neutral-light;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+}
+#credits {
+  // Cesium logo height + padding
+  height: 30px;
+  background-color: $color-neutral-dark;
+}
+.cesium-credit-imageContainer {
+  float: left;
+}
+.time-panel {
+  box-shadow: 0 -10px 36px -13px black;
+  display: flex;
+  width: 100%;
+  z-index: 10;
+}
+.timeline-marker {
+  // TODO add to colors
+  fill: rgba(208, 234, 251, 0.47);
+  border-right: 4px solid $color-neutral-dark;
+}
+.timeline-marker2 {
+  fill: $color-neutral-dark;
+}
+
+
+
+
+
