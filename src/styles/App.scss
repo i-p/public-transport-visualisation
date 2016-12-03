@@ -88,30 +88,6 @@ aside {
   }
 }
 
-.modes {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  button {
-    background-color: white;
-    border: 0;
-    border-radius: 5px;
-    margin-right: 2px;
-    height: 100%;
-    cursor: pointer;
-
-    &.active {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
-    &:hover {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
-    &:focus {
-      outline: none;
-    }
-  }
-}
 #credits {
   // Cesium logo height + padding
   height: 30px;
@@ -135,51 +111,17 @@ aside {
   fill: $color-neutral-dark;
 }
 
-.speed {
-  position: relative;
-  width: 2.5em;
+
+.bottom-section {
   margin: 2px 2px 2px 0;
 }
-.speed-selector {
-  position: absolute;
-  display: none;
-  bottom: 100%;
-  width: 100%;
-  background-color: white;
-  text-align: center;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  padding: 2px;
-  margin-left: -2px;
-  button {
-    border-radius: 5px;
-    border: 0;
-    background: white;
-    cursor: pointer;
-    display: block;
-    width: 100%;
-    &.active {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
-    &:hover {
-      background-color: $color-neutral-dark;
-      color: $color-neutral-light;
-    }
-  }
-}
-.speed-selector-visible {
-  display: block;
-}
-.speed-current {
-  height: 100%;
-  border: 0;
-  background: white;
-  text-align: center;
-  display: block;
-  width: 100%;
-  border-radius: 5px;
+
+@mixin bottom-button {
   cursor: pointer;
+  background-color: white;
+  border: 0;
+  border-radius: 5px;
+
   &.active {
     background-color: $color-neutral-dark;
     color: $color-neutral-light;
@@ -188,6 +130,50 @@ aside {
     background-color: $color-neutral-dark;
     color: $color-neutral-light;
   }
+  &:focus {
+    outline: none;
+  }
+}
+
+.modes {
+  @extend .bottom-section;
+
+  button {
+    @include bottom-button();
+
+    margin-right: 2px;
+    height: 100%;
+  }
+}
+
+.speed {
+  @extend .bottom-section;
+
+  position: relative;
+  width: 2.5em;
+}
+.speed-selector {
+  position: absolute;
+  bottom: 100%;
+  width: 100%;
+  background-color: white;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  padding: 2px;
+  margin-left: -2px;
+  button {
+    @include bottom-button();
+    display: block;
+    width: 100%;
+  }
+}
+.hidden {
+  display: none;
+}
+.speed-current {
+  height: 100%;
+  width: 100%;
+  @include bottom-button();
 }
 
 

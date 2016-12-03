@@ -77,7 +77,7 @@ class BottomPanelComponent extends React.Component {
                 <button className={classNames({active: this.props.direction == 1 })} onClick={()=>this.setDirection(1)}>&gt;</button>
               </div>
               <div className="speed">
-                <div className={classNames({"speed-selector": true, "speed-selector-visible": this.state.speedSelectorVisible })}>
+                <div className={classNames({"speed-selector": true, "hidden": !this.state.speedSelectorVisible })}>
                   <SpeedButton speed={20} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
                   <SpeedButton speed={10} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
                   <SpeedButton speed={5} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
