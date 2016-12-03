@@ -19,7 +19,10 @@ import { Provider } from "react-redux";
 
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
-   speed: options.defaultSpeed,
+   speed: {
+     speed: options.defaultSpeed,
+     direction: 1
+   },
    transitData: new TransitFeed(),
    selection: {
      type: Selection.SELECTION_EMPTY,

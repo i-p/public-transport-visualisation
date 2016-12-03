@@ -77,11 +77,13 @@ export function createCesiumSubscriber(store, viewer) {
     var speed = store.getState().speed;
 
 
-    if (speed == 0 && viewer.clock.shouldAnimate) {
-      viewer.clock.shouldAnimate = false;
+    if (speed.direction == 0) {
+      if (viewer.clock.shouldAnimate) {
+        viewer.clock.shouldAnimate = false;
+      }
     } else {
       viewer.clock.shouldAnimate = true;
-      viewer.clock.multiplier = speed;
+      viewer.clock.multiplier = speed.direction * speed.speed;
     }
 
     if (previousSelection.type === currentSelection.type

@@ -2,6 +2,8 @@ import { combineReducers } from "redux";
 import timeReducer from "./timeReducer"
 import selectionReducer from "./selectionReducer"
 
+const defaultSpeed = { direction: 1, speed: 10 };
+
 const rootReducer = combineReducers({
   selection: selectionReducer,
   transitData: (s = null, action) => {
@@ -13,10 +15,14 @@ const rootReducer = combineReducers({
     }
   },
   time: timeReducer,
-  speed: (s = null, action) => {
+
+  //TODO rename
+  speed: (s = defaultSpeed, action) => {
     switch (action.type) {
       case "SET_SPEED":
-        return action.speed;
+        return { direction: s.direction, speed: action.speed };
+      case "SET_DIRECTION":
+        return { direction: action.direction, speed: s.speed };
       default:
         return s;
     }
