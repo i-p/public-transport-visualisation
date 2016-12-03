@@ -4,7 +4,7 @@ require('styles/App.scss');
 import React from "react"
 import BottomPanel from "./BottomPanel"
 // import AppContainer from "./Main"
-// import InfoPanel from "./InfoPanel"
+import InfoPanel from "./InfoPanel"
 
 class AppLayout extends React.Component {
   constructor() {
@@ -22,7 +22,7 @@ class AppLayout extends React.Component {
         <div id="credits"></div>
       </div>
       <aside id="panel">
-        {/*<InfoPanel/>*/}
+        <InfoPanel/>
         {/*<AppContainer/>*/}
       </aside>
     </div>;
