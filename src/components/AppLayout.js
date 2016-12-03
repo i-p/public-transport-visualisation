@@ -3,7 +3,7 @@ require('styles/App.scss');
 
 import React from "react"
 import BottomPanel from "./BottomPanel"
-// import AppContainer from "./Main"
+import AppContainer from "./Main"
 import InfoPanel from "./InfoPanel"
 
 class AppLayout extends React.Component {
@@ -23,7 +23,7 @@ class AppLayout extends React.Component {
       </div>
       <aside id="panel">
         <InfoPanel/>
-        {/*<AppContainer/>*/}
+        <AppContainer/>
       </aside>
     </div>;
   }
