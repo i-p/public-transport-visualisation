@@ -29,14 +29,14 @@ class BottomPanelComponent extends React.Component {
     }
     return false;
   }
-  shouldComponentUpdate() {
-    let {time} = this.props;
+  shouldComponentUpdate(nextProps) {
+    let {speed} = this.props;
 
-    if (this._shouldUpdateTimeline(time)) {
+    if (nextProps.speed !== speed || this._shouldUpdateTimeline(nextProps.time)) {
       return true;
     }
 
-    this.refs.timeString.textContent = utils.formatTimeAsHMS(time);
+    this.refs.timeString.textContent = utils.formatTimeAsHMS(nextProps.time);
     return false;
   }
   changeSpeed(type) {
