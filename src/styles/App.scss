@@ -305,3 +305,30 @@ td {
   vertical-align: middle;
   position: relative;
 }
+
+.stop-name {
+  font-family: 'Lato';
+  font-size: 28px;
+  font-weight: 700;
+  text-decoration: none;
+}
+a.stop-name:hover {
+  text-decoration: underline;
+}
+.route-stop-link {
+  display: inline-block;
+  padding: 5px;
+  margin: 3px;
+  border-radius: 5px;
+  min-width: 1em;
+  text-align: center;
+}
+.route-list-item {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.t tr td:nth-child(1) { width: 50px; }
+.t tr td:nth-child(2) { width: 75px; }
+.t tr:nth-child(2n) { background-color: #ededed; }
