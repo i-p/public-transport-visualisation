@@ -16,6 +16,7 @@ $inactive-colors: (
   @return map_get($inactive-colors, $type)
 }
 
+//TODO cleanup
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Lato:400,900,700|Montserrat:400,700|Roboto:400,700);
 
 html {
@@ -351,3 +352,46 @@ a.stop-name:hover {
   }
   tr:nth-child(2n) { background-color: #ededed; }
 }
+
+.stop-name {
+  font-weight: bold;
+}
+.timetable-stop {
+  font-family: 'Lato';
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.stop-marker {
+  background-color: white;
+  width: 6px;
+  height: 6px;
+  border-radius: 9px;
+  border: 4px solid lightgray;
+  margin: 0 4px;
+  z-index: 20;
+  position: relative;
+}
+
+.stop-marker-active {
+  border-color: darkred;
+}
+.line-marker {
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  left: 9px;
+  background-color: lightgray;
+}
+.line-marker-active {
+  z-index: 15;
+  position: absolute;
+  top: 0;
+  bottom: 100%;
+  width: 6px;
+  left: 9px;
+  background-color: darkred;
+}
+
