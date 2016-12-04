@@ -5,7 +5,7 @@ import { connect } from "react-redux"
 import { SelectedRouteView } from "./RouteView";
 import { SelectedStopView } from "./StopView";
 // import { SelectedTripView } from "./TripView";
-// import { SelectedRouteStopView } from "./RouteStopView";
+import { SelectedRouteStopView } from "./RouteStopView";
 import { AllRoutesOverview } from "./RoutesOverview";
 
 const AppComponent = ({selection}) => {
@@ -16,8 +16,8 @@ const AppComponent = ({selection}) => {
       return <SelectedStopView/>;
     // case "SELECTION_VEHICLE":
     //   return <SelectedTripView/>;
-    // case "SELECTION_STOP_AND_ROUTE":
-    //   return <SelectedRouteStopView/>;
+    case "SELECTION_STOP_AND_ROUTE":
+      return <SelectedRouteStopView/>;
     default:
       return <AllRoutesOverview/>;
   }

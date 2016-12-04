@@ -332,3 +332,22 @@ a.stop-name:hover {
 .t tr td:nth-child(1) { width: 50px; }
 .t tr td:nth-child(2) { width: 75px; }
 .t tr:nth-child(2n) { background-color: #ededed; }
+
+.route-stop-timetable {
+  width: 100%;
+  margin-top: 18px;
+
+  tr {
+    padding: 0 5px;
+    td:nth-child(1) {
+      width: 30px; max-width: 30px; text-align: right; padding-right: 10px; font-weight: 700;
+    }
+    td:nth-child(2) {
+      padding-right: 10px;
+    }
+    th:nth-child(2) {
+      text-align: left;
+    }
+  }
+  tr:nth-child(2n) { background-color: #ededed; }
+}
