@@ -97,7 +97,8 @@ if (options.displayTileCoordinates) {
   viewer.imageryLayers.add(new Cesium.ImageryLayer(new Cesium.TileCoordinatesImageryProvider()));
 }
 
-viewer.camera.setView(options.initialCameraView);
+//TODO move value to options
+viewer.camera.setView({destination: new Cesium.Cartesian3(9075216.322398473, 1601349.1706513234, 8430794.265876785) });
 
 viewer.scene.fxaa = false;
 
@@ -138,15 +139,20 @@ function isInTileRange(tileRange, xx, yy, level) {
   return false;
 }
 
-var originalGetTileDataAvailable = Cesium.CesiumTerrainProvider.prototype.getTileDataAvailable;
+if (options.tileRange.enabled) {
+  viewer.terrainProvider.readyPromise.then(() => {
+     selectDisplayedTileRange(viewer, tileRange);
+  });
 
-terrainProvider.getTileDataAvailable = function(x, y, level) {
-  if (isInTileRange(tileRange, x, y, level)) {
-    return originalGetTileDataAvailable.call(this, x, y, level);
-  }
-  return false;
-};
+  const originalGetTileDataAvailable = Cesium.CesiumTerrainProvider.prototype.getTileDataAvailable;
 
+  terrainProvider.getTileDataAvailable = function(x, y, level) {
+    if (isInTileRange(tileRange, x, y, level)) {
+      return originalGetTileDataAvailable.call(this, x, y, level);
+    }
+    return false;
+  };
+}
 
 viewer.terrainProvider = terrainProvider;
 
@@ -155,12 +161,9 @@ viewer.terrainProvider = terrainProvider;
 
 viewer.scene.debugShowFramesPerSecond = options.showFramesPerSecond;
 
-if (options.tileRange.enabled) {
-  viewer.terrainProvider.readyPromise.then(() => {
-    selectDisplayedTileRange(viewer, tileRange);
-  });
-}
 
+
+//TODO add error handling
 dataPromise.then(([data, routeTimetables]) => {
 
   //TODO process warnings
@@ -198,6 +201,20 @@ dataPromise.then(([data, routeTimetables]) => {
   window.transitData = transitData;
 
   store.subscribe(createCesiumSubscriber(store, viewer));
+
+  let initialCameraAnimationStarted = false;
+
+  viewer.scene.globe.tileLoadProgressEvent.addEventListener((length) => {
+    if (length === 0 && !initialCameraAnimationStarted) {
+      initialCameraAnimationStarted = true;
+
+      viewer.camera.flyTo({
+        destination: options.initialCameraView.destination,
+        orientation: options.initialCameraView.orientation,
+        duration: 3
+      });
+    }
+  });
 });
 
 // Hot Module Replacement API

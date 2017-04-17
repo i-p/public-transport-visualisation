@@ -18,7 +18,7 @@ export default {
       "xxxxxxxx    "
     ],
 
-    enabled: true,
+    enabled: false,
     level: 13,
     xRange: [8964, 8975],
     yRange: [1900, 1910]
