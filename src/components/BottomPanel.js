@@ -94,6 +94,12 @@ class BottomPanelComponent extends React.Component {
                    onMouseMove={(e) => this.onMouseMove(e)}
                    onMouseDown={(e) => this.onMouseDown(e)}
                    onMouseUp={(e) => this.onMouseUp(e)}>
+
+                {
+                  this.renderStat(width, height)
+                }
+
+
                 {this.renderGridlines(width,height)}
                 {this.renderTimeLabels(width,height)}
 
@@ -104,6 +110,36 @@ class BottomPanelComponent extends React.Component {
               </svg>
           </div>
   }
+
+  renderStat(width, height) {
+    if (!this.props.vehiclesInService) return null;
+
+    return Array.from({length: this.props.vehiclesInService.numBuckets}, (_, i) => {
+      return this.renderStatColumn(i, width, height);
+    });
+  }
+
+  renderStatColumn(i, width, height) {
+    const bucketsInDay = 24 * 6;
+    const x = ((i / bucketsInDay) * width) | 0;
+    const w = ((((i + 1) / bucketsInDay) * width) | 0) - x - 1;
+
+    const max = this.props.vehiclesInService.max / 0.9;
+    const buses = this.props.vehiclesInService["bus"][i];
+    const trams = this.props.vehiclesInService["tram"][i];
+    const trolleybuses = this.props.vehiclesInService["trolleybus"][i];
+    const vehicles = buses + trams + trolleybuses;
+
+    const y = (height * (1 - vehicles/max)) | 0;
+    const h = height - y;
+
+    return <g>
+      <rect className="stat" x={x} y={y} width={w} height={h} />
+      <line className="stat" x1={x} y1={y} x2={x + w} y2={y}/>
+    </g>;
+  }
+
+
   onMouseDown(e) {
     this.moving = true;
     if (this.width) {
@@ -167,7 +203,7 @@ let SpeedButton = ({currentSpeed, speed, onClick}) => {
 };
 
 
-export default connect((state) => ({time: state.time, speed: state.speed.speed, direction: state.speed.direction }), (dispatch) => ({
+export default connect((state) => ({time: state.time, vehiclesInService: state.transitData.vehiclesInService, speed: state.speed.speed, direction: state.speed.direction }), (dispatch) => ({
   setTime: (sec) => dispatch({ type: "SELECT_STOP_TIME",
                                stopTime: { arrivalTime: sec }}),
   setSpeed: (speed) => dispatch({type: "SET_SPEED", speed}),

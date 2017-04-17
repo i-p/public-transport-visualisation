@@ -88,9 +88,19 @@ aside {
     -ms-user-select: none;
 
     text-anchor: middle;
+
+    stroke: white;
+    stroke-width: 3;
+    paint-order: stroke;
   }
   line {
     stroke: $color-neutral-dark;
+  }
+  line.stat {
+    stroke: #9fb0c5;
+  }
+  rect.stat {
+    fill: #ddecfb;
   }
 }
 

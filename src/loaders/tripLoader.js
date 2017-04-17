@@ -124,6 +124,8 @@ Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.n
   });
 
   calculateTripIndices(transitData);
+
+  transitData.calculateVehiclesInService();
 }
 
 const EVENT_START = 0;

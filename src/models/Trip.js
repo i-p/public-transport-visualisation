@@ -11,8 +11,8 @@ export class Trip {
   get firstArrivalTime() {
     return this.stopTimes[0].arrivalTime;
   }
-  get lastArrivalTime() {
-    return this.stopTimes[this.stopTimes.length - 1].arrivalTime;
+  get lastDepartureTime() {
+    return this.stopTimes[this.stopTimes.length - 1].departureTime;
   }
   appendStopTime(stopTime) {
     //TODO FIX

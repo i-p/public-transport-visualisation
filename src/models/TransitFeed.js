@@ -8,6 +8,36 @@ export class TransitFeed {
     this.normalize = normalize;
 
     this.shapesArray = [];
+
+    this.firstArrivalTime = Number.MAX_VALUE;
+    this.lastDepartureTime = Number.MIN_VALUE;
+  }
+
+  calculateVehiclesInService() {
+
+    const numBuckets = Math.ceil(this.lastDepartureTime / 600);
+
+    let result = {
+      bus: Array.from({length: numBuckets}, _ => 0),
+      tram: Array.from({length: numBuckets}, _ => 0),
+      trolleybus: Array.from({length: numBuckets}, _ => 0),
+      max: 0,
+      numBuckets
+    };
+
+    const toBucketIndex = time => (time / 600) | 0;
+
+    for (let trip of this.trips.values()) {
+      for (let i = toBucketIndex(trip.firstArrivalTime); i <= toBucketIndex(trip.lastDepartureTime); i++) {
+        result[trip.route.getType()][i]++;
+      }
+    }
+
+    for (let i=0; i<numBuckets; i++) {
+      result.max = Math.max(result.max, result.bus[i] + result.tram[i] + result.trolleybus[i]);
+    }
+
+    this.vehiclesInService = result;
   }
 
   removeRoutesWithoutTrips() {
@@ -62,9 +92,10 @@ export class TransitFeed {
       if (trip.shape && trip.route.shapes.indexOf(trip.shape) === -1) {
         trip.route.shapes.push(trip.shape);
       }
+
+      this.firstArrivalTime  = Math.min(this.firstArrivalTime,  trip.firstArrivalTime);
+      this.lastDepartureTime = Math.max(this.lastDepartureTime, trip.lastDepartureTime);
     }
-
-
   }
 
   getRouteSetForStop(stop) {
