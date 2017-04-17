@@ -16,7 +16,8 @@ import {selectNothing} from "./redux/actions";
 import {createCesiumSubscriber} from "./cesium/cesiumStoreSubscriber";
 import loadCityData from "./cities/Bratislava"
 import { Provider } from "react-redux";
-import {BrowserRouter as Router} from "react-router-dom";
+import { Router} from "react-router-dom";
+import {createBrowserHistory} from "history";
 
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
@@ -31,10 +32,12 @@ let store = configureStore({
    }
  });
 
+const history = createBrowserHistory();
+
 ReactDOM.render(
   <AppContainer>
     <Provider store={store}>
-      <Router>
+      <Router history={history}>
         <AppLayout />
       </Router>
     </Provider>
@@ -181,6 +184,12 @@ dataPromise.then(([data, routeTimetables]) => {
 
     if (Cesium.defined(picked)) {
       var id = Cesium.defaultValue(picked.id, picked.primitive.id);
+
+      if (id instanceof Cesium.Entity && id.transit && id.transit.type === "stop") {
+        history.push("/stop/" + id.transit.stop.id);
+        return;
+      }
+
       if (id instanceof Cesium.Entity) {
         store.dispatch(selectEntity(id));
         return;
@@ -190,7 +199,7 @@ dataPromise.then(([data, routeTimetables]) => {
         return;
       }
     }
-    store.dispatch(selectNothing());
+    history.push("/");
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   viewer.clock.onTick.addEventListener(clock => {
@@ -227,7 +236,9 @@ if (module.hot) {
     ReactDOM.render(
       <AppContainer>
         <Provider store={store}>
-          <NextAppLayout />
+          <Router history={history}>
+            <NextAppLayout />
+          </Router>
         </Provider>
       </AppContainer>,
       document.getElementsByTagName("main")[0]);

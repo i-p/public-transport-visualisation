@@ -35,7 +35,7 @@ let selectionActions = {
   [Selection.SELECTION_STOP]: {
     entry: (selection, viewer) => {
       //TODO map stop -> entity
-      let entities = viewer.entities.values.filter(
+      let entities = viewer.dataSources.get(0).entities.values.filter(
         e => e.transit && e.transit.stop);
       let entity = entities.find(e => e.transit.stop === selection.value);
 
@@ -48,7 +48,7 @@ let selectionActions = {
   [Selection.SELECTION_STOP_AND_ROUTE]: {
     entry: (selection, viewer) => {
       //TODO map stop -> entity
-      let entities = viewer.entities.values.filter(
+      let entities = viewer.dataSources.get(0).entities.values.filter(
         e => e.transit && e.transit.stop);
 
       let entity = entities.find(e => e.transit.stop === selection.value.stop);

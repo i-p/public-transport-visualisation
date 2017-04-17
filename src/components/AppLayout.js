@@ -31,7 +31,7 @@ class AppLayout extends React.Component {
       </aside>
       <Switch>
           <Route exact path="/"
-                 component={onMount(selectNothing)} />
+                 component={onMount(({dispatch}) => dispatch(selectNothing()))} />
           <Route path="/stop/:stopId/route/:routeId"
                  component={onMount(({dispatch, match}) => dispatch(selectRouteStop(match.params.routeId, match.params.stopId)))} />
           <Route path="/route/:routeId/shape/:shapeId"
