@@ -116,7 +116,7 @@ function createVehiclePrimitive(vehicleEntity, trip, type) {
 
   //TODO move model path to options
   return Cesium.Model.fromGltf({
-                                 url: type + ".glb",
+                                 url: "/" + type + ".glb",
                                  modelMatrix: modelMatrixScratch,
                                  scale: 2.54/100 * 100,
                                  id: vehicleEntity,
