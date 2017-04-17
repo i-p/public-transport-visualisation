@@ -62,7 +62,7 @@ let selectionActions = {
   [Selection.SELECTION_VEHICLE]: {
     entry: (selection, viewer) => {
       //TODO map stop -> entity
-      let entities = viewer.entities.values.filter(
+      let entities = viewer.dataSources.get(1).entities.values.filter(
         e => e.transit && e.transit.trip);
       //entities.forEach(e => e.show = (e.transit.trip === trip));
       let trip = selection.value;

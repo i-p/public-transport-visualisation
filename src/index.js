@@ -190,6 +190,11 @@ dataPromise.then(([data, routeTimetables]) => {
         return;
       }
 
+      if (id instanceof Cesium.Entity && id.transit && id.transit.trip) {
+        history.push("/trip/" + id.transit.trip.id);
+        return;
+      }
+
       if (id instanceof Cesium.Entity) {
         store.dispatch(selectEntity(id));
         return;

@@ -8,6 +8,9 @@ export const selectRoute =
 export const selectStop =
   (stopId) => ({ type: "SELECT_STOP", stopId });
 
+export const selectTrip =
+  (tripId) => ({ type: "SELECT_TRIP", tripId });
+
 export const selectStopTime =
   (stopTime) => ({ type: "SELECT_STOP_TIME", stopTime });
 

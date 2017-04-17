@@ -4,7 +4,7 @@ require('styles/App.scss');
 import React from "react"
 import {Switch} from "react-router-dom";
 import {connect} from "react-redux";
-import {selectNothing, selectRoute, selectRouteStop, selectStop} from "../redux/actions";
+import {selectNothing, selectRoute, selectRouteStop, selectStop, selectTrip} from "../redux/actions";
 import BottomPanel from "./BottomPanel"
 import AppContainer from "./Main"
 import InfoPanel from "./InfoPanel"
@@ -41,7 +41,7 @@ class AppLayout extends React.Component {
           <Route path="/stop/:stopId"
                  component={onMount(({dispatch, match}) => dispatch(selectStop(match.params.stopId)))} />
           <Route path="/trip/:tripId"
-                 component={onMount(props => console.log(props))} />
+                 component={onMount(({dispatch, match}) => dispatch(selectTrip(match.params.tripId)))} />
       </Switch>
     </div>;
   }
