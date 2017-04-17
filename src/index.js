@@ -174,7 +174,7 @@ dataPromise.then(([data, routeTimetables]) => {
   app.init(viewer, transitData, options.start, options.stop);
 
   store.dispatch(clockTick(viewer.clock.currentTime));
-  store.dispatch({type: "SET_TRANSIT_DATA", data: transitData});
+
 
   viewer.screenSpaceEventHandler.setInputAction((e) => {
     let picked = viewer.scene.pick(e.position)
@@ -211,7 +211,10 @@ dataPromise.then(([data, routeTimetables]) => {
       viewer.camera.flyTo({
         destination: options.initialCameraView.destination,
         orientation: options.initialCameraView.orientation,
-        duration: 3
+        duration: 3,
+        complete: () => {
+          store.dispatch({type: "SET_TRANSIT_DATA", data: transitData});
+        }
       });
     }
   });
