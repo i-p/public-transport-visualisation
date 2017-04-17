@@ -405,3 +405,9 @@ a.stop-name:hover {
   background-color: darkred;
 }
 
+.cesium-selection-wrapper svg {
+  fill: #bcddfe;
+  stroke: #ffffff;
+  paint-order: stroke;
+  stroke-width: 5px;
+}
