@@ -1,8 +1,8 @@
 import * as Selection from "../models/selectionTypes"
 
-function selectAndFlyTo(entity, viewer) {
+function selectAndFlyTo(entity, viewer, options) {
   if (entity) {
-    viewer.flyTo(entity);
+    viewer.flyTo(entity, options);
     viewer.selectedEntity = entity;
   } else {
     console.warn("No matching entity exists");
@@ -21,7 +21,7 @@ let selectionActions = {
 
       entity.show = true;
 
-      viewer.flyTo(entity);
+      viewer.flyTo(entity, { duration: 1.5 });
     },
     exit: (selection, viewer) => {
       let {route, shape} = selection.value;
@@ -39,7 +39,10 @@ let selectionActions = {
         e => e.transit && e.transit.stop);
       let entity = entities.find(e => e.transit.stop === selection.value);
 
-      selectAndFlyTo(entity, viewer);
+      selectAndFlyTo(entity, viewer, {
+        duration: 1.5,
+        offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 800)
+      });
     },
     exit: (selection, viewer) => {
       viewer.selectedEntity = null;
@@ -53,7 +56,10 @@ let selectionActions = {
 
       let entity = entities.find(e => e.transit.stop === selection.value.stop);
 
-      selectAndFlyTo(entity, viewer);
+      selectAndFlyTo(entity, viewer, {
+        duration: 1.5,
+        offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 800)
+      });
     },
     exit: (selection, viewer) => {
       viewer.selectedEntity = null;
