@@ -50,14 +50,18 @@ let StopView = ({stop, time, transitData }) => {
 
 const NextStopTime = ({st, secondsOfDay}) =>
   <tr>
-    <td><RouteStopLink route={st.trip.route} stop={stop}>{st.trip.route.id}</RouteStopLink></td>
+    <td><RouteStopLink route={st.trip.route} stop={st.stop}>{st.trip.route.id}</RouteStopLink></td>
     <td>{st.trip.lastStop.name}</td>
     <td style={{"text-align":"right", padding: "5px"}}>{Math.ceil((st.arrivalTime - secondsOfDay) / 60) + " min"}</td>
     <td style={{"text-align":"right"}}><StopTimeLink stopTime={st}/></td>
   </tr>;
 
+const mapStateToProps = (state) => {
+  return {
+    stop: state.selection.value,
+    transitData: state.transitData,
+    time: state.time
+  };
+};
 
-
-export const SelectedStopView = connect(
-  s => ({stop:s.selection.value, transitData: s.transitData, time: s.time })
-)(StopView);
+export const SelectedStopView = connect(mapStateToProps)(StopView);

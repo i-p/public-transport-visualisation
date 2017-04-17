@@ -16,6 +16,7 @@ import {selectNothing} from "./redux/actions";
 import {createCesiumSubscriber} from "./cesium/cesiumStoreSubscriber";
 import loadCityData from "./cities/Bratislava"
 import { Provider } from "react-redux";
+import {BrowserRouter as Router} from "react-router-dom";
 
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
@@ -33,7 +34,9 @@ let store = configureStore({
 ReactDOM.render(
   <AppContainer>
     <Provider store={store}>
-      <AppLayout />
+      <Router>
+        <AppLayout />
+      </Router>
     </Provider>
   </AppContainer>,
   document.getElementsByTagName("main")[0]);
@@ -62,9 +65,10 @@ imageryProvider.readyPromise.then(() => {
   }
 });
 
+//TODO specify base path
 const dataPromise = Promise.all([
-  Cesium.loadJson("data.json"),
-  Cesium.loadJson("timetables.json")
+  Cesium.loadJson("/data.json"),
+  Cesium.loadJson("/timetables.json")
 ]);
 
 const viewer = new Cesium.Viewer("cesiumContainer", {

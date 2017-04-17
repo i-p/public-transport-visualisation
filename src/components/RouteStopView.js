@@ -51,8 +51,13 @@ const StopTimesAtHour = ({hour, stopTimes}) =>
     })}</td>
   </tr>;
 
+const mapStateToProps = (state) => {
+  const route = state.selection.value.route;
+  const stop = state.selection.value.stop;
+  return {
+    route, stop, transitData: state.transitData
+  };
+};
 
-export const SelectedRouteStopView = connect(
-  s => ({route: s.selection.value.route, stop: s.selection.value.stop, transitData: s.transitData })
-)(RouteStop);
+export const SelectedRouteStopView = connect(mapStateToProps)(RouteStop);
 

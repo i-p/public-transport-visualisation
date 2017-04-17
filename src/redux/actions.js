@@ -1,12 +1,12 @@
 
 export const selectRouteStop =
-  (route, stop) => ({type: "SELECT_ROUTE_AND_STOP", route, stop});
+  (routeId, stopId) => ({type: "SELECT_ROUTE_AND_STOP", routeId, stopId});
 
 export const selectRoute =
-  (route, shape = route.shapes[0]) => ({ type: "SELECT_ROUTE", route, shape });
+  (routeId, shapeId) => ({ type: "SELECT_ROUTE", routeId, shapeId });
 
 export const selectStop =
-  (stop) => ({ type: "SELECT_STOP", stop });
+  (stopId) => ({ type: "SELECT_STOP", stopId });
 
 export const selectStopTime =
   (stopTime) => ({ type: "SELECT_STOP_TIME", stopTime });

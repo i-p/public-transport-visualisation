@@ -2,6 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import { connect } from "react-redux";
 import { selectRoute } from "../redux/actions"
+import {Link} from "react-router-dom";
 
 const classForType = {
   bus: "route-link-bus",
@@ -18,11 +19,10 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const RouteLink = connect(null, mapDispatchToProps)(({route, children, useStyle="true", triggerHighlight=false, selectRoute, highlight}) =>
-  <a className={useStyle == "true" ? getClasses(route) : ""}
-     href="#"
+  <Link to={`/route/${route.id}`} className={useStyle == "true" ? getClasses(route) : ""}
      onMouseEnter={() => triggerHighlight && highlight(route)}
      onMouseLeave={() => triggerHighlight && highlight(null)}
-     onClick={() => selectRoute(route)}>{children || route.id}</a>);
+     >{children || route.id}</Link>);
 
 
 

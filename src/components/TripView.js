@@ -16,9 +16,14 @@ let TripView = ({trip, time}) => {
   </Panel>
 };
 
-export const SelectedTripView = connect(
-  s => ({trip: s.selection.value, time: s.time })
-)(TripView);
+const mapStateToProps = (state) => {
+  return {
+    trip: state.selection.value,
+    time: state.time
+  };
+};
+
+export const SelectedTripView = connect(mapStateToProps)(TripView);
 
 let Timetable = ({stopTimes, time}) => (<table>
   <tbody>{stopTimes.map((st, i) =>

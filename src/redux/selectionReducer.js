@@ -1,6 +1,6 @@
 const defaultState = { type: "SELECTION_EMPTY", value:null };
 
-export default (state = defaultState, action) => {
+export default (state = defaultState, action, transitData) => {
   switch (action.type) {
     case "SELECT_ENTITY":
       const entity = action.entity;
@@ -15,13 +15,17 @@ export default (state = defaultState, action) => {
     case "SELECT_NOTHING":
       return { type: "SELECTION_EMPTY", value: null };
     case "SELECT_STOP":
-      return { type: "SELECTION_STOP", value: action.stop };
+      return { type: "SELECTION_STOP", value: transitData.getStopById(parseInt(action.stopId)) };
     case "SELECT_ROUTE":
-      return { type: "SELECTION_ROUTE", value: { route: action.route, shape: action.shape }};
+      const route = transitData.getRouteById(action.routeId);
+      const shape = action.shapeId == null ? route.shapes[0] : transitData.getShapeById(parseInt(action.shapeId));
+
+      return { type: "SELECTION_ROUTE", value: { route, shape }};
     case "SELECT_ROUTE_AND_STOP":
-      return { type: "SELECTION_STOP_AND_ROUTE", value: {
-        route: action.route, stop: action.stop
-      }};
+      const route2 = transitData.getRouteById(action.routeId);
+      const stop = transitData.getStopById(parseInt(action.stopId));
+
+      return { type: "SELECTION_STOP_AND_ROUTE", value: { route: route2, stop }};
     case "HIGHLIGHT":
       return { type: state.type, value: state.value, highlight: action.object };
     default:

@@ -4,6 +4,7 @@ import _ from "lodash"
 import StopLink from "./StopLink"
 import Panel from "./Panel"
 import {selectRoute} from "../redux/actions"
+import {Link} from "react-router-dom";
 
 const secondsToMinutes = s => Math.floor(s / 60);
 
@@ -13,23 +14,22 @@ export class RouteView extends React.Component {
     super();
     this.state = {index: 0};
   }
-  selectDirection(index, shape) {
-    this.setState({ index });
-    this.props.selectRoute(shape.route, shape);
-  }
   render() {
     const route = this.props.route;
 
     let tripsByShape = Object.values(_.groupBy(route.trips, t => t.shape.id));
 
-    let selectedTrip = tripsByShape[this.state.index][0];
+    //TODO FIX
+    let selectedTrip = tripsByShape[0 /* this.state.index*/][0];
 
     return <Panel type={route.getType()}>
       <div className="route-title">{route.id}</div>
       {tripsByShape.map((t,i) =>
                           <Direction name={t[0].lastStop.name}
-                                     isSelected={i === this.state.index}
-                                     onClick={() => this.selectDirection(i, t[0].shape)} />)}
+                                     route={route}
+                                     shape={t[0].shape}
+                                     isSelected={t[0].shape === this.props.shape}
+                                     key={i} />)}
       <div className="scr">
         <TripStops key={selectedTrip.id} trip={selectedTrip} stopTimes={selectedTrip.stopTimes}/>
       </div>
@@ -38,8 +38,8 @@ export class RouteView extends React.Component {
 }
 
 
-let Direction = ({onClick, name, isSelected}) => {
-  return <a style={{"display": "block", "font-weight": isSelected ? "bold" : ""}} onClick={onClick}>{name}</a>
+let Direction = ({route, shape, name, isSelected}) => {
+  return <Link to={`/route/${route.id}/shape/${shape.id}`} style={{"display": "block", "font-weight": isSelected ? "bold" : ""}}>{name}</Link>
 };
 
 
@@ -55,7 +55,12 @@ let TripStops = ({trip, stopTimes}) => {
   </table>
 }
 
-const mapStateToProps = s => ({ route:s.selection.value.route, shape: s.selection.value.shape });
+const mapStateToProps = (s) => {
+  const route = s.selection.value.route;
+  const shape = s.selection.value.shape;
+  return { route, shape };
+};
+
 const mapDispatchToProps = dispatch => ({
   selectRoute: (route, shape) => dispatch(selectRoute(route, shape))
 });
