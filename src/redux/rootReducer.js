@@ -24,10 +24,20 @@ const speedReducer = (s = defaultSpeed, action) => {
   }
 };
 
-const rootReducer = (state = {selection: null, transitData: null, time: null, speed: null}, action) => {
+const searchReducer = (s = "", action) => {
+  switch (action.type) {
+    case "SEARCH":
+      return action.text;
+    default:
+      return s;
+  }
+};
+
+const rootReducer = (state = {selection: null, transitData: null, time: null, speed: null, search: ""}, action) => {
   const transitData = transitDataReducer(state.transitData, action);
 
   return ({
+    search: searchReducer(state.search, action),
     selection: selectionReducer(state.selection, action, transitData),
     transitData,
     time: timeReducer(state.time, action),

@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import RouteLink from "./RouteLink"
 import Panel from "./Panel"
 import _ from "lodash"
+import StopLink from "./StopLink";
 
 
 
@@ -28,7 +29,7 @@ export class RoutesOverview extends React.Component {
     this.routeCount = 0;
   }
   shouldComponentUpdate(nextProps) {
-    return nextProps.routes.length !== this.routeCount;
+    return nextProps.routes.length !== this.routeCount || this.props.search !== nextProps.search;
   }
   render() {
 
@@ -43,8 +44,30 @@ export class RoutesOverview extends React.Component {
       });
     });
 
+    //TODO move out
+    const toSearchableString = str =>
+      Array.from(str.toLowerCase().normalize("NFD")).filter(c => /[a-zA-Z0-9]/.test(c)).join("");
+
+    const stopsByName = _.toPairs(_.groupBy(this.props.stops, s => toSearchableString(s.normalizedName)));
+
+    const compareStrings = (s1, s2) => s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
+
+    stopsByName.sort((s1, s2) => compareStrings(s1[0], s2[0]));
+
+    const searchString = toSearchableString(this.props.search);
+    const matchingStops = stopsByName.filter(s => searchString !== "" && s[0].startsWith(searchString));
+
     //TODO constants
     return <Panel>
+      <div className="search-box">
+        <input type="text" value={this.props.search} onChange={e => this.props.searchFor(e.target.value)} placeholder="Enter a stop name"/>
+
+        <ul>
+          {matchingStops.slice(0, 10).map(s => <li><StopLink stop={s[1][0]}>{s[1][0].name} ({s[1].length})</StopLink></li>)}
+          {matchingStops.length > 10 ? <li>5 more...</li> : null}
+        </ul>
+      </div>
+
       <div className="heading heading-tram">Tram routes</div>
       <div className="route-list">
         {(routesByType["tram"] || []).map(r => <RouteLink key={r.id} route={r} triggerHighlight="true" />)}
@@ -61,9 +84,10 @@ export class RoutesOverview extends React.Component {
   }
 }
 
-let mapStateToProps = (state) => ({ routes: Array.from(state.transitData.routes.values()) });
+//TODO FIX
+let mapStateToProps = (state) => ({ routes: Array.from(state.transitData.routes.values()), search: state.search, stops: Array.from(state.transitData.stops.values()) });
+let mapDispatchToProps = (dispatch) => ({ searchFor: text => dispatch({type: "SEARCH", text}) });
 
-
-export const AllRoutesOverview = connect(mapStateToProps, null)(RoutesOverview);
+export const AllRoutesOverview = connect(mapStateToProps, mapDispatchToProps)(RoutesOverview);
 
 

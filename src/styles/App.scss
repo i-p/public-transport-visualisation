@@ -411,3 +411,28 @@ a.stop-name:hover {
   paint-order: stroke;
   stroke-width: 5px;
 }
+
+.search-box {
+  input {
+    border: 0;
+    border-bottom: 1px solid gray;
+    outline: none;
+    width: 100%;
+  }
+
+  input::placeholder {
+    font-style: italic;
+  }
+
+  input:focus::placeholder {
+    visibility: hidden;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  ul {
+    padding-left: 3px;
+  }
+}
