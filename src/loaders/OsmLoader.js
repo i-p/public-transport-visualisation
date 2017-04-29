@@ -248,13 +248,10 @@ export default class OsmLoader {
       });
     });
 
-    path._points = path.points.map(p => p.pos);
-    path._distances = path.points.map(p => p.distance);
-
-    path.simulator =
+    this.transitData.simulators[path.id] =
       new VehicleSimulator({
-        points: path._points,
-        distances: path._distances,
+        points: path.points.map(p => p.pos),
+        distances: path.points.map(p => p.distance),
         stepCount: 100,
         wheelbase: 10,
         storeResultPoints: path.id == 131484

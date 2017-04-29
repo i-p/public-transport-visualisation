@@ -20,7 +20,7 @@ const colorsByType = {
 
 
 //TODO rename to makeVehicle + fix transit.type
-function makeBus(positionProperty, trip) {
+function makeBus(positionProperty, trip, speedProfile, vehicleState) {
 
   const propertyWithOffset = (zOffset, property) => new Cesium.CallbackProperty((time, result) => {
     let value = property.getValue(time, result);
@@ -38,8 +38,8 @@ function makeBus(positionProperty, trip) {
   const availability = new Cesium.TimeIntervalCollection();
 
   const interval = new Cesium.TimeInterval();
-  Cesium.JulianDate.clone(trip.speedProfile._startTime, interval.start);
-  Cesium.JulianDate.clone(trip.speedProfile._endTime, interval.stop);
+  Cesium.JulianDate.clone(speedProfile._startTime, interval.start);
+  Cesium.JulianDate.clone(speedProfile._endTime, interval.stop);
 
   interval.isStartIncluded = true;
   interval.isStopIncluded = false;
@@ -51,7 +51,7 @@ function makeBus(positionProperty, trip) {
   entity._position = actualPosition;
   entity._orientation = new Cesium.CallbackProperty((time, result) => {
     //TODO check time
-    return trip.vehicleState.getQuaternion(result);
+    return vehicleState.getQuaternion(result);
   }, false);
   entity.transit = {
     type: "bus",
@@ -112,8 +112,8 @@ function createVehicleLabel(trip) {
 
 const modelMatrixScratch = new Cesium.Matrix3();
 
-function createVehiclePrimitive(vehicleEntity, trip, type) {
-  vehicleEntity._getModelMatrix(trip.speedProfile._startTime, modelMatrixScratch);
+function createVehiclePrimitive(vehicleEntity, trip, type, speedProfile) {
+  vehicleEntity._getModelMatrix(speedProfile._startTime, modelMatrixScratch);
 
   //TODO move model path to options
   return Cesium.Model.fromGltf({
@@ -259,25 +259,29 @@ let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
 export default function createVehicleEntity(viewer, vehicles, trip, toDate, transitData) {
   // TODO this should be calculated somewhere else
-  trip.speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate, transitData.getShapeById(trip.shape));
-  trip.vehicleState = new VehicleState();
+
+  const speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate, transitData.getShapeById(trip.shape));
+  transitData.speedProfiles[trip.id] = speedProfile;
+
+  const vehicleState = new VehicleState();
+  transitData.vehicleStates[trip.id] = vehicleState;
 
   const positionProperty = new Cesium.CallbackProperty((time, result) => {
-    if (Cesium.JulianDate.lessThan(time, trip.speedProfile._startTime)) return undefined;
-    if (Cesium.JulianDate.greaterThan(time, trip.speedProfile._endTime)) return undefined;
+    if (Cesium.JulianDate.lessThan(time, speedProfile._startTime)) return undefined;
+    if (Cesium.JulianDate.greaterThan(time, speedProfile._endTime)) return undefined;
 
     //TODO check time
     //TODO VehicleState.set(position, orientation, time)
-    return Cesium.Cartesian3.clone(trip.vehicleState.position, result);
+    return Cesium.Cartesian3.clone(vehicleState.position, result);
   }, false);
 
-  const entity = makeBus(positionProperty, trip);
+  const entity = makeBus(positionProperty, trip, speedProfile, vehicleState);
 
   // Vehicle primitive needs correct initial values
-  updateVehicleState(entity, trip.speedProfile._startTime, transitData);
+  updateVehicleState(entity, speedProfile._startTime, transitData);
 
   const route = transitData.getRouteById(trip.route);
-  const primitive = createVehiclePrimitive(entity, trip, route.getType());
+  const primitive = createVehiclePrimitive(entity, trip, route.getType(), speedProfile);
 
   entity.show = false;
   primitive.show = false;

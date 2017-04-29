@@ -6,27 +6,31 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
   let trip = vehicleEntity.transit.trip;
   let index = trip.indexOfStop(time);
 
+  let vehicleState = transitData.vehicleStates[trip.id];
+
   if (index == -1) {
-    trip.vehicleState.show = false;
+    vehicleState.show = false;
     return;
   }
 
-  trip.vehicleState.show = true;
+  vehicleState.show = true;
 
   const shape = transitData.getShapeById(trip.shape);
+
+  const simulator = transitData.simulators[trip.shape];
 
   if (index % 2 == 0) {
     const stopTime = trip.stopTimes[index / 2];
     const pointIndex = stopTime.stopSequence - 1;
 
-    shape.simulator.orientationAtPoint(pointIndex, trip.vehicleState.orientation);
-    shape.simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, trip.vehicleState.position);
+    simulator.orientationAtPoint(pointIndex, vehicleState.orientation);
+    simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, vehicleState.position);
   } else {
     let fromPoint = transitData.getPointFor(trip, trip.stopTimes[(index - 1) / 2]);
     let toPoint = transitData.getPointFor(trip, trip.stopTimes[(index - 1) / 2 + 1]);
 
     // TODO make it non-relative
-    let distance = trip.speedProfile.getDistanceFromStartOfTripSegmentAt(time);
+    let distance = transitData.speedProfiles[trip.id].getDistanceFromStartOfTripSegmentAt(time);
 
     let segmentIndex = shape.getSegmentIndexByDistance(distance, fromPoint, toPoint);
 
@@ -36,11 +40,11 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
 
     let t = ((distance + fromPoint.distance) - pFrom.distance) / (pTo.distance - pFrom.distance);
 
-    let position = trip.vehicleState.position;
-    let orientation = trip.vehicleState.orientation;
+    let position = vehicleState.position;
+    let orientation = vehicleState.orientation;
 
     // TODO remember alpha?
-    shape.simulator.interpolate(segmentIndex, t, position, orientation);
-    shape.simulator.positionAlongVehicle(position, orientation, - L / 2, position);
+    simulator.interpolate(segmentIndex, t, position, orientation);
+    simulator.positionAlongVehicle(position, orientation, - L / 2, position);
   }
 }

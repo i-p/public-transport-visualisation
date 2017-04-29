@@ -15,6 +15,10 @@ export class TransitFeed {
     this.lastDepartureTime = Number.MIN_VALUE;
 
     this.osmElements = {};
+    this.simulators = {};
+
+    this.speedProfiles = {};
+    this.vehicleStates = {};
   }
 
   getTripById(trip) {
