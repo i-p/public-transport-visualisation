@@ -31,10 +31,10 @@ export function findShapeByOsmRoute(transitData, routeId, fromStopName,
 
   for (let c of candidates) {
     //TODO check if there is only one stop with given name
-    const fromPoint = c.getNextPointByStopName(fromStopNorm, null, transitData.getStopById.bind(transitData));
-    const toPoint = c.getPrevPointByStopName(toStopNorm, null, transitData.getStopById.bind(transitData));
+    const fromPointIndex = c.getNextPointByStopName(fromStopNorm, -1, transitData.getStopById.bind(transitData));
+    const toPointIndex = c.getPrevPointByStopName(toStopNorm, -1, transitData.getStopById.bind(transitData));
 
-    if (fromPoint && toPoint && fromPoint.sequence < toPoint.sequence) {
+    if (fromPointIndex >= 0 && toPointIndex >=0 && fromPointIndex < toPointIndex) {
       return c;
     }
   }
@@ -81,18 +81,18 @@ export function addTrips(transitData, routeTimetables, stopSeconds) {
 
       stops.forEach(s => {
         // stop names are not unique, so we have to ignore previous points
-        const point = shape.getNextPointByStopName(s.name, lastPoint, transitData.getStopById.bind(transitData));
-        if (!point) {
+        const pointIndex = shape.getNextPointByStopName(s.name, lastPoint, transitData.getStopById.bind(transitData));
+        if (pointIndex < 0) {
           console.warn(`${route.id} - cannot find point for ${s.name}`);
 
           //TODO FIX osmNode -> osmNodeId
 //Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.tags.name).join(",")}`);
           return;
         }
-        lastPoint = point;
+        lastPoint = pointIndex;
 
-        s.stop = transitData.getStopById(point.osmNodeId);
-        s.stopSequence = point.sequence;
+        s.stop = transitData.getStopById(shape.osmNodeIds[pointIndex]);
+        s.stopSequence = pointIndex + 1;
       });
 
 

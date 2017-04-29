@@ -234,9 +234,9 @@ export default class OsmLoader {
       sp.slices.forEach(([start, end]) => {
         for (let i = start; i <= end; i++) {
           const nodeId = sp.getNode(i);
-          const lastPoint = _.last(path.points);
+          const lastPointOsmNodeId = _.last(path.osmNodeIds);
 
-          const skipDuplicateNode = i == start && lastPoint && nodeId === lastPoint.osmNodeId;
+          const skipDuplicateNode = i == start && nodeId === lastPointOsmNodeId;
           if (skipDuplicateNode) continue;
 
           const osmNode = getElementById(nodeId, "node");
@@ -250,8 +250,8 @@ export default class OsmLoader {
 
     this.transitData.simulators[path.id] =
       new VehicleSimulator({
-        points: path.points.map(p => p.pos),
-        distances: path.points.map(p => p.distance),
+        points: path.positions,
+        distances: path.distances,
         stepCount: 100,
         wheelbase: 10,
         storeResultPoints: path.id == 131484

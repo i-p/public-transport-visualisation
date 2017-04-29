@@ -5,32 +5,41 @@ export class Shape {
   constructor({id, osmRelationId, normalize, route}) {
     this.id = id;
     this.osmRelationId = osmRelationId;
-    this.points = [];
+
     //TODO no write usage
     this.pointByName = {};
     this.normalize = normalize;
     this.route = route;
+
+
+    this.distances = [];
+    this.osmNodeIds = [];
+    this.positions = [];
+    this.stopIds = [];
   }
 
-  _getPointByStopName(stopName, from, to, step, getStopById) {
+  _getPointIndexByStopName(stopName, from, to, step, getStopById) {
     const normalizedName = this.normalize(stopName);
 
     //TODO verify loop bounds
 
     // assuming that points are correctly numbered by sequence property
     for (let i = from; i != (to + step); i += step) {
-      const point = this.points[i];
+      const stopId = this.stopIds[i];
 
-      if (point.stopId !== 0) {
-        const normalizedStopName = this.normalize(getStopById(point.stopId).name);
+      if (stopId > 0) {
+        const normalizedStopName = this.normalize(getStopById(stopId).name);
 
         if (normalizedName === normalizedStopName) {
-          return point;
+          return i;
         }
       }
     }
+
+    return -1;
   }
 
+  //TODO unused
   getPositionsBetweenStops(fromStop, toStop) {
     const from = this.points.findIndex(p => p.osmNodeId === fromStop.osmNodeId);
     const to = this.points.findIndex(p => p.osmNodeId === toStop.osmNodeId);
@@ -41,50 +50,49 @@ export class Shape {
     return this.points.slice(from, to + 1).map(p => p.pos);
   }
 
-  getNextPointByStopName(stopName, fromPoint = null, getStopById) {
-    // sequence == index + 1
-    const from = fromPoint ? fromPoint.sequence : 0;
-    const to = this.points.length - 1;
+  getNextPointByStopName(stopName, fromPointIndex = -1, getStopById) {
+    const from = fromPointIndex >= 0  ? fromPointIndex + 1 : 0;
+    const to = this.positions.length - 1;
 
-    return this._getPointByStopName(stopName, from, to, +1, getStopById);
+    return this._getPointIndexByStopName(stopName, from, to, +1, getStopById);
   }
 
-  getPrevPointByStopName(stopName, fromPoint = null, getStopById) {
-    // sequence == index + 1
-    const from = fromPoint ? fromPoint.sequence - 2 : this.points.length - 1;
+  getPrevPointByStopName(stopName, fromPointIndex = -1, getStopById) {
+    const from = fromPointIndex >= 0 ? fromPointIndex - 1 : this.positions.length - 1;
     const to = 0;
 
-    return this._getPointByStopName(stopName, from, to, -1, getStopById);
+    return this._getPointIndexByStopName(stopName, from, to, -1, getStopById);
   }
 
   toPositionArray() {
-    return this.points.map(p => p.pos);
+    return this.positions;
   }
 
   appendPoint(pos, osmNodeId, stopId) {
     let distance;
-    if (this.points.length === 0) {
+    if (this.positions.length === 0) {
       distance = 0;
     } else {
-      var prev = this.points[this.points.length - 1];
-      distance = prev.distance + Cesium.Cartesian3.distance(pos, prev.pos);
+      var prevDistance = this.distances[this.positions.length - 1];
+      const prevPos = this.positions[this.positions.length - 1];
+      distance = prevDistance + Cesium.Cartesian3.distance(pos, prevPos);
     }
 
-    // GTFS: must be non-negative integer
-    let sequence = this.points.length + 1;
-    let newPoint = { pos, distance, sequence, osmNodeId, stopId };
-    this.points.push(newPoint);
+    this.positions.push(pos);
+    this.distances.push(distance);
+    this.osmNodeIds.push(osmNodeId);
+    this.stopIds.push(stopId);
   }
 
   //TODO check if distance is not greater then lastPoint - firstPoint
-  getSegmentIndexByDistance(distance, firstPoint, lastPoint) {
-    let toIndex = lastPoint.sequence - 1;
+  getSegmentIndexByDistance(distance, firstPointIndex, lastPointIndex) {
+    let toIndex = lastPointIndex;
 
-    for (let i = firstPoint.sequence; i <= lastPoint.sequence; i++) {
-      let relativeDistance = this.points[i - 1].distance - firstPoint.distance;
+    for (let i = firstPointIndex; i <= lastPointIndex; i++) {
+      let relativeDistance = this.distances[i] - this.distances[firstPointIndex];
 
       if (relativeDistance > distance) {
-        toIndex = i - 1;
+        toIndex = i;
         break;
       }
     }

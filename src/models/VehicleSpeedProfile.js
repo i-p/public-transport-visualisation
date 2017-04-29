@@ -76,10 +76,10 @@ function makeInterval(shape, toDate, previous, current) {
 }
 
 function calculateSpeedProfile(startTime, endTime, shape, fromStopTime, toStopTime) {
-  const firstPoint = shape.points[fromStopTime.stopSequence - 1];
-  const lastPoint = shape.points[toStopTime.stopSequence - 1];
+  const firstPointDist = shape.distances[fromStopTime.stopSequence - 1];
+  const lastPointDist = shape.distances[toStopTime.stopSequence - 1];
 
-  let distance = lastPoint.distance - firstPoint.distance;
+  let distance = lastPointDist - firstPointDist;
   let time = Cesium.JulianDate.secondsDifference(endTime, startTime);
 
   let desiredAcceleration = 0.3;

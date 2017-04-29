@@ -30,9 +30,8 @@ export class TransitFeed {
     return Object.keys(this.trips).length;
   }
 
-  getPointFor(trip, stopTime) {
-    //TODO getBySequenceId()
-    return this.getShapeById(trip.shape).points[stopTime.stopSequence - 1];
+  indexOfPoint(trip, stopTime) {
+    return stopTime.stopSequence - 1;
   }
 
   getRouteTrip(route, tripIndex) {

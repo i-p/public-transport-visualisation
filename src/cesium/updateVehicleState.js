@@ -26,19 +26,19 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
     simulator.orientationAtPoint(pointIndex, vehicleState.orientation);
     simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, vehicleState.position);
   } else {
-    let fromPoint = transitData.getPointFor(trip, trip.stopTimes[(index - 1) / 2]);
-    let toPoint = transitData.getPointFor(trip, trip.stopTimes[(index - 1) / 2 + 1]);
+    let fromPointIndex = transitData.indexOfPoint(trip, trip.stopTimes[(index - 1) / 2]);
+    let toPointIndex = transitData.indexOfPoint(trip, trip.stopTimes[(index - 1) / 2 + 1]);
 
     // TODO make it non-relative
     let distance = transitData.speedProfiles[trip.id].getDistanceFromStartOfTripSegmentAt(time);
 
-    let segmentIndex = shape.getSegmentIndexByDistance(distance, fromPoint, toPoint);
+    let segmentIndex = shape.getSegmentIndexByDistance(distance, fromPointIndex, toPointIndex);
 
 
-    let pFrom = shape.points[segmentIndex];
-    let pTo = shape.points[segmentIndex + 1];
+    let pFromDist = shape.distances[segmentIndex];
+    let pToDist = shape.distances[segmentIndex + 1];
 
-    let t = ((distance + fromPoint.distance) - pFrom.distance) / (pTo.distance - pFrom.distance);
+    let t = ((distance + shape.distances[fromPointIndex]) - pFromDist) / (pToDist - pFromDist);
 
     let position = vehicleState.position;
     let orientation = vehicleState.orientation;
