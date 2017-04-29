@@ -6,7 +6,7 @@ import _ from "lodash"
 import Panel from "./Panel"
 import StopLink from "./StopLink"
 
-let RouteStop = ({route, stop, transitData}) => {
+export const RouteStopView = ({route, stop, transitData}) => {
   let stopTimesByRoute = new Map();
 
   for (let t of transitData.trips.values()) {
@@ -59,5 +59,5 @@ const mapStateToProps = (state) => {
   };
 };
 
-export const SelectedRouteStopView = connect(mapStateToProps)(RouteStop);
+export const SelectedRouteStopView = connect(mapStateToProps)(RouteStopView);
 

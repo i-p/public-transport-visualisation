@@ -4,7 +4,7 @@ import _ from "lodash"
 import * as utils from "../utils"
 import classNames from "classnames"
 
-class BottomPanelComponent extends React.Component {
+export class BottomPanelComponent extends React.Component {
   constructor(props) {
     super(props);
     this.onMouseMove = this.onMouseMove.bind(this);

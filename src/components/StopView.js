@@ -6,7 +6,7 @@ import StopTimeLink from "./StopTimeLink"
 import _ from "lodash"
 import Panel from "./Panel"
 
-let StopView = ({stop, time, transitData }) => {
+export const StopView = ({stop, time, transitData }) => {
   let stopTimes = [];
   let selectedStop = stop;
   let stopTimesByRoute = new Map();

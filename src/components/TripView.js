@@ -7,7 +7,7 @@ import StopLink from "./StopLink";
 import StopTimeLink from "./StopTimeLink";
 import Panel from "./Panel"
 
-let TripView = ({trip, time}) => {
+export const TripView = ({trip, time}) => {
   return <Panel type={trip.route.getType()}>
     <h1 className="stop-name">
       <RouteLink route={trip.route} useStyle="false"/>
