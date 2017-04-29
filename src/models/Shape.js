@@ -2,9 +2,9 @@ import * as OsmElement from "./OsmElement";
 import Cesium from 'cesium';
 
 export class Shape {
-  constructor({id, osmRelation, normalize, route}) {
+  constructor({id, osmRelationId, normalize, route}) {
     this.id = id;
-    this.osmRelation = osmRelation;
+    this.osmRelationId = osmRelationId;
     this.points = [];
     //TODO no write usage
     this.pointByName = {};
@@ -12,7 +12,7 @@ export class Shape {
     this.route = route;
   }
 
-  _getPointByStopName(stopName, from, to, step) {
+  _getPointByStopName(stopName, from, to, step, getStopById) {
     const normalizedName = this.normalize(stopName);
 
     //TODO verify loop bounds
@@ -21,8 +21,8 @@ export class Shape {
     for (let i = from; i != (to + step); i += step) {
       const point = this.points[i];
 
-      if (OsmElement.isStopPositionNode(point.osmNode)) {
-        const normalizedStopName = this.normalize(point.osmNode.tags.name);
+      if (point.stopId !== 0) {
+        const normalizedStopName = this.normalize(getStopById(point.stopId).name);
 
         if (normalizedName === normalizedStopName) {
           return point;
@@ -32,8 +32,8 @@ export class Shape {
   }
 
   getPositionsBetweenStops(fromStop, toStop) {
-    const from = this.points.findIndex(p => p.osmNode === fromStop.osmNode);
-    const to = this.points.findIndex(p => p.osmNode === toStop.osmNode);
+    const from = this.points.findIndex(p => p.osmNodeId === fromStop.osmNodeId);
+    const to = this.points.findIndex(p => p.osmNodeId === toStop.osmNodeId);
 
     if (from < 0) throw new Error(`Stop id ${fromStop.id} was not found in shape ${this.id}`);
     if (to < 0) throw new Error(`Stop id ${to.id} was not found in shape ${this.id}`);
@@ -41,27 +41,27 @@ export class Shape {
     return this.points.slice(from, to + 1).map(p => p.pos);
   }
 
-  getNextPointByStopName(stopName, fromPoint = null) {
+  getNextPointByStopName(stopName, fromPoint = null, getStopById) {
     // sequence == index + 1
     const from = fromPoint ? fromPoint.sequence : 0;
     const to = this.points.length - 1;
 
-    return this._getPointByStopName(stopName, from, to, +1);
+    return this._getPointByStopName(stopName, from, to, +1, getStopById);
   }
 
-  getPrevPointByStopName(stopName, fromPoint = null) {
+  getPrevPointByStopName(stopName, fromPoint = null, getStopById) {
     // sequence == index + 1
     const from = fromPoint ? fromPoint.sequence - 2 : this.points.length - 1;
     const to = 0;
 
-    return this._getPointByStopName(stopName, from, to, -1);
+    return this._getPointByStopName(stopName, from, to, -1, getStopById);
   }
 
   toPositionArray() {
     return this.points.map(p => p.pos);
   }
 
-  appendPoint(pos, osmNode) {
+  appendPoint(pos, osmNodeId, stopId) {
     let distance;
     if (this.points.length === 0) {
       distance = 0;
@@ -72,7 +72,7 @@ export class Shape {
 
     // GTFS: must be non-negative integer
     let sequence = this.points.length + 1;
-    let newPoint = { pos, distance, sequence, osmNode };
+    let newPoint = { pos, distance, sequence, osmNodeId, stopId };
     this.points.push(newPoint);
   }
 

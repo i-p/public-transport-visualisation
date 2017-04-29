@@ -38,7 +38,7 @@ storiesOf('Stop link', module)
     const story = (dispatch =>
       <Provider store={store}>
         <MemoryRouter>
-          <StopLink stop={new Stop({stop_id: 1, pos: null, stop_name: "STOP NAME", osmNode: null})}
+          <StopLink stop={new Stop({stop_id: 1, pos: null, stop_name: "STOP NAME", osmNodeId: 123})}
                     dispatch={dispatch}>STOP NAME</StopLink>
         </MemoryRouter>
       </Provider>

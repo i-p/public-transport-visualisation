@@ -13,6 +13,8 @@ export class TransitFeed {
 
     this.firstArrivalTime = Number.MAX_VALUE;
     this.lastDepartureTime = Number.MIN_VALUE;
+
+    this.osmElements = {};
   }
 
   getTripById(trip) {

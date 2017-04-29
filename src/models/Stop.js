@@ -1,9 +1,9 @@
 export class Stop {
-  constructor({stop_id, pos, stop_name, osmNode}) {
+  constructor({stop_id, pos, stop_name, osmNodeId}) {
     this.id = stop_id;
     this.pos = pos;
     this.name = stop_name;
-    this.osmNode = osmNode;
+    this.osmNodeId = osmNodeId;
 
     //TODO calculate outside
     this.routes = [];

@@ -12,7 +12,7 @@ export function findShapeByOsmRoute(transitData, routeId, fromStopName,
   for (let i=0; i<transitData.shapesArray.length; i++) {
     const shape = transitData.shapesArray[i];
 
-    if (getTag(shape.osmRelation, "ref") === routeId) {
+    if (getTag(transitData.osmElements[shape.osmRelationId], "ref") === routeId) {
       candidates.push(shape);
     }
   }
@@ -23,24 +23,25 @@ export function findShapeByOsmRoute(transitData, routeId, fromStopName,
   let toStopNorm = transitData.normalize(toStopName);
 
   for (let c of candidates) {
-    if (transitData.normalize(getTag(c.osmRelation, "from")) === fromStopNorm
-      && transitData.normalize(getTag(c.osmRelation, "to")) === toStopNorm) {
+    if (transitData.normalize(getTag(transitData.osmElements[c.osmRelationId],"from")) === fromStopNorm
+      && transitData.normalize(getTag(transitData.osmElements[c.osmRelationId],"to")) === toStopNorm) {
       return c;
     }
   }
 
   for (let c of candidates) {
     //TODO check if there is only one stop with given name
-    const fromPoint = c.getNextPointByStopName(fromStopNorm);
-    const toPoint = c.getPrevPointByStopName(toStopNorm);
+    const fromPoint = c.getNextPointByStopName(fromStopNorm, null, transitData.getStopById.bind(transitData));
+    const toPoint = c.getPrevPointByStopName(toStopNorm, null, transitData.getStopById.bind(transitData));
 
     if (fromPoint && toPoint && fromPoint.sequence < toPoint.sequence) {
       return c;
     }
   }
 
+  //TODO FIX use osmRelation.tags.from and to
   console.warn(`Cannot find shape for route "${routeId}" from "${fromStopName}" to "${toStopName}".`,
-               "Candidates:", candidates.map(c => c.osmRelation.tags.from + " - " + c.osmRelation.tags.to).join(", "))
+               "Candidates:", candidates.map(c => c.osmRelationId + " - " + c.osmRelationId).join(", "))
 }
 
 
@@ -80,15 +81,17 @@ export function addTrips(transitData, routeTimetables, stopSeconds) {
 
       stops.forEach(s => {
         // stop names are not unique, so we have to ignore previous points
-        const point = shape.getNextPointByStopName(s.name, lastPoint);
+        const point = shape.getNextPointByStopName(s.name, lastPoint, transitData.getStopById.bind(transitData));
         if (!point) {
-          console.warn(`${route.id} - cannot find point for ${s.name}
-Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.tags.name).join(",")}`);
+          console.warn(`${route.id} - cannot find point for ${s.name}`);
+
+          //TODO FIX osmNode -> osmNodeId
+//Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.tags.name).join(",")}`);
           return;
         }
         lastPoint = point;
 
-        s.stop = transitData.getStopById(point.osmNode.id);
+        s.stop = transitData.getStopById(point.osmNodeId);
         s.stopSequence = point.sequence;
       });
 

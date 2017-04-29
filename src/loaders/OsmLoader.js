@@ -117,7 +117,7 @@ export default class OsmLoader {
       stop_id: osmNode.id,
       pos: osmNode.pos,
       stop_name: osmNode.tags.name,
-      osmNode
+      osmNodeId: osmNode.id
     });
     stop.normalizedName = this.normalize(osmNode.tags.name);
     this.transitData.addStop(stop);
@@ -223,7 +223,7 @@ export default class OsmLoader {
 
     const path = new Shape({
       id: osmRelation.id,
-      osmRelation: osmRelation,
+      osmRelationId: osmRelation.id,
       from: osmRelation.tags.from,
       to: osmRelation.tags.to,
       normalize: this.normalize,
@@ -236,12 +236,12 @@ export default class OsmLoader {
           const nodeId = sp.getNode(i);
           const lastPoint = _.last(path.points);
 
-          const skipDuplicateNode = i == start && lastPoint && nodeId === lastPoint.osmNode.id;
+          const skipDuplicateNode = i == start && lastPoint && nodeId === lastPoint.osmNodeId;
           if (skipDuplicateNode) continue;
 
           const osmNode = getElementById(nodeId, "node");
           if (osmNode) {
-            path.appendPoint(osmNode.pos, osmNode);
+            path.appendPoint(osmNode.pos, osmNode.id, Osm.isStopPositionNode(osmNode) ? osmNode.id : 0);
           }
           //TODO warning?
         }
@@ -261,15 +261,19 @@ export default class OsmLoader {
       });
 
     this.transitData.addShape(path);
+
+    this.transitData.osmElements[osmRelation.id] = osmRelation;
   }
   addRoute(osmRelation) {
     const r_id = osmRelation.tags.ref;
     let route = this.transitData.getRouteById(r_id);
 
     if (!route) {
-      route = new Route({route_id: r_id, route_short_name: r_id, osmRelation });
+      route = new Route({route_id: r_id, route_short_name: r_id, osmRelationId: osmRelation.id, route_type: Osm.getTag(osmRelation, "route") });
       this.transitData.addRoute(route);
     }
+
+    this.transitData.osmElements[osmRelation.id] = osmRelation;
 
     return route;
   }
