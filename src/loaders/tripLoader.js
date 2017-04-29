@@ -101,7 +101,7 @@ Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.n
 
           let arrivalTimeAtFirstStop = hour * 3600 + minute * 60;
 
-          const trip = new Trip({ route, shape });
+          const trip = new Trip({ route: route.id, shape: shape.id });
 
           for (let k = 0; k < stops.length; k++) {
             let {stop, time, stopSequence} = stops[k];

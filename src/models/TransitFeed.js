@@ -15,6 +15,11 @@ export class TransitFeed {
     this.lastDepartureTime = Number.MIN_VALUE;
   }
 
+  getPointFor(trip, stopTime) {
+    //TODO getBySequenceId()
+    return this.getShapeById(trip.shape).points[stopTime.stopSequence - 1];
+  }
+
   getRouteTrip(route, tripIndex) {
     return this.trips.get(route.trips[tripIndex]);
   }
@@ -43,8 +48,10 @@ export class TransitFeed {
     const toBucketIndex = time => (time / 600) | 0;
 
     for (let trip of this.trips.values()) {
+      const route = this.getRouteById(trip.route);
+
       for (let i = toBucketIndex(trip.firstArrivalTime); i <= toBucketIndex(trip.lastDepartureTime); i++) {
-        result[trip.route.getType()][i]++;
+        result[route.getType()][i]++;
       }
     }
 
@@ -98,14 +105,15 @@ export class TransitFeed {
 
     this.trips.set(trip.id, trip);
     if (trip.route) {
-      trip.route.trips.push(trip.id);
+      const route = this.getRouteById(trip.route);
+      route.trips.push(trip.id);
 
       trip.stopTimes.forEach(st => {
-        st.stop.belongsTo(trip.route);
+        st.stop.belongsTo(route);
       });
 
-      if (trip.shape && trip.route.shapes.indexOf(trip.shape.id) === -1) {
-        trip.route.shapes.push(trip.shape.id);
+      if (route.shapes.indexOf(trip.shape) === -1) {
+        route.shapes.push(trip.shape);
       }
 
       this.firstArrivalTime  = Math.min(this.firstArrivalTime,  trip.firstArrivalTime);

@@ -4,7 +4,7 @@ import {solveQuadratic} from "../utils";
 const resultsScratch = [null, null];
 
 export class VehicleSpeedProfile {
-  constructor(trip, stopTimes, toDate) {
+  constructor(trip, stopTimes, toDate, shape) {
     const intervalCollection = new Cesium.TimeIntervalCollection();
     const length = stopTimes.length;
 
@@ -18,7 +18,7 @@ export class VehicleSpeedProfile {
 
       if (i > 0) {
         const previousStopTime = trip.stopTimes[i - 1];
-        intervalCollection._intervals[i - 1] = makeInterval(trip, toDate, previousStopTime, stopTime);
+        intervalCollection._intervals[i - 1] = makeInterval(shape, toDate, previousStopTime, stopTime);
       }
     }
 
@@ -56,7 +56,7 @@ export class VehicleSpeedProfile {
   }
 }
 
-function makeInterval(trip, toDate, previous, current) {
+function makeInterval(shape, toDate, previous, current) {
   const interval = new Cesium.TimeInterval();
 
   toDate(previous.departureTime, interval.start);
@@ -65,7 +65,7 @@ function makeInterval(trip, toDate, previous, current) {
   interval.data = calculateSpeedProfile(
     interval.start,
     interval.stop,
-    trip.shape,
+    shape,
     previous,
     current);
 

@@ -47,7 +47,7 @@ function makeBus(positionProperty, trip) {
   availability.addInterval(interval);
 
   entity._availability = availability;
-  entity._name = trip.route.id;
+  entity._name = trip.route;
   entity._position = actualPosition;
   entity._orientation = new Cesium.CallbackProperty((time, result) => {
     //TODO check time
@@ -61,15 +61,16 @@ function makeBus(positionProperty, trip) {
 
   //entity._label = createVehicleLabel(trip);
 
-  if (billboardCache.has(trip.route.id)) {
-    entity._billboard = billboardCache.get(trip.route.id);
+  if (billboardCache.has(trip.route)) {
+    entity._billboard = billboardCache.get(trip.route);
   } else {
-    let canvas = Cesium.writeTextToCanvas(trip.route.id, {
+    let canvas = Cesium.writeTextToCanvas(trip.route, {
       // don't use custom font here, it doesn't have to be loaded yet
       font: "24px 'Verdana' ",
       padding: 6,
       fillColor: Cesium.Color.WHITE,
-      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[trip.route.getType()])
+      //TODO FIX
+      backgroundColor: Cesium.Color.fromCssColorString(colorsByType["bus"])
     });
 
     let bg = new Cesium.BillboardGraphics({
@@ -79,7 +80,7 @@ function makeBus(positionProperty, trip) {
       distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,
       eyeOffset: LABEL_EYE_OFFSET_PROPERTY
     });
-    billboardCache.set(trip.route.id, bg);
+    billboardCache.set(trip.route, bg);
     entity._billboard = bg;
   }
 
@@ -256,9 +257,9 @@ export function updateVehicles(viewer) {
 
 let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
-export default function createVehicleEntity(viewer, vehicles, trip, toDate) {
+export default function createVehicleEntity(viewer, vehicles, trip, toDate, transitData) {
   // TODO this should be calculated somewhere else
-  trip.speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate);
+  trip.speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate, transitData.getShapeById(trip.shape));
   trip.vehicleState = new VehicleState();
 
   const positionProperty = new Cesium.CallbackProperty((time, result) => {
@@ -273,9 +274,10 @@ export default function createVehicleEntity(viewer, vehicles, trip, toDate) {
   const entity = makeBus(positionProperty, trip);
 
   // Vehicle primitive needs correct initial values
-  updateVehicleState(entity, trip.speedProfile._startTime);
+  updateVehicleState(entity, trip.speedProfile._startTime, transitData);
 
-  const primitive = createVehiclePrimitive(entity, trip, trip.route.getType());
+  const route = transitData.getRouteById(trip.route);
+  const primitive = createVehiclePrimitive(entity, trip, route.getType());
 
   entity.show = false;
   primitive.show = false;

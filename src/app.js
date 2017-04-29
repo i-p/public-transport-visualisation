@@ -72,13 +72,13 @@ function init(viewer, transitData, start, stop) {
   var vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
-  transitData.trips.forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate));
+  transitData.trips.forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate, transitData));
 
   vehicles.update = function(time) {
     for (var i=0; i<this.entities.values.length; i++) {
       let entity = this.entities.values[i];
       if (entity.show) {
-        updateVehicleState(entity, time);
+        updateVehicleState(entity, time, transitData);
       }
     }
     return true;

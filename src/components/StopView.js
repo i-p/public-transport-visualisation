@@ -23,7 +23,7 @@ export const StopView = ({stop, time, transitData }) => {
         stopTimesByRoute.get(st.trip.route).push(st);
 
         if (st.arrivalTime >= secondsOfDay) {
-          stopTimes.push(st);
+          stopTimes.push([st, transitData.getRouteById(st.trip.route)]);
         }
       }
     }
@@ -35,22 +35,22 @@ export const StopView = ({stop, time, transitData }) => {
   // show < 1 min until the bus actually arrives
   return <Panel>
     <h1 className="stop-name">{stop.name}</h1>
-    <div className="route-list">{Array.from(stopTimesByRoute.keys(), r =>
+    <div className="route-list">{Array.from(Array.from(stopTimesByRoute.keys()).map(id => transitData.getRouteById(id)), r =>
       <RouteStopLink key={r.id} stop={stop} route={r}>
         <div className="route-list-item">{r.id}</div>
       </RouteStopLink>
     )}</div>
     <table className="t" style={{width:"100%"}}>
       <tbody>
-      {nextStopTimes.map(st => <NextStopTime key={st.arrivalTime} st={st} secondsOfDay={secondsOfDay}/>)}
+      {nextStopTimes.map(([st, r]) => <NextStopTime key={st.arrivalTime} route={r} st={st} secondsOfDay={secondsOfDay}/>)}
       </tbody>
     </table>
   </Panel>
 };
 
-const NextStopTime = ({st, secondsOfDay}) =>
+const NextStopTime = ({st, route, secondsOfDay}) =>
   <tr>
-    <td><RouteStopLink route={st.trip.route} stop={st.stop}>{st.trip.route.id}</RouteStopLink></td>
+    <td><RouteStopLink route={route} stop={st.stop}>{route.id}</RouteStopLink></td>
     <td>{st.trip.lastStop.name}</td>
     <td style={{"text-align":"right", padding: "5px"}}>{Math.ceil((st.arrivalTime - secondsOfDay) / 60) + " min"}</td>
     <td style={{"text-align":"right"}}><StopTimeLink stopTime={st}/></td>

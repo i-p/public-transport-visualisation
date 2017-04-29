@@ -7,10 +7,11 @@ import StopLink from "./StopLink";
 import StopTimeLink from "./StopTimeLink";
 import Panel from "./Panel"
 
-export const TripView = ({trip, time}) => {
-  return <Panel type={trip.route.getType()}>
+export const TripView = ({trip, time, transitData}) => {
+  const route = transitData.getRouteById(trip.route);
+  return <Panel type={route.getType()}>
     <h1 className="stop-name">
-      <RouteLink route={trip.route} useStyle="false"/>
+      <RouteLink route={route} useStyle="false"/>
     </h1>
     <Timetable stopTimes={trip.stopTimes} time={time}/>
   </Panel>
@@ -19,7 +20,8 @@ export const TripView = ({trip, time}) => {
 const mapStateToProps = (state) => {
   return {
     trip: state.selection.value,
-    time: state.time
+    time: state.time,
+    transitData: state.transitData
   };
 };
 

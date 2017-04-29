@@ -124,7 +124,7 @@ storiesOf("Trip view", module)
     return <Provider store={store}>
       <MemoryRouter>
         <TripView trip={transitData.getRouteTrip(transitData.getRouteById('206'), 30)}
-                  time={time} />
+                  time={time} transitData={transitData} />
       </MemoryRouter>
     </Provider>
   });

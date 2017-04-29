@@ -53,9 +53,4 @@ export class Trip {
     return Cesium.JulianDate.greaterThanOrEquals(time, this.speedProfile._startTime)
       && Cesium.JulianDate.lessThan(time, this.speedProfile._endTime);
   }
-
-  pointFor(stopTime) {
-    //TODO getBySequenceId()
-    return this.shape.points[stopTime.stopSequence - 1];
-  }
 }

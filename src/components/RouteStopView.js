@@ -9,6 +9,7 @@ import StopLink from "./StopLink"
 export const RouteStopView = ({route, stop, transitData}) => {
   let stopTimesByRoute = new Map();
 
+  //TODO move to transit data
   for (let t of transitData.trips.values()) {
     for (let st of t.stopTimes) {
       if (st.stop === stop) {
@@ -22,13 +23,13 @@ export const RouteStopView = ({route, stop, transitData}) => {
 
   return <Panel type={route.getType()}>
     <h1 className="stop-name"><StopLink stop={stop}>{stop.name}</StopLink></h1>
-    <div className="route-list">{Array.from(stopTimesByRoute.keys(), r =>
+    <div className="route-list">{Array.from(Array.from(stopTimesByRoute.keys()).map(id => transitData.getRouteById(id)), r =>
       <RouteStopLink key={r.id} stop={stop} route={r} isActive={r === route}>
         <div className="route-list-item">{r.id}</div>
       </RouteStopLink>
     )}</div>
     <div className="scr">
-      <RouteTimetableAtStop route={route} stopTimes={stopTimesByRoute.get(route)} />
+      <RouteTimetableAtStop route={route} stopTimes={stopTimesByRoute.get(route.id)} />
     </div>
   </Panel>;
 };
