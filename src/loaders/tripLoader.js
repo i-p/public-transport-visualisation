@@ -101,7 +101,7 @@ Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.n
 
           let arrivalTimeAtFirstStop = hour * 3600 + minute * 60;
 
-          const trip = new Trip({ route: route.id, shape: shape.id });
+          const trip = new Trip({ tripId: transitData.trips.size + 1, route: route.id, shape: shape.id });
 
           for (let k = 0; k < stops.length; k++) {
             let {stop, time, stopSequence} = stops[k];
@@ -112,7 +112,7 @@ Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.n
             // if we couldn't find matching stop, just continue
             if (stop) {
               trip.appendStopTime(new StopTime({
-                trip, arrivalTime, departureTime, stop, stopSequence
+                trip: trip.id, arrivalTime, departureTime, stop: stop.id, stopSequence
               }));
             }
           }
@@ -147,15 +147,17 @@ function calculateTripIndices(transitData) {
   events.sort((e1, e2) => e1.time - e2.time);
 
   events.forEach(e => {
+    const trip = transitData.trips.get(e.stopTime.trip);
+
     if (e.type === EVENT_START) {
       if (unusedIndices.length > 0) {
-        e.stopTime.trip.index = unusedIndices.pop();
+        trip.index = unusedIndices.pop();
       } else {
-        e.stopTime.trip.index = indexSize;
+        trip.index = indexSize;
         indexSize++;
       }
     } else {
-      unusedIndices.push(e.stopTime.trip.index);
+      unusedIndices.push(trip.index);
     }
   });
 

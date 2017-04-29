@@ -29,8 +29,8 @@ export function createCesiumSubscriber(store, viewer) {
 
               const aTrip = transitData.getRouteTripWithShape(s.route, s);
 
-              entityMap.get(aTrip.firstStop).showAlways = false;
-              entityMap.get(aTrip.lastStop).showAlways = false;
+              entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = false;
+              entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = false;
             }
           });
         }
@@ -54,8 +54,8 @@ export function createCesiumSubscriber(store, viewer) {
               entity.show = true;
               const aTrip = transitData.getRouteTripWithShape(s.route, s);
 
-              entityMap.get(aTrip.firstStop).showAlways = true;
-              entityMap.get(aTrip.lastStop).showAlways = true;
+              entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = true;
+              entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = true;
             }
           });
         }

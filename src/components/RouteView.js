@@ -25,31 +25,31 @@ export class RouteView extends React.Component {
     return <Panel type={route.getType()}>
       <div className="route-title">{route.id}</div>
       {tripsByShape.map((t,i) =>
-                          <Direction name={t[0].lastStop.name}
+                          <Direction name={this.props.transitData.getStopById(t[0].lastStop).name}
                                      route={route}
-                                     shape={t[0].shape}
+                                     shapeId={t[0].shape}
                                      isSelected={t[0].shape === this.props.shape}
                                      key={i} />)}
       <div className="scr">
-        <TripStops key={selectedTrip.id} trip={selectedTrip} stopTimes={selectedTrip.stopTimes}/>
+        <TripStops key={selectedTrip.id} trip={selectedTrip} stopTimes={selectedTrip.stopTimes} transitData={this.props.transitData} />
       </div>
     </Panel>;
   }
 }
 
 
-let Direction = ({route, shape, name, isSelected}) => {
-  return <Link to={`/route/${route.id}/shape/${shape.id}`} style={{"display": "block", "font-weight": isSelected ? "bold" : ""}}>{name}</Link>
+let Direction = ({route, shapeId, name, isSelected}) => {
+  return <Link to={`/route/${route.id}/shape/${shapeId}`} style={{"display": "block", "font-weight": isSelected ? "bold" : ""}}>{name}</Link>
 };
 
 
 //TODO fix key - sequence should be better
-let TripStops = ({trip, stopTimes}) => {
+let TripStops = ({trip, stopTimes, transitData}) => {
   return <table className="trip-stops">
     <tbody>
     {stopTimes.map(st => <tr key={st.arrivalTime}>
       <td>{secondsToMinutes(st.arrivalTime - stopTimes[0].arrivalTime) + ""}</td>
-      <td><StopLink stop={st.stop} /></td>
+      <td><StopLink stop={transitData.getStopById(st.stop)} /></td>
     </tr>)}
     </tbody>
   </table>

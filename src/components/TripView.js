@@ -13,7 +13,7 @@ export const TripView = ({trip, time, transitData}) => {
     <h1 className="stop-name">
       <RouteLink route={route} useStyle="false"/>
     </h1>
-    <Timetable stopTimes={trip.stopTimes} time={time}/>
+    <Timetable stopTimes={trip.stopTimes} time={time} transitData={transitData} />
   </Panel>
 };
 
@@ -27,19 +27,19 @@ const mapStateToProps = (state) => {
 
 export const SelectedTripView = connect(mapStateToProps)(TripView);
 
-let Timetable = ({stopTimes, time}) => (<table>
+let Timetable = ({stopTimes, time, transitData}) => (<table>
   <tbody>{stopTimes.map((st, i) =>
-    <TimetableEntry key={i} stopTime={st} time={time} previous={stopTimes[i-1]} next={stopTimes[i+1]} />)}
+    <TimetableEntry key={i} stopTime={st} stop={transitData.getStopById(st.stop)} time={time} previous={stopTimes[i-1]} next={stopTimes[i+1]} />)}
   </tbody>
 </table>)
 
 let TimetableEntry = (props) => {
-  let {stopTime} = props;
+  let {stopTime, stop} = props;
 
   return <tr>
     <ProgressCell {...props} />
     <td>
-      <div className="timetable-stop"><StopLink stop={stopTime.stop}/></div>
+      <div className="timetable-stop"><StopLink stop={stop}/></div>
     </td>
     <td>
       <div className="stop-time"><StopTimeLink stopTime={stopTime}/></div>

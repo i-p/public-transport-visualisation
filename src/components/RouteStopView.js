@@ -11,12 +11,14 @@ export const RouteStopView = ({route, stop, transitData}) => {
 
   //TODO move to transit data
   for (let t of transitData.trips.values()) {
+    const route = transitData.routes.get(t.route);
+
     for (let st of t.stopTimes) {
-      if (st.stop === stop) {
-        if (!stopTimesByRoute.has(st.trip.route)) {
-          stopTimesByRoute.set(st.trip.route, []);
+      if (st.stop === stop.id) {
+        if (!stopTimesByRoute.has(route.id)) {
+          stopTimesByRoute.set(route.id, []);
         }
-        stopTimesByRoute.get(st.trip.route).push(st);
+        stopTimesByRoute.get(route.id).push(st);
       }
     }
   }

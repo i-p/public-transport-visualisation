@@ -4,9 +4,11 @@ export class Stop {
     this.pos = pos;
     this.name = stop_name;
     this.osmNode = osmNode;
-    this.routes = new Set();
+
+    //TODO calculate outside
+    this.routes = [];
   }
   belongsTo(route) {
-    this.routes.add(route);
+    this.routes.push(route);
   }
 }

@@ -25,11 +25,11 @@ export class TransitFeed {
   }
 
   getRouteTripWithShape(route, shape) {
-    return route.trips.find(id => this.trips.get(id).shape === shape);
+    return this.trips.get(route.trips.find(id => this.trips.get(id).shape === shape.id));
   }
 
   getRouteTripsByShape(route) {
-    return _.groupBy(route.trips.map(id => this.trips.get(id)), t => t.shape.id);
+    return _.groupBy(route.trips.map(id => this.trips.get(id)), t => t.shape);
   }
 
 
@@ -68,7 +68,7 @@ export class TransitFeed {
   }
   removeStopsWithoutRoutes() {
     this.stops = new Map(Array.from(this.stops.entries())
-      .filter(([,s]) => s.routes.size > 0));
+      .filter(([,s]) => s.routes.length > 0));
     //TODO remove from stopsByName
   }
 
@@ -109,7 +109,8 @@ export class TransitFeed {
       route.trips.push(trip.id);
 
       trip.stopTimes.forEach(st => {
-        st.stop.belongsTo(route);
+        let stop = this.getStopById(st.stop);
+        stop.belongsTo(route.id);
       });
 
       if (route.shapes.indexOf(trip.shape) === -1) {
@@ -121,13 +122,15 @@ export class TransitFeed {
     }
   }
 
+  //TODO it is used only for count
   getRouteSetForStop(stop) {
     const routes = new Set();
 
     for (let t of this.trips.values()) {
+      const route = this.getRouteById(t.route);
       for (let st of t.stopTimes) {
         if (st.stop === stop) {
-          routes.add(st.trip.route);
+          routes.add(route);
         }
       }
     }
