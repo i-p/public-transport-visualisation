@@ -50,7 +50,7 @@ export class Trip {
 
   //TODO better name
   isActive(time) {
-    return Cesium.JulianDate.greaterThanOrEquals(time, this.firstArrivalTime)
-      && Cesium.JulianDate.lessThan(time, this.lastDepartureTime);
+    return toSecondsOfDay(time) >= this.firstArrivalTime
+        && toSecondsOfDay(time) < this.lastDepartureTime;
   }
 }
