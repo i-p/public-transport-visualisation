@@ -104,8 +104,8 @@ export class TransitFeed {
         st.stop.belongsTo(trip.route);
       });
 
-      if (trip.shape && trip.route.shapes.indexOf(trip.shape) === -1) {
-        trip.route.shapes.push(trip.shape);
+      if (trip.shape && trip.route.shapes.indexOf(trip.shape.id) === -1) {
+        trip.route.shapes.push(trip.shape.id);
       }
 
       this.firstArrivalTime  = Math.min(this.firstArrivalTime,  trip.firstArrivalTime);

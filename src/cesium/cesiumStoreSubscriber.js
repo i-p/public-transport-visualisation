@@ -22,6 +22,7 @@ export function createCesiumSubscriber(store, viewer) {
         if (previousHighlight instanceof Route) {
 
           previousHighlight.shapes.forEach(s => {
+            s = transitData.getShapeById(s);
             const entity = entityMap.get(s);
             if (entity) {
               entity.show = false;
@@ -47,6 +48,7 @@ export function createCesiumSubscriber(store, viewer) {
         if (currentHighlight instanceof Route) {
 
           currentHighlight.shapes.forEach(s => {
+            s = transitData.getShapeById(s);
             const entity = entityMap.get(s);
             if (entity) {
               entity.show = true;
