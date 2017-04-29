@@ -25,7 +25,7 @@ export class TransitFeed {
   }
 
   getRouteTripWithShape(route, shape) {
-    return this.trips.get(route.trips.find(id => this.trips.get(id).shape === shape.id));
+    return this.trips.get(this.getRouteById(route).trips.find(id => this.trips.get(id).shape === shape.id));
   }
 
   getRouteTripsByShape(route) {

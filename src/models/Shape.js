@@ -6,7 +6,8 @@ export class Shape {
     this.id = id;
     this.osmRelation = osmRelation;
     this.points = [];
-    this.pointByName = new Map();
+    //TODO no write usage
+    this.pointByName = {};
     this.normalize = normalize;
     this.route = route;
   }

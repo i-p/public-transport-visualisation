@@ -83,7 +83,7 @@ export function addTrips(transitData, routeTimetables, stopSeconds) {
         const point = shape.getNextPointByStopName(s.name, lastPoint);
         if (!point) {
           console.warn(`${route.id} - cannot find point for ${s.name}
-Available points: ${Array.from(shape.pointByName.values(), p => p.osmNode.tags.name).join(",")}`);
+Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.tags.name).join(",")}`);
           return;
         }
         lastPoint = point;

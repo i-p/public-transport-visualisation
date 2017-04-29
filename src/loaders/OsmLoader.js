@@ -227,7 +227,7 @@ export default class OsmLoader {
       from: osmRelation.tags.from,
       to: osmRelation.tags.to,
       normalize: this.normalize,
-      route
+      route: route.id
     });
 
     shapeParts.forEach(sp => {
