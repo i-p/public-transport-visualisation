@@ -101,7 +101,7 @@ Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.
 
           let arrivalTimeAtFirstStop = hour * 3600 + minute * 60;
 
-          const trip = new Trip({ tripId: transitData.trips.size + 1, route: route.id, shape: shape.id });
+          const trip = new Trip({ tripId: transitData.getTripCount() + 1, route: route.id, shape: shape.id });
 
           for (let k = 0; k < stops.length; k++) {
             let {stop, time, stopSequence} = stops[k];
@@ -136,7 +136,7 @@ function calculateTripIndices(transitData) {
   const unusedIndices = [];
   let indexSize = 0;
 
-  for (let trip of transitData.trips.values()) {
+  for (let trip of Object.values(transitData.trips)) {
     let from = trip.stopTimes[0];
     let to = trip.stopTimes[trip.stopTimes.length - 1];
 
@@ -147,7 +147,7 @@ function calculateTripIndices(transitData) {
   events.sort((e1, e2) => e1.time - e2.time);
 
   events.forEach(e => {
-    const trip = transitData.trips.get(e.stopTime.trip);
+    const trip = transitData.getTripById(e.stopTime.trip);
 
     if (e.type === EVENT_START) {
       if (unusedIndices.length > 0) {

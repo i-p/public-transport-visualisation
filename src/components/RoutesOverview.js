@@ -85,7 +85,7 @@ export class RoutesOverview extends React.Component {
 }
 
 //TODO FIX
-let mapStateToProps = (state) => ({ routes: Array.from(state.transitData.routes.values()), search: state.search, stops: Array.from(state.transitData.stops.values()) });
+let mapStateToProps = (state) => ({ routes: Object.values(state.transitData.routes), search: state.search, stops: Object.values(state.transitData.stops) });
 let mapDispatchToProps = (dispatch) => ({ searchFor: text => dispatch({type: "SEARCH", text}) });
 
 export const AllRoutesOverview = connect(mapStateToProps, mapDispatchToProps)(RoutesOverview);

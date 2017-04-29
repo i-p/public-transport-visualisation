@@ -15,7 +15,7 @@ export default (state = defaultState, action, transitData) => {
     case "SELECT_NOTHING":
       return { type: "SELECTION_EMPTY", value: null };
     case "SELECT_TRIP":
-      return { type: "SELECTION_VEHICLE", value: transitData.trips.get(parseInt(action.tripId)) };
+      return { type: "SELECTION_VEHICLE", value: transitData.getTripById(parseInt(action.tripId)) };
     case "SELECT_STOP":
       return { type: "SELECTION_STOP", value: transitData.getStopById(parseInt(action.stopId)) };
     case "SELECT_ROUTE":

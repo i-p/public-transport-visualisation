@@ -10,8 +10,8 @@ export const RouteStopView = ({route, stop, transitData}) => {
   let stopTimesByRoute = new Map();
 
   //TODO move to transit data
-  for (let t of transitData.trips.values()) {
-    const route = transitData.routes.get(t.route);
+  for (let t of Object.values(transitData.trips)) {
+    const route = transitData.getRouteById(t.route);
 
     for (let st of t.stopTimes) {
       if (st.stop === stop.id) {

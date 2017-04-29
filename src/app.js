@@ -44,14 +44,14 @@ function init(viewer, transitData, start, stop) {
   var stops = new Cesium.CustomDataSource("stops");
   stops.entities.suspendEvents();
 
-  Array.from(transitData.stops.values()).slice(0).forEach(stop => {
+  Object.values(transitData.stops).slice(0).forEach(stop => {
     const entity = stops.entities.add(createStopEntity(stop));
     entityMap.set(stop, entity);
   });
 
   stops.entities.resumeEvents();
 
-  transitData.shapes.forEach(shape => {
+  Object.values(transitData.shapes).forEach(shape => {
     const entity = entities.add(createShapeEntity(shape));
     entityMap.set(shape, entity);
   });
@@ -72,7 +72,7 @@ function init(viewer, transitData, start, stop) {
   var vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
-  transitData.trips.forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate, transitData));
+  Object.values(transitData.trips).forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate, transitData));
 
   vehicles.update = function(time) {
     for (var i=0; i<this.entities.values.length; i++) {

@@ -13,8 +13,8 @@ export const StopView = ({stop, time, transitData }) => {
   let secondsOfDay = utils.toSecondsOfDay(time);
 
   //TODO move to transit data
-  for (let t of transitData.trips.values()) {
-    const route = transitData.routes.get(t.route);
+  for (let t of Object.values(transitData.trips)) {
+    const route = transitData.getRouteById(t.route);
 
     for (let st of t.stopTimes) {
       if (st.stop === selectedStop.id) {
@@ -52,7 +52,7 @@ export const StopView = ({stop, time, transitData }) => {
 };
 
 const NextStopTime = ({st, route, secondsOfDay, transitData}) => {
-  const trip = transitData.trips.get(st.trip);
+  const trip = transitData.getTripById(st.trip);
   return <tr>
     <td><RouteStopLink route={route} stop={st.stop}>{route.id}</RouteStopLink></td>
     <td>{trip.lastStop.name}</td>

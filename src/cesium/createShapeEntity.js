@@ -14,8 +14,9 @@ export default function createShapeEntity(shape) {
       positions : shape.toPositionArray(),
       width : 5,
       material :
+      //TODO FIX - add route as parameter
         new Cesium.PolylineGlowMaterialProperty({
-          color : Cesium.Color.fromCssColorString(colorsByType[shape.route.getType()]),
+          color : Cesium.Color.fromCssColorString(colorsByType["bus"]),
           glowPower: 0.5
         })
     },

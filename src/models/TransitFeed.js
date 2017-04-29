@@ -2,11 +2,11 @@ import _ from "lodash";
 
 export class TransitFeed {
   constructor(normalize) {
-    this.routes = new Map();
-    this.trips = new Map();
-    this.stops = new Map();
-    this.stopsByName = new Map();
-    this.shapes = new Map();
+    this.routes = {};
+    this.trips = {};
+    this.stops = {};
+    this.stopsByName = {};
+    this.shapes = {};
     this.normalize = normalize;
 
     this.shapesArray = [];
@@ -15,21 +15,30 @@ export class TransitFeed {
     this.lastDepartureTime = Number.MIN_VALUE;
   }
 
+  getTripById(trip) {
+    return this.trips[trip];
+  }
+
+  getTripCount() {
+    //TODO perf
+    return Object.keys(this.trips).length;
+  }
+
   getPointFor(trip, stopTime) {
     //TODO getBySequenceId()
     return this.getShapeById(trip.shape).points[stopTime.stopSequence - 1];
   }
 
   getRouteTrip(route, tripIndex) {
-    return this.trips.get(route.trips[tripIndex]);
+    return this.getTripById(route.trips[tripIndex]);
   }
 
   getRouteTripWithShape(route, shape) {
-    return this.trips.get(this.getRouteById(route).trips.find(id => this.trips.get(id).shape === shape.id));
+    return this.getTripById(this.getRouteById(route).trips.find(id => this.getTripById(id).shape === shape.id));
   }
 
   getRouteTripsByShape(route) {
-    return _.groupBy(route.trips.map(id => this.trips.get(id)), t => t.shape);
+    return _.groupBy(route.trips.map(id => this.getTripById(id)), t => t.shape);
   }
 
 
@@ -47,7 +56,7 @@ export class TransitFeed {
 
     const toBucketIndex = time => (time / 600) | 0;
 
-    for (let trip of this.trips.values()) {
+    for (let trip of Object.values(this.trips)) {
       const route = this.getRouteById(trip.route);
 
       for (let i = toBucketIndex(trip.firstArrivalTime); i <= toBucketIndex(trip.lastDepartureTime); i++) {
@@ -63,47 +72,46 @@ export class TransitFeed {
   }
 
   removeRoutesWithoutTrips() {
-    this.routes = new Map(Array.from(this.routes.entries())
-      .filter(([,r]) => r.trips.length > 0))
+    this.routes = _.pickBy(this.routes, r => r.trips.length > 0);
   }
   removeStopsWithoutRoutes() {
-    this.stops = new Map(Array.from(this.stops.entries())
-      .filter(([,s]) => s.routes.length > 0));
+    //TODO FIX
+    this.stops = _.pickBy(this.stops, s => s.routes.length > 0);
     //TODO remove from stopsByName
   }
 
   getStopById(id) {
-    return this.stops.get(id);
+    return this.stops[id];
   }
   getStopsByName(name) {
-    return [...this.stopsByName.get(name)];
+    return [...this.stopsByName[name]];
   }
   addStop(stop) {
-    this.stops.set(stop.id, stop);
-    const stops = this.stopsByName.get(stop.name) || new Set();
+    this.stops[stop.id] = stop;
+    const stops = this.stopsByName[stop.name] || new Set();
     stops.add(stop);
 
-    this.stopsByName.set(stop.name, stops);
+    this.stopsByName[stop.name] = stops;
   }
   addShape(shape) {
-    this.shapes.set(shape.id, shape);
+    this.shapes[shape.id] = shape;
     this.shapesArray.push(shape);
   }
   getShapeById(id) {
-    return this.shapes.get(id);
+    return this.shapes[id];
   }
   addRoute(route) {
-    this.routes.set(route.id, route);
+    this.routes[route.id] = route;
   }
   getRouteById(id) {
-    return this.routes.get(id);
+    return this.routes[id];
   }
   addTrip(trip) {
     if (!trip.id) {
-      trip.id = this.trips.size + 1;
+      trip.id = this.getTripCount() + 1;
     }
 
-    this.trips.set(trip.id, trip);
+    this.trips[trip.id] = trip;
     if (trip.route) {
       const route = this.getRouteById(trip.route);
       route.trips.push(trip.id);
@@ -111,7 +119,7 @@ export class TransitFeed {
       trip.stopTimes.forEach(st => {
         let stop = this.getStopById(st.stop);
         stop.belongsTo(route.id);
-      });
+      })
 
       if (route.shapes.indexOf(trip.shape) === -1) {
         route.shapes.push(trip.shape);
@@ -126,7 +134,7 @@ export class TransitFeed {
   getRouteSetForStop(stop) {
     const routes = new Set();
 
-    for (let t of this.trips.values()) {
+    for (let t of Object.values(this.trips)) {
       const route = this.getRouteById(t.route);
       for (let st of t.stopTimes) {
         if (st.stop === stop) {
