@@ -74,21 +74,21 @@ storiesOf("Route view", module)
   .add("bus", () => {
     return <Provider store={store}>
       <MemoryRouter>
-        <RouteView route={transitData.getRouteById('93')}/>
+        <RouteView route={transitData.getRouteById('93')} transitData={transitData} />
       </MemoryRouter>
     </Provider>
   })
   .add("tram", () => {
     return <Provider store={store}>
       <MemoryRouter>
-        <RouteView route={transitData.getRouteById('1')}/>
+        <RouteView route={transitData.getRouteById('1')} transitData={transitData}/>
       </MemoryRouter>
     </Provider>
   })
   .add("trolleybus", () => {
     return <Provider store={store}>
       <MemoryRouter>
-        <RouteView route={transitData.getRouteById('212')}/>
+        <RouteView route={transitData.getRouteById('212')} transitData={transitData}/>
       </MemoryRouter>
     </Provider>
   });
@@ -123,7 +123,7 @@ storiesOf("Trip view", module)
   .add("a", () => {
     return <Provider store={store}>
       <MemoryRouter>
-        <TripView trip={transitData.getRouteById('206').trips[30]}
+        <TripView trip={transitData.getRouteTrip(transitData.getRouteById('206'), 30)}
                   time={time} />
       </MemoryRouter>
     </Provider>

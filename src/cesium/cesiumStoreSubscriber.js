@@ -13,6 +13,7 @@ export function createCesiumSubscriber(store, viewer) {
     let previousHighlight = currentHighlight;
     currentHighlight = store.getState().selection.highlight;
     let entityMap = store.getState().transitData.entityMap;
+    let transitData = store.getState().transitData;
 
     if (previousHighlight !== currentHighlight) {
       if (previousHighlight != null) {
@@ -25,7 +26,7 @@ export function createCesiumSubscriber(store, viewer) {
             if (entity) {
               entity.show = false;
 
-              const aTrip = s.route.trips.find(t => t.shape === s);
+              const aTrip = transitData.getRouteTripWithShape(s.route, s);
 
               entityMap.get(aTrip.firstStop).showAlways = false;
               entityMap.get(aTrip.lastStop).showAlways = false;
@@ -49,7 +50,7 @@ export function createCesiumSubscriber(store, viewer) {
             const entity = entityMap.get(s);
             if (entity) {
               entity.show = true;
-              const aTrip = s.route.trips.find(t => t.shape === s);
+              const aTrip = transitData.getRouteTripWithShape(s.route, s);
 
               entityMap.get(aTrip.firstStop).showAlways = true;
               entityMap.get(aTrip.lastStop).showAlways = true;

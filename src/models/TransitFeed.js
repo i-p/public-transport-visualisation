@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export class TransitFeed {
   constructor(normalize) {
     this.routes = new Map();
@@ -12,6 +14,19 @@ export class TransitFeed {
     this.firstArrivalTime = Number.MAX_VALUE;
     this.lastDepartureTime = Number.MIN_VALUE;
   }
+
+  getRouteTrip(route, tripIndex) {
+    return this.trips.get(route.trips[tripIndex]);
+  }
+
+  getRouteTripWithShape(route, shape) {
+    return route.trips.find(id => this.trips.get(id).shape === shape);
+  }
+
+  getRouteTripsByShape(route) {
+    return _.groupBy(route.trips.map(id => this.trips.get(id)), t => t.shape.id);
+  }
+
 
   calculateVehiclesInService() {
 
@@ -83,7 +98,7 @@ export class TransitFeed {
 
     this.trips.set(trip.id, trip);
     if (trip.route) {
-      trip.route.trips.push(trip);
+      trip.route.trips.push(trip.id);
 
       trip.stopTimes.forEach(st => {
         st.stop.belongsTo(trip.route);

@@ -17,7 +17,7 @@ export class RouteView extends React.Component {
   render() {
     const route = this.props.route;
 
-    let tripsByShape = Object.values(_.groupBy(route.trips, t => t.shape.id));
+    let tripsByShape = Object.values(this.props.transitData.getRouteTripsByShape(route));
 
     //TODO FIX
     let selectedTrip = tripsByShape[0 /* this.state.index*/][0];
@@ -58,7 +58,8 @@ let TripStops = ({trip, stopTimes}) => {
 const mapStateToProps = (s) => {
   const route = s.selection.value.route;
   const shape = s.selection.value.shape;
-  return { route, shape };
+
+  return { route, shape, transitData: s.transitData };
 };
 
 const mapDispatchToProps = dispatch => ({
