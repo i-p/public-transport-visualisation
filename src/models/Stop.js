@@ -9,6 +9,8 @@ export class Stop {
     this.routes = [];
   }
   belongsTo(route) {
-    this.routes.push(route);
+    if (this.routes.indexOf(route) < 0) {
+      this.routes.push(route);
+    }
   }
 }
