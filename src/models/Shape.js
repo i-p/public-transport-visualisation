@@ -1,8 +1,9 @@
 import * as OsmElement from "./OsmElement";
 import Cesium from 'cesium';
+import _ from "lodash";
 
 export class Shape {
-  constructor({id, osmRelationId, normalize, route}) {
+  constructor({id, osmRelationId, normalize, route, distances, positions, stopIds}) {
     this.id = id;
     this.osmRelationId = osmRelationId;
 
@@ -12,10 +13,12 @@ export class Shape {
     this.route = route;
 
 
-    this.distances = [];
+    this.distances = distances || [];
     this.osmNodeIds = [];
-    this.positions = [];
-    this.stopIds = [];
+    this.positions = positions || [];
+    this.stopIds = stopIds || [];
+
+    this.positionsArray = [];
   }
 
   _getPointIndexByStopName(stopName, from, to, step, getStopById) {
@@ -64,21 +67,34 @@ export class Shape {
     return this._getPointIndexByStopName(stopName, from, to, -1, getStopById);
   }
 
-  toPositionArray() {
-    return this.positions;
+  toPositionArray(allPositions) {
+    if (this.positionsArray.length == 0) {
+      this.positionsArray = this.positions.map(i => allPositions[i]);
+    }
+    return this.positionsArray;
   }
 
-  appendPoint(pos, osmNodeId, stopId) {
+  appendPoint(pos, osmNodeId, stopId, allPositions) {
     let distance;
     if (this.positions.length === 0) {
       distance = 0;
     } else {
       var prevDistance = this.distances[this.positions.length - 1];
-      const prevPos = this.positions[this.positions.length - 1];
+      const prevPos = allPositions[this.positions[this.positions.length - 1]];
       distance = prevDistance + Cesium.Cartesian3.distance(pos, prevPos);
     }
 
-    this.positions.push(pos);
+    const index = _.findIndex(allPositions, p => Cesium.Cartesian3.equals(pos, p));
+    if (index !== -1) {
+      this.positions.push(index);
+
+      this.positionsArray.push(allPositions[index]);
+    } else {
+      allPositions.push(pos);
+      this.positions.push(allPositions.length - 1);
+      this.positionsArray.push(allPositions[allPositions.length - 1]);
+    }
+
     this.distances.push(distance);
     this.osmNodeIds.push(osmNodeId);
     this.stopIds.push(stopId);

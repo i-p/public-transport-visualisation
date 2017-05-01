@@ -125,16 +125,12 @@ export function addTrips(transitData, routeTimetables, stopSeconds) {
       }
     });
   });
-
-  calculateTripIndices(transitData);
-
-  transitData.calculateVehiclesInService();
 }
 
 const EVENT_START = 0;
 const EVENT_END = 1;
 
-function calculateTripIndices(transitData) {
+export function calculateTripIndices(transitData) {
   const events = [];
   const unusedIndices = [];
   let indexSize = 0;

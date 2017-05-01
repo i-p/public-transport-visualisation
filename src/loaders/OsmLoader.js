@@ -241,21 +241,12 @@ export default class OsmLoader {
 
           const osmNode = getElementById(nodeId, "node");
           if (osmNode) {
-            path.appendPoint(osmNode.pos, osmNode.id, Osm.isStopPositionNode(osmNode) ? osmNode.id : 0);
+            path.appendPoint(osmNode.pos, osmNode.id, Osm.isStopPositionNode(osmNode) ? osmNode.id : 0, this.transitData.positions);
           }
           //TODO warning?
         }
       });
     });
-
-    this.transitData.simulators[path.id] =
-      new VehicleSimulator({
-        points: path.positions,
-        distances: path.distances,
-        stepCount: 100,
-        wheelbase: 10,
-        storeResultPoints: path.id == 131484
-      });
 
     this.transitData.addShape(path);
 

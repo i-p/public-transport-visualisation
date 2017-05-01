@@ -19,6 +19,8 @@ export class TransitFeed {
 
     this.speedProfiles = {};
     this.vehicleStates = {};
+
+    this.positions = [];
   }
 
   getTripById(trip) {

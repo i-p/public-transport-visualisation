@@ -14,10 +14,12 @@ import {clockTick} from "./redux/actions";
 import {selectEntity} from "./redux/actions";
 import {selectNothing} from "./redux/actions";
 import {createCesiumSubscriber} from "./cesium/cesiumStoreSubscriber";
-import loadCityData from "./cities/Bratislava"
+import loadCityData, {loadCityData2} from "./cities/Bratislava"
 import { Provider } from "react-redux";
 import { Router} from "react-router-dom";
 import {createBrowserHistory} from "history";
+import {VehicleSimulator} from "./utils";
+import {calculateTripIndices} from "./loaders/tripLoader";
 
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
@@ -70,8 +72,9 @@ imageryProvider.readyPromise.then(() => {
 
 //TODO specify base path
 const dataPromise = Promise.all([
-  Cesium.loadJson("/data.json"),
-  Cesium.loadJson("/timetables.json")
+  // Cesium.loadJson("/data.json"),
+  // Cesium.loadJson("/timetables.json"),
+  Cesium.loadJson("/a.json")
 ]);
 
 const viewer = new Cesium.Viewer("cesiumContainer", {
@@ -167,12 +170,29 @@ viewer.scene.debugShowFramesPerSecond = options.showFramesPerSecond;
 
 
 //TODO add error handling
-dataPromise.then(([data, routeTimetables]) => {
+dataPromise.then(([ data2]) => {
 
   //TODO process warnings
-  const [transitData] = loadCityData(data, routeTimetables);
+  console.time("a");
+  const [transitData] = loadCityData2(data2);
+  console.timeEnd("a");
 
   window.transitData = transitData;
+
+  _.forEach(transitData.shapes, s => {
+    transitData.simulators[s.id] =   new VehicleSimulator({
+                                                            points: s.toPositionArray(transitData.positions),
+                                                            distances: s.distances,
+                                                            stepCount: 100,
+                                                            wheelbase: 10,
+                                                            storeResultPoints: s.id == 131484
+                                                          });
+  });
+
+
+  calculateTripIndices(transitData);
+
+  transitData.calculateVehiclesInService();
 
   app.init(viewer, transitData, options.start, options.stop);
 
