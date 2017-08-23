@@ -1,13 +1,35 @@
 import React from "react";
+import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import _ from "lodash"
 import StopLink from "./StopLink"
 import Panel from "./Panel"
 import {selectRoute} from "../redux/actions"
 import {Link} from "react-router-dom";
+import {createSelector} from "reselect";
 
 const secondsToMinutes = s => Math.floor(s / 60);
 
+const getTripStops = (transitData, trip) => {
+  return trip.stopTimes.map(st => transitData.getStopById(st.stop));
+};
+
+const getTransitData = state => state.transitData;
+const getSelectedRoute = state => state.selection.value.route;
+const getSelectedShape = state => state.selection.value.shape;
+
+export const getSelectedRouteInfo = createSelector(
+  [getTransitData, getSelectedRoute, getSelectedShape],
+  (transitData, route, shape) => {
+    let tripsByShape = Object.values(transitData.getRouteTripsByShape(route));
+
+    return {
+      route,
+      shape: shape == null ? transitData.getShapeById(route.shapes[0]) : shape,
+      trips: tripsByShape.map(trips => trips[0]),
+      transitData
+    };
+  });
 
 export class RouteView extends React.Component {
   constructor() {
@@ -16,19 +38,18 @@ export class RouteView extends React.Component {
   }
   render() {
     const route = this.props.route;
+    const trips = this.props.trips;
 
-    let tripsByShape = Object.values(this.props.transitData.getRouteTripsByShape(route));
 
-    //TODO FIX
-    let selectedTrip = tripsByShape[0 /* this.state.index*/][0];
+    let selectedTrip = trips[this.state.index];
 
     return <Panel type={route.getType()}>
       <div className="route-title">{route.id}</div>
-      {tripsByShape.map((t,i) =>
-                          <Direction name={this.props.transitData.getStopById(t[0].lastStop).name}
+      {trips.map((t,i) =>
+                          <Direction name={this.props.transitData.getStopById(t.lastStop).name}
                                      route={route}
-                                     shapeId={t[0].shape}
-                                     isSelected={t[0].shape === this.props.shape}
+                                     shapeId={t.shape}
+                                     isSelected={t.shape === this.props.shape.id}
                                      key={i} />)}
       <div className="scr">
         <TripStops key={selectedTrip.id} trip={selectedTrip} stopTimes={selectedTrip.stopTimes} transitData={this.props.transitData} />
@@ -36,6 +57,10 @@ export class RouteView extends React.Component {
     </Panel>;
   }
 }
+
+RouteView.propTypes = {
+  route: PropTypes.object
+};
 
 
 let Direction = ({route, shapeId, name, isSelected}) => {
@@ -56,10 +81,7 @@ let TripStops = ({trip, stopTimes, transitData}) => {
 }
 
 const mapStateToProps = (s) => {
-  const route = s.selection.value.route;
-  const shape = s.selection.value.shape;
-
-  return { route, shape, transitData: s.transitData };
+  return getSelectedRouteInfo(s);
 };
 
 const mapDispatchToProps = dispatch => ({

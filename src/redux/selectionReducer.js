@@ -20,7 +20,8 @@ export default (state = defaultState, action, transitData) => {
       return { type: "SELECTION_STOP", value: transitData.getStopById(parseInt(action.stopId)) };
     case "SELECT_ROUTE":
       const route = transitData.getRouteById(action.routeId);
-      const shape = action.shapeId == null ? route.shapes[0] : transitData.getShapeById(parseInt(action.shapeId));
+      const shapeId = action.shapeId === null ? route.shapes[0] : action.shapeId;
+      const shape = transitData.getShapeById(parseInt(shapeId));
 
       return { type: "SELECTION_ROUTE", value: { route, shape }};
     case "SELECT_ROUTE_AND_STOP":
