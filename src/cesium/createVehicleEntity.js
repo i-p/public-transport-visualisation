@@ -20,7 +20,7 @@ const colorsByType = {
 
 
 //TODO rename to makeVehicle + fix transit.type
-function makeBus(positionProperty, trip, speedProfile, vehicleState) {
+function makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType) {
 
   const propertyWithOffset = (zOffset, property) => new Cesium.CallbackProperty((time, result) => {
     let value = property.getValue(time, result);
@@ -70,7 +70,7 @@ function makeBus(positionProperty, trip, speedProfile, vehicleState) {
       padding: 6,
       fillColor: Cesium.Color.WHITE,
       //TODO FIX
-      backgroundColor: Cesium.Color.fromCssColorString(colorsByType["bus"])
+      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[vehicleType])
     });
 
     let bg = new Cesium.BillboardGraphics({
@@ -275,7 +275,9 @@ export default function createVehicleEntity(viewer, vehicles, trip, toDate, tran
     return Cesium.Cartesian3.clone(vehicleState.position, result);
   }, false);
 
-  const entity = makeBus(positionProperty, trip, speedProfile, vehicleState);
+  const vehicleType = transitData.getRouteById(trip.route).type;
+
+  const entity = makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType);
 
   // Vehicle primitive needs correct initial values
   updateVehicleState(entity, speedProfile._startTime, transitData);
