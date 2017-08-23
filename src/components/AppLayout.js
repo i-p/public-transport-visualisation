@@ -47,10 +47,10 @@ class AppLayout extends React.Component {
   }
 }
 
-const onMount = (callback) => connect()(React.createClass({
-  componentDidMount() { callback(this.props); },
+const onMount = (callback) => connect()(class extends React.Component {
+  componentDidMount() { callback(this.props); }
   render() { return null; }
-}));
+});
 
 
 export default AppLayout
