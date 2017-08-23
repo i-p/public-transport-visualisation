@@ -133,7 +133,7 @@ export class BottomPanelComponent extends React.Component {
     const y = (height * (1 - vehicles/max)) | 0;
     const h = height - y;
 
-    return <g>
+    return <g key={i}>
       <rect className="stat" x={x} y={y} width={w} height={h} />
       <line className="stat" x1={x} y1={y} x2={x + w} y2={y}/>
     </g>;

@@ -39,7 +39,7 @@ export class RouteView extends React.Component {
 
 
 let Direction = ({route, shapeId, name, isSelected}) => {
-  return <Link to={`/route/${route.id}/shape/${shapeId}`} style={{"display": "block", "font-weight": isSelected ? "bold" : ""}}>{name}</Link>
+  return <Link to={`/route/${route.id}/shape/${shapeId}`} style={{"display": "block", "fontWeight": isSelected ? "bold" : ""}}>{name}</Link>
 };
 
 
@@ -47,7 +47,7 @@ let Direction = ({route, shapeId, name, isSelected}) => {
 let TripStops = ({trip, stopTimes, transitData}) => {
   return <table className="trip-stops">
     <tbody>
-    {stopTimes.map(st => <tr key={st.arrivalTime}>
+    {stopTimes.map(st => <tr key={st.stopSequence}>
       <td>{secondsToMinutes(st.arrivalTime - stopTimes[0].arrivalTime) + ""}</td>
       <td><StopLink stop={transitData.getStopById(st.stop)} /></td>
     </tr>)}

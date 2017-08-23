@@ -56,8 +56,8 @@ const NextStopTime = ({st, route, secondsOfDay, transitData}) => {
   return <tr>
     <td><RouteStopLink route={route} stop={st.stop}>{route.id}</RouteStopLink></td>
     <td>{trip.lastStop.name}</td>
-    <td style={{"text-align": "right", padding: "5px"}}>{Math.ceil((st.arrivalTime - secondsOfDay) / 60) + " min"}</td>
-    <td style={{"text-align": "right"}}><StopTimeLink stopTime={st}/></td>
+    <td style={{"textAlign": "right", padding: "5px"}}>{Math.ceil((st.arrivalTime - secondsOfDay) / 60) + " min"}</td>
+    <td style={{"textAlign": "right"}}><StopTimeLink stopTime={st}/></td>
   </tr>;
 };
 
