@@ -10,9 +10,9 @@ import Panel from "./Panel"
 export const TripView = ({trip, time, transitData}) => {
   const route = transitData.getRouteById(trip.route);
   return <Panel type={route.getType()}>
-    <h1 className="stop-name">
+    <div className="route-title">
       <RouteLink route={route} useStyle="false"/>
-    </h1>
+    </div>
     <Timetable stopTimes={trip.stopTimes} time={time} transitData={transitData} />
   </Panel>
 };

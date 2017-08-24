@@ -16,8 +16,7 @@ $inactive-colors: (
   @return map_get($inactive-colors, $type)
 }
 
-//TODO cleanup
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Lato:400,900,700|Montserrat:400,700|Roboto:400,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
 
 html {
   height: 100%;
@@ -30,7 +29,7 @@ html {
 
 body {
   height: 100%;
-  font-family: "Lato";
+  font-family: "Open Sans";
 }
 
 main {
@@ -53,6 +52,7 @@ aside {
   z-index: 10;
   display: flex;
   flex-direction: column;
+  max-width: 330px;
 }
 
 .time {
@@ -78,7 +78,7 @@ aside {
   background-color: ghostwhite;
   cursor: pointer;
   text {
-    font-family: "Lato", sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-size: 14px;
 
     /* TODO mixin */
@@ -279,7 +279,7 @@ a:hover {
 }
 
 .route-title {
-  font-family: 'Lato';
+  font-family: 'Open Sans';
   font-weight: 700;
   font-size: 48px;
 }
@@ -318,7 +318,7 @@ td {
 }
 
 .stop-name {
-  font-family: 'Lato';
+  font-family: 'Open Sans';
   font-size: 28px;
   font-weight: 700;
   text-decoration: none;
@@ -367,8 +367,8 @@ a.stop-name:hover {
   font-weight: bold;
 }
 .timetable-stop {
-  font-family: 'Lato';
-  font-weight: 700;
+  font-family: 'Open Sans';
+  font-weight: 100;
   font-size: 16px;
 }
 
@@ -384,8 +384,8 @@ a.stop-name:hover {
 }
 
 .stop-marker-active {
-  border-color: darkred;
 }
+
 .line-marker {
   z-index: 10;
   position: absolute;
@@ -402,7 +402,18 @@ a.stop-name:hover {
   bottom: 100%;
   width: 6px;
   left: 9px;
-  background-color: darkred;
+}
+
+@each $type, $color in $colors {
+  .panel-#{$type} .stop-marker-active {
+    border-color: $color;
+  }
+}
+
+@each $type, $color in $colors {
+  .panel-#{$type} .line-marker-active {
+    background-color: $color;
+  }
 }
 
 .cesium-selection-wrapper svg {
