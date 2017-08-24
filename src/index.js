@@ -115,7 +115,7 @@ viewer.scene.screenSpaceCameraController.enableLook = false;
 //TODO separate module
 viewer.clock.startTime = options.start.clone();
 viewer.clock.stopTime = options.stop.clone();
-viewer.clock.currentTime = options.start.clone();
+viewer.clock.currentTime = options.current.clone();
 viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
 viewer.clock.multiplier = options.defaultSpeed;
 
