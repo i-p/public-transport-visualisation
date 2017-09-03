@@ -20,6 +20,7 @@ import { Router} from "react-router-dom";
 import {createBrowserHistory} from "history";
 import {VehicleSimulator} from "./utils";
 import {calculateTripIndices} from "./loaders/tripLoader";
+import View from "./cesium/View";
 
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
@@ -194,7 +195,11 @@ dataPromise.then(([ data2]) => {
 
   transitData.calculateVehiclesInService();
 
-  app.init(viewer, transitData, options.start, options.stop);
+  const view = new View(viewer, transitData);
+
+  app.init(viewer, transitData, options.start, options.stop, store, view, (title, i, total) => {
+    //console.log(title, "(" + i + "/" + total + ")");
+  });
 
   store.dispatch(clockTick(viewer.clock.currentTime));
 
@@ -234,7 +239,7 @@ dataPromise.then(([ data2]) => {
   window.viewer = viewer;
   window.transitData = transitData;
 
-  store.subscribe(createCesiumSubscriber(store, viewer));
+  store.subscribe(createCesiumSubscriber(store, viewer, view));
 
   let initialCameraAnimationStarted = false;
 

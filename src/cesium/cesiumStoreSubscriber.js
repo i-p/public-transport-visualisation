@@ -20,40 +20,27 @@ function setRouteHighlight(route, highlight, transitData) {
 }
 
 
-export function createCesiumSubscriber(store, viewer) {
+export function createCesiumSubscriber(store, viewer, view) {
 
   return () => {
-
     let previousHighlight = currentHighlight;
     currentHighlight = store.getState().selection.highlight;
-    let entityMap = store.getState().transitData.entityMap;
-    let transitData = store.getState().transitData;
 
     if (previousHighlight !== currentHighlight) {
       if (previousHighlight != null) {
-
-        //TODO transit entity collection ???
         if (previousHighlight instanceof Route) {
-          setRouteHighlight(previousHighlight, false, transitData);
+          view.highlightRoute(previousHighlight, false);
         }
         if (previousHighlight instanceof Stop) {
-          const entity = entityMap.get(previousHighlight);
-          if (entity) {
-            entity.point.pixelSize = 3;
-            entity.point.outlineWidth = 2;
-          }
+          view.highlightStop(previousHighlight, false);
         }
       }
       if (currentHighlight != null) {
         if (currentHighlight instanceof Route) {
-          setRouteHighlight(currentHighlight, true, transitData);
+          view.highlightRoute(currentHighlight, true);
         }
         if (currentHighlight instanceof Stop) {
-          const entity = entityMap.get(currentHighlight);
-          if (entity) {
-            entity.point.outlineWidth = 8;
-            entity.point.pixelSize = 12;
-          }
+          view.highlightStop(currentHighlight, true);
         }
       }
 
@@ -84,7 +71,7 @@ export function createCesiumSubscriber(store, viewer) {
       && previousSelection.value === currentSelection.value)
       return;
 
-    updateCesiumSelection(previousSelection, currentSelection, viewer);
+    updateCesiumSelection(previousSelection, currentSelection, view);
 
 
 

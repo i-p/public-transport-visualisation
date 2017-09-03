@@ -1,105 +1,62 @@
 import * as Selection from "../models/selectionTypes"
 
-function selectAndFlyTo(entity, viewer, options) {
-  if (entity) {
-    viewer.flyTo(entity, options);
-    viewer.selectedEntity = entity;
-  } else {
-    console.warn("No matching entity exists");
-  }
-}
-
-export function displayShape(shapeId, transitData, show) {
-  const entityMap = transitData.entityMap;
-  const s = transitData.getShapeById(shapeId);
-  const entity = entityMap.get(s);
-  if (entity) {
-    entity.show = show;
-  }
-}
-
-export function displayFirstAndLastStop(shapeId, transitData, show) {
-  const entityMap = transitData.entityMap;
-  const s = transitData.getShapeById(shapeId);
-
-  const aTrip = transitData.getRouteTripWithShape(s.route, s);
-
-  entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = show;
-  entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = show;
-}
-
 let selectionActions = {
   [Selection.SELECTION_ROUTE] : {
-    entry: (selection, viewer) => {
+    entry: (selection, view) => {
       let {route, shape} = selection.value;
 
-      displayShape(shape.id, transitData, true);
-      displayFirstAndLastStop(shape.id, transitData, true);
+      view.showShape(shape.id, true);
+      view.showFirstAndLastStop(shape.id, true);
 
-      let entity = transitData.entityMap.get(shape);
-      
-      viewer.flyTo(entity, { duration: 1.5 });
+      view.flyTo(shape, 1.5);
     },
-    exit: (selection, viewer) => {
+    exit: (selection, view) => {
       let {route, shape} = selection.value;
 
-      displayShape(shape.id, transitData, false);
-      displayFirstAndLastStop(shape.id, transitData, false);
+      view.showShape(shape.id, false);
+      view.showFirstAndLastStop(shape.id, false);
     }
   },
   [Selection.SELECTION_STOP]: {
-    entry: (selection, viewer) => {
-      //TODO map stop -> entity
-      let entities = viewer.dataSources.get(0).entities.values.filter(
-        e => e.transit && e.transit.stop);
-      let entity = entities.find(e => e.transit.stop === selection.value);
+    entry: (selection, view) => {
 
-      selectAndFlyTo(entity, viewer, {
+      view.select(selection.value);
+      view.flyTo(selection.value, {
         duration: 1.5,
         offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 800)
       });
     },
-    exit: (selection, viewer) => {
-      viewer.selectedEntity = null;
+    exit: (selection, view) => {
+      view.select(null);
     }
   },
   [Selection.SELECTION_STOP_AND_ROUTE]: {
-    entry: (selection, viewer) => {
-      //TODO map stop -> entity
-      let entities = viewer.dataSources.get(0).entities.values.filter(
-        e => e.transit && e.transit.stop);
+    entry: (selection, view) => {
 
-      let entity = entities.find(e => e.transit.stop === selection.value.stop);
-
-      selectAndFlyTo(entity, viewer, {
+      view.select(selection.value.stop);
+      view.flyTo(selection.value.stop, {
         duration: 1.5,
         offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 800)
       });
     },
-    exit: (selection, viewer) => {
-      viewer.selectedEntity = null;
+    exit: (selection, view) => {
+      view.select(null);
     }
   },
   [Selection.SELECTION_VEHICLE]: {
-    entry: (selection, viewer) => {
-      //TODO map stop -> entity
-      let entities = viewer.dataSources.get(1).entities.values.filter(
-        e => e.transit && e.transit.trip);
-      //entities.forEach(e => e.show = (e.transit.trip === trip));
+    entry: (selection, view) => {
       let trip = selection.value;
-      let entity = entities.find(e => e.transit.trip === trip);
 
-      viewer.entities.values.filter(e => e.shape)
-        .forEach(e => e.show = (e.shape === trip.shape));
-
-      viewer.trackedEntity = entity;
-      viewer.selectedEntity = entity;
+      view.track(trip);
+      view.select(trip);
+      view.showShape(trip.shape, true);
     },
-    exit: (selection, viewer) => {
-      viewer.entities.values.filter(e => e.shape)
-        .forEach(e => e.show = false);
-      viewer.selectedEntity = null;
-      viewer.trackedEntity = null;
+    exit: (selection, view) => {
+      let trip = selection.value;
+
+      view.track(null);
+      view.select(null);
+      view.showShape(trip.shape, false);
     }
   },
   [Selection.SELECTION_EMPTY] : {
@@ -110,8 +67,8 @@ let selectionActions = {
 
 export default function updateCesiumSelection(previousSelection,
                                               currentSelection,
-                                              viewer) {
-  selectionActions[previousSelection.type].exit(previousSelection, viewer);
-  selectionActions[currentSelection.type].entry(currentSelection, viewer);
+                                              view) {
+  selectionActions[previousSelection.type].exit(previousSelection, view);
+  selectionActions[currentSelection.type].entry(currentSelection, view);
 }
 

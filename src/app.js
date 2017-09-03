@@ -6,8 +6,10 @@ import options from "./options"
 import labelPresenter from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
+import { Route } from "./models/Route";
+import View from "./cesium/View";
 
-function init(viewer, transitData, start, stop) {
+function init(viewer, transitData, start, stop, store, view, progressCallback) {
   console.log(start.toString(), stop.toString());
 
   let localDate = Cesium.JulianDate.toDate(start);
@@ -39,25 +41,22 @@ function init(viewer, transitData, start, stop) {
 
   //console.profile("init");
 
-  var entityMap = new WeakMap();
-
   var stops = new Cesium.CustomDataSource("stops");
   stops.entities.suspendEvents();
 
-  Object.values(transitData.stops).slice(0).forEach(stop => {
+  Object.values(transitData.stops).slice(0).forEach((stop, i, arr) => {
+    progressCallback("Creating stops", i, arr.length);
     const entity = stops.entities.add(createStopEntity(stop));
-    entityMap.set(stop, entity);
+    view.registerEntity(stop, entity);
   });
 
   stops.entities.resumeEvents();
 
-  Object.values(transitData.shapes).forEach(shape => {
+  Object.values(transitData.shapes).forEach((shape, i, arr) => {
+    progressCallback("Creating routes", i, arr.length);
     const entity = entities.add(createShapeEntity(shape));
-    entityMap.set(shape, entity);
+    view.registerEntity(shape, entity);
   });
-
-  //TODO find a better way
-  transitData.entityMap = entityMap;
 
   viewer.dataSources.add(stops);
 
@@ -72,7 +71,10 @@ function init(viewer, transitData, start, stop) {
   var vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
-  Object.values(transitData.trips).forEach(trip => createVehicleEntity(viewer, vehicles, trip, toDate, transitData));
+  Object.values(transitData.trips).forEach((trip, i, arr) => {
+    progressCallback("Creating vehicles", i, arr.length);
+    return createVehicleEntity(viewer, vehicles, trip, toDate, transitData);
+  });
 
   vehicles.update = function(time) {
     for (var i=0; i<this.entities.values.length; i++) {
