@@ -9,27 +9,42 @@ function selectAndFlyTo(entity, viewer, options) {
   }
 }
 
+export function displayShape(shapeId, transitData, show) {
+  const entityMap = transitData.entityMap;
+  const s = transitData.getShapeById(shapeId);
+  const entity = entityMap.get(s);
+  if (entity) {
+    entity.show = show;
+  }
+}
+
+export function displayFirstAndLastStop(shapeId, transitData, show) {
+  const entityMap = transitData.entityMap;
+  const s = transitData.getShapeById(shapeId);
+
+  const aTrip = transitData.getRouteTripWithShape(s.route, s);
+
+  entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = show;
+  entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = show;
+}
+
 let selectionActions = {
   [Selection.SELECTION_ROUTE] : {
     entry: (selection, viewer) => {
       let {route, shape} = selection.value;
 
-      shape.show = true;
+      displayShape(shape.id, transitData, true);
+      displayFirstAndLastStop(shape.id, transitData, true);
 
-      //TODO map shape -> entity
-      let entity = viewer.entities.values.find(e => e.shape === shape);
-
-      entity.show = true;
-
+      let entity = transitData.entityMap.get(shape);
+      
       viewer.flyTo(entity, { duration: 1.5 });
     },
     exit: (selection, viewer) => {
       let {route, shape} = selection.value;
 
-      //TODO map shape -> entity
-      let entity = viewer.entities.values.find(e => e.shape === shape);
-
-      entity.show = false;
+      displayShape(shape.id, transitData, false);
+      displayFirstAndLastStop(shape.id, transitData, false);
     }
   },
   [Selection.SELECTION_STOP]: {

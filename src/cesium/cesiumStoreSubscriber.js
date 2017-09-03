@@ -1,10 +1,24 @@
 import * as Selection from "../models/selectionTypes"
-import updateCesiumSelection from "./updateCesiumSelection"
+import updateCesiumSelection, {displayFirstAndLastStop, displayShape} from "./updateCesiumSelection"
 import {Route} from "../models/Route";
 import {Stop} from "../models/Stop";
 
 let currentSelection = { type: Selection.SELECTION_EMPTY, value: null };
 let currentHighlight = null;
+
+
+function setRouteHighlight(route, highlight, transitData) {
+  route.shapes.forEach((s, i) => {
+    displayShape(s, transitData, highlight);
+
+    // Labels for both directions would be overlapping,
+    // so highlight stops for one direction only.
+    if (i === 0) {
+      displayFirstAndLastStop(s, transitData, highlight);
+    }
+  });
+}
+
 
 export function createCesiumSubscriber(store, viewer) {
 
@@ -20,19 +34,7 @@ export function createCesiumSubscriber(store, viewer) {
 
         //TODO transit entity collection ???
         if (previousHighlight instanceof Route) {
-
-          previousHighlight.shapes.forEach(s => {
-            s = transitData.getShapeById(s);
-            const entity = entityMap.get(s);
-            if (entity) {
-              entity.show = false;
-
-              const aTrip = transitData.getRouteTripWithShape(s.route, s);
-
-              entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = false;
-              entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = false;
-            }
-          });
+          setRouteHighlight(previousHighlight, false, transitData);
         }
         if (previousHighlight instanceof Stop) {
           const entity = entityMap.get(previousHighlight);
@@ -43,21 +45,8 @@ export function createCesiumSubscriber(store, viewer) {
         }
       }
       if (currentHighlight != null) {
-
-
         if (currentHighlight instanceof Route) {
-
-          currentHighlight.shapes.forEach(s => {
-            s = transitData.getShapeById(s);
-            const entity = entityMap.get(s);
-            if (entity) {
-              entity.show = true;
-              const aTrip = transitData.getRouteTripWithShape(s.route, s);
-
-              entityMap.get(transitData.getStopById(aTrip.firstStop)).showAlways = true;
-              entityMap.get(transitData.getStopById(aTrip.lastStop)).showAlways = true;
-            }
-          });
+          setRouteHighlight(currentHighlight, true, transitData);
         }
         if (currentHighlight instanceof Stop) {
           const entity = entityMap.get(currentHighlight);
@@ -67,6 +56,8 @@ export function createCesiumSubscriber(store, viewer) {
           }
         }
       }
+
+      viewer.forceLabelRecalculation = true;
     }
 
 

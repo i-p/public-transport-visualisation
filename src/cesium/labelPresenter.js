@@ -116,9 +116,11 @@ export default function (viewer, transitData) {
     labelsAreSteady = labelsAreSteady && ((l.alpha == 0.0 && l.next == HIDDEN) || (l.alpha == 1.0 && l.next == VISIBLE));
   }
 
-  if (!cameraMoving && labelsAreSteady) {
+  if (!cameraMoving && labelsAreSteady && !viewer.forceLabelRecalculation) {
     return;
   }
+
+  viewer.forceLabelRecalculation = false;
 
   recalculateLabelsPositions(labels, viewer);
 
