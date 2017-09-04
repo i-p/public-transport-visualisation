@@ -2,45 +2,48 @@ import Cesium from "cesium"
 
 const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
 const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
+const STOP_POINT = new Cesium.PointGraphics({
+  pixelSize: 3,
+  color: Cesium.Color.BLACK,
+  outlineColor : Cesium.Color.WHITE,
+  outlineWidth : 2,
+  scaleByDistance: new Cesium.NearFarScalar(300, 2.0, 12000, 0.5)
+});
 
-//TODO cache by stop name
+const cache = {};
+
 export default function createStopEntity(stop) {
 
-  let canvas = Cesium.writeTextToCanvas(stop.name, {
-    // don't use custom font here, it doesn't have to be loaded yet
-    font: "24px 'Verdana' ",
-    stroke: true,
-    strokeWidth: 0,
-    padding: 6,
-    fillColor: Cesium.Color.WHITE,
-    backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
-  });
+  if (!cache[stop.name]) {
+    let canvas = Cesium.writeTextToCanvas(stop.name, {
+      // don't use custom font here, it doesn't have to be loaded yet
+      font: "24px 'Verdana' ",
+      stroke: true,
+      strokeWidth: 0,
+      padding: 6,
+      fillColor: Cesium.Color.WHITE,
+      backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
+    });
 
-  /*var d = document.createElement("div");
+    let bg = new Cesium.BillboardGraphics({
+        scale: 0.5,
+        image: canvas,
+        pixelOffset : new Cesium.ConstantProperty(STOP_LABEL_PIXEL_OFFSET),
+        eyeOffset : new Cesium.ConstantProperty(STOP_LABEL_EYE_OFFSET),
+      });
 
-   d.appendChild(canvas);
+    cache[stop.name] = bg;
+  }
 
-   document.body.appendChild(d);*/
+  let bg = cache[stop.name];
 
-  return {
-    name: stop.name,
-    position: stop.pos,
-    billboard: {
-      scale: 0.5,
-      image: canvas,
-      pixelOffset : STOP_LABEL_PIXEL_OFFSET,
-      eyeOffset: STOP_LABEL_EYE_OFFSET
-    },
-    point: {
-      pixelSize: 3,
-      color: Cesium.Color.BLACK,
-      outlineColor : Cesium.Color.WHITE,
-      outlineWidth : 2,
-      scaleByDistance: new Cesium.NearFarScalar(300, 2.0, 12000, 0.5)
-    },
-    transit: {
-      type: "stop",
-      stop
-    }
-  };
+  const entity = new Cesium.Entity();
+
+  entity._name = stop.name;
+  entity._position = new Cesium.ConstantProperty(stop.pos);
+  entity._billboard = bg;
+  entity._point = STOP_POINT;
+  entity.transit = {type: "stop", stop};
+
+  return entity;
 }
