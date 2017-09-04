@@ -2,6 +2,8 @@ import * as Selection from "../models/selectionTypes"
 import updateCesiumSelection, {displayFirstAndLastStop, displayShape} from "./updateCesiumSelection"
 import {Route} from "../models/Route";
 import {Stop} from "../models/Stop";
+import {clockTick} from "../redux/actions";
+import options from "../options";
 
 let currentSelection = { type: Selection.SELECTION_EMPTY, value: null };
 let currentHighlight = null;
@@ -78,5 +80,59 @@ export function createCesiumSubscriber(store, viewer, view) {
   }
 }
 
+export function setupOnInputAction(viewer, store, history) {
+  viewer.screenSpaceEventHandler.setInputAction((e) => {
+    let picked = viewer.scene.pick(e.position)
 
+    if (Cesium.defined(picked)) {
+      const id = Cesium.defaultValue(picked.id, picked.primitive.id);
 
+      if (id instanceof Cesium.Entity && id.transit && id.transit.type === "stop") {
+        history.push("/stop/" + id.transit.stop.id);
+        return;
+      }
+
+      if (id instanceof Cesium.Entity && id.transit && id.transit.trip) {
+        history.push("/trip/" + id.transit.trip.id);
+        return;
+      }
+
+      if (id instanceof Cesium.Entity) {
+        store.dispatch(selectEntity(id));
+        return;
+      }
+      if (id && id.type) {
+        store.dispatch(selectEntity({transit: id}));
+        return;
+      }
+    }
+    history.push("/");
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+}
+
+export function setupOnTickAction(viewer, store) {
+  viewer.clock.onTick.addEventListener(clock => {
+    store.dispatch(clockTick(clock.currentTime.clone()));
+  });
+}
+
+export function setupCameraAnimationOnTileLoaded(viewer, {onAnimationStart, onAnimationEnd}) {
+  let initialCameraAnimationStarted = false;
+
+  viewer.scene.globe.tileLoadProgressEvent.addEventListener((length) => {
+    if (length === 0 && !initialCameraAnimationStarted) {
+      initialCameraAnimationStarted = true;
+
+      onAnimationStart();
+
+      viewer.camera.flyTo({
+        destination: options.initialCameraView.destination,
+        orientation: options.initialCameraView.orientation,
+        duration: 3,
+        complete: () => {
+          onAnimationEnd();
+        }
+      });
+    }
+  });
+}

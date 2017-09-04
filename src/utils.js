@@ -31,6 +31,31 @@ export function toSecondsOfDay(time) {
   return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 }
 
+function getStartOfDay(date) {
+  let localDate = Cesium.JulianDate.toDate(date);
+  let newLocalDate = new Date(localDate.getFullYear(),
+                              localDate.getMonth(),
+                              localDate.getDate(),
+                              0, 0, 0);
+  return Cesium.JulianDate.fromDate(newLocalDate);
+}
+
+export function secondsOfDayToDateConverter(date) {
+  let startOfDay = getStartOfDay(date);
+
+  return (secondsOfDay, result) => {
+    if (!Cesium.defined(result)) {
+      return new Cesium.JulianDate(startOfDay.dayNumber, startOfDay.secondsOfDay + secondsOfDay)
+    } else {
+      result.dayNumber = startOfDay.dayNumber;
+      result.secondsOfDay = startOfDay.secondsOfDay + secondsOfDay;
+      // trigger recalculation
+      Cesium.JulianDate.addSeconds(result, 0, result);
+      return result;
+    }
+  };
+}
+
 export function relativePosition(value, from, to) {
   return (value - from) / (to - from);
 }

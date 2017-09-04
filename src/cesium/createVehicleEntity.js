@@ -137,27 +137,25 @@ let nextStartIndex = 0;
 let nextEndIndex = 0;
 
 export function initUpdateVehicles(viewer) {
-  if (viewer.vehiclePrimitivesOrderedByStart.length === 0) {
-    viewer.vehiclePrimitivesOrderedByStart = [];
-    viewer.vehiclePrimitivesOrderedByEnd = [];
+  viewer.vehiclePrimitivesOrderedByStart = [];
+  viewer.vehiclePrimitivesOrderedByEnd = [];
 
-    for (let i=0; i<viewer.scene.primitives.length; i++) {
-      const p = viewer.scene.primitives.get(i);
-      const entity = p.id;
+  for (let i=0; i<viewer.scene.primitives.length; i++) {
+    const p = viewer.scene.primitives.get(i);
+    const entity = p.id;
 
-      if (entity && entity.transit && entity.transit.trip) {
-        viewer.vehiclePrimitivesOrderedByStart.push(p);
-        viewer.vehiclePrimitivesOrderedByEnd.push(p);
-      }
+    if (entity && entity.transit && entity.transit.trip) {
+      viewer.vehiclePrimitivesOrderedByStart.push(p);
+      viewer.vehiclePrimitivesOrderedByEnd.push(p);
     }
-
-    viewer.vehiclePrimitivesOrderedByStart.sort((p1, p2) => {
-      return Cesium.JulianDate.compare(getAvailabilityInterval(p1).start, getAvailabilityInterval(p2).start);
-    });
-    viewer.vehiclePrimitivesOrderedByEnd.sort((p1, p2) => {
-      return Cesium.JulianDate.compare(getAvailabilityInterval(p1).stop, getAvailabilityInterval(p2).stop);
-    });
   }
+
+  viewer.vehiclePrimitivesOrderedByStart.sort((p1, p2) => {
+    return Cesium.JulianDate.compare(getAvailabilityInterval(p1).start, getAvailabilityInterval(p2).start);
+  });
+  viewer.vehiclePrimitivesOrderedByEnd.sort((p1, p2) => {
+    return Cesium.JulianDate.compare(getAvailabilityInterval(p1).stop, getAvailabilityInterval(p2).stop);
+  });
 }
 
 const IN_INTERVAL = 0;
@@ -173,7 +171,9 @@ function classifyTimeInInterval(time, interval) {
 
 export function updateVehicles(viewer) {
 
-  if (viewer.vehiclePrimitivesOrderedByStart.length === 0) return;
+  if (!viewer.vehiclePrimitivesOrderedByStart || viewer.vehiclePrimitivesOrderedByStart.length === 0) {
+    initUpdateVehicles(viewer);
+  }
 
   const time = viewer.clock.currentTime;
 

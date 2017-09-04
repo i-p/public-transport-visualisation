@@ -8,43 +8,11 @@ import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
 import { Route } from "./models/Route";
 import View from "./cesium/View";
+import {getMidnight, secondsOfDayToDateConverter} from "./utils";
 
-function init(viewer, transitData, start, stop, store, view, progressCallback) {
 
-  console.time("Initialization");
-
-  console.log(start.toString(), stop.toString());
-
-  let localDate = Cesium.JulianDate.toDate(start);
-
-  let newLocalDate = new Date(localDate.getFullYear(),
-    localDate.getMonth(),
-    localDate.getDate(),
-    0, 0, 0);
-  let midnight = Cesium.JulianDate.fromDate(newLocalDate);
-
-  const toDate = (secondsOfDay, result) => {
-    if (!Cesium.defined(result)) {
-      return new Cesium.JulianDate(midnight.dayNumber, midnight.secondsOfDay + secondsOfDay)
-    } else {
-      //TODO utility method?
-      result.dayNumber = midnight.dayNumber;
-      result.secondsOfDay = midnight.secondsOfDay + secondsOfDay;
-      //trigger recalculation
-      Cesium.JulianDate.addSeconds(result, 0, result);
-      return result;
-    }
-  };
-
-  const entities = viewer.entities;
-
-  entities.suspendEvents();
-
-  const initStart = performance.now();
-
-  //console.profile("init");
-
-  var stops = new Cesium.CustomDataSource("stops");
+function createStops(transitData, view, progressCallback) {
+  const stops = new Cesium.CustomDataSource("stops");
   stops.entities.suspendEvents();
 
   console.time("Stop entities");
@@ -57,30 +25,29 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
 
   console.timeEnd("Stop entities");
 
-
   stops.entities.resumeEvents();
+
+  return stops;
+}
+
+function createShapes(transitData, view, progressCallback) {
+  const shapes = new Cesium.CustomDataSource("shapes");
+  shapes.entities.suspendEvents();
 
   console.time("Shape entities");
 
   Object.values(transitData.shapes).forEach((shape, i, arr) => {
     progressCallback("Creating routes", i, arr.length);
-    const entity = entities.add(createShapeEntity(shape));
+    const entity = shapes.entities.add(createShapeEntity(shape));
     view.registerEntity(shape, entity);
   });
-
   console.timeEnd("Shape entities");
+  shapes.entities.resumeEvents();
+  return shapes;
+}
 
-  viewer.dataSources.add(stops);
-
-  viewer.scene.preRender.addEventListener(() => updateVehicles(viewer));
-
-  let updateLabelsPreRender = () => labelPresenter(viewer, transitData);
-  viewer.scene.preRender.addEventListener(() => updateLabelsPreRender());
-
-  viewer.vehiclePrimitivesOrderedByStart = [];
-  viewer.vehiclePrimitivesOrderedByEnd = [];
-
-  var vehicles = new Cesium.CustomDataSource("vehicles");
+function createVehicles(transitData, toDate, progressCallback) {
+  const vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
   console.time("Vehicle entities");
@@ -93,7 +60,7 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
   console.timeEnd("Vehicle entities");
 
   vehicles.update = function(time) {
-    for (var i=0; i<this.entities.values.length; i++) {
+    for (let i=0; i<this.entities.values.length; i++) {
       let entity = this.entities.values[i];
       if (entity.show) {
         updateVehicleState(entity, time, transitData);
@@ -102,46 +69,52 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
     return true;
   };
 
-  modifyEntityClusterBillboardProcessing(transitData.indexSize);
-
   vehicles.entities.resumeEvents();
-  viewer.dataSources.add(vehicles);
+
+  return vehicles;
+}
+
+export default function init(viewer, transitData, toDate, store, view, progressCallback) {
+  console.time("Initialization");
+  
+  //console.profile("init");
+
+  const stops = createStops(transitData, view, progressCallback);
+  viewer.dataSources.add(stops);
 
   // This must come after viewer.dataSources.add(stops), otherwise the _visualizers field wouldn't be initialized
-  const index = stops._visualizers.findIndex(v => v instanceof Cesium.PointVisualizer);
-  stops._visualizers[index] = new UpdateOnceVisualizer(stops._visualizers[index]);
+  setupUpdateOnceVisualizers(stops,
+                             v => v instanceof Cesium.PointVisualizer
+                               || v instanceof Cesium.BillboardVisualizer);
 
-  const index2 = stops._visualizers.findIndex(v => v instanceof Cesium.BillboardVisualizer);
-  stops._visualizers[index2] = new UpdateOnceVisualizer(stops._visualizers[index2]);
+  const shapes = createShapes(transitData, view, progressCallback);
+  viewer.dataSources.add(shapes);
 
-  const tileRange = options.tileRange;
+  viewer.scene.preRender.addEventListener(() => labelPresenter(viewer, transitData));
+  viewer.scene.preRender.addEventListener(() => updateVehicles(viewer));
 
-  function isInVisibleTile(carto) {
-    //TODO util method
-    for (let x = tileRange.xRange[0]; x <= tileRange.xRange[1]; x++) {
-      for (let y = tileRange.yRange[0]; y <= tileRange.yRange[1]; y++) {
-        //TODO make faster
-        let rect = viewer.terrainProvider.tilingScheme.tileXYToRectangle(x, y, tileRange.level);
-        if (Cesium.Rectangle.contains(rect, carto)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  optimizeEntityClusterBillboardProcessing(transitData.indexSize);
 
-  viewer.scene.postRender.addEventListener(() => initUpdateVehicles(viewer));
+  const vehicles = createVehicles(transitData, toDate, progressCallback);
+
+  viewer.dataSources.add(vehicles);
 
   //console.profileEnd("init");
-
-  entities.resumeEvents();
 
   console.timeEnd("Initialization");
 }
 
-export default { init };
+function setupUpdateOnceVisualizers(dataSource, predicate) {
+  let visualizers = dataSource._visualizers;
+  for (let i = 0; i < visualizers.length; i++) {
+    const visualizer = visualizers[i];
+    if (predicate(visualizer)) {
+      visualizers[i] = new UpdateOnceVisualizer(visualizer);
+    }
+  }
+}
 
-function modifyEntityClusterBillboardProcessing(indexSize) {
+function optimizeEntityClusterBillboardProcessing(indexSize) {
 
   // Method removeBillboard called from returnPrimitive function in BillboardVisualizer was too expensive.
   // By using precomputed mapping between entities and billboards
