@@ -8,7 +8,7 @@ import configureStore from "./redux/configureStore";
 import * as Selection from "./models/selectionTypes";
 import {TransitFeed} from "./models/TransitFeed";
 import options from "./options";
-import selectDisplayedTileRange from "./cesium/selectDisplayedTileRange";
+import showCustomTileRange from "./cesium/selectDisplayedTileRange";
 import app from "./app";
 import {clockTick} from "./redux/actions";
 import {selectEntity} from "./redux/actions";
@@ -82,7 +82,6 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   terrainExaggeration: options.terrainExaggeration,
   animation: false,
   baseLayerPicker: false,
-  //TODO add custom
   fullscreenButton: false,
   geocoder: false,
   homeButton: false,
@@ -90,7 +89,6 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   sceneModePicker: false,
   selectionIndicator: true,
   timeline: false,
-  //TODO create custom?
   navigationHelpButton: true,
   scene3DOnly: true,
 
@@ -128,37 +126,10 @@ var terrainProvider = new Cesium.CesiumTerrainProvider({
 
 
 
-function isInTileRange(tileRange, xx, yy, level) {
-  const x = (xx >> (level - tileRange.level)) | 0;
-  const y = (yy >> (level - tileRange.level)) | 0;
 
-  if (x >= tileRange.xRange[0] && x <= tileRange.xRange[1]) {
-    if (y >= tileRange.yRange[0] && y <= tileRange.yRange[1]) {
-
-      const maskRow = tileRange.mask[y - tileRange.yRange[0]];
-      const maskChar = maskRow[x - tileRange.xRange[0]];
-
-      if (maskChar === " ") {
-        return true;
-      }
-    }
-  }
-  return false;
-}
 
 if (options.tileRange.enabled) {
-  viewer.terrainProvider.readyPromise.then(() => {
-     selectDisplayedTileRange(viewer, tileRange);
-  });
-
-  const originalGetTileDataAvailable = Cesium.CesiumTerrainProvider.prototype.getTileDataAvailable;
-
-  terrainProvider.getTileDataAvailable = function(x, y, level) {
-    if (isInTileRange(tileRange, x, y, level)) {
-      return originalGetTileDataAvailable.call(this, x, y, level);
-    }
-    return false;
-  };
+  showCustomTileRange(viewer, options.tileRange);
 }
 
 viewer.terrainProvider = terrainProvider;
@@ -169,9 +140,18 @@ viewer.terrainProvider = terrainProvider;
 viewer.scene.debugShowFramesPerSecond = options.showFramesPerSecond;
 
 
+function createVehicleSimulator(shape, transitData) {
+  return new VehicleSimulator({
+    points: shape.toPositionArray(transitData.positions),
+    distances: shape.distances,
+    stepCount: 100,
+    wheelbase: 10,
+    storeResultPoints: false
+  });
+}
 
 //TODO add error handling
-dataPromise.then(([ data2]) => {
+dataPromise.then(([data2]) => {
 
   //TODO process warnings
   console.time("Loading transit data");
@@ -181,13 +161,7 @@ dataPromise.then(([ data2]) => {
   window.transitData = transitData;
 
   _.forEach(transitData.shapes, s => {
-    transitData.simulators[s.id] =   new VehicleSimulator({
-                                                            points: s.toPositionArray(transitData.positions),
-                                                            distances: s.distances,
-                                                            stepCount: 100,
-                                                            wheelbase: 10,
-                                                            storeResultPoints: s.id == 131484
-                                                          });
+    transitData.simulators[s.id] = createVehicleSimulator(s, transitData);
   });
 
   console.time("Calculating trip indices");

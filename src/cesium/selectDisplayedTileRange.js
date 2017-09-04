@@ -13,9 +13,27 @@ function fixTilingScheme(tilingScheme, initialLevel) {
   };
 }
 
-export default function selectDisplayedTileRange(viewer, {level, xRange, yRange}) {
+function isInTileRange(tileRange, xx, yy, level) {
+  const x = (xx >> (level - tileRange.level)) | 0;
+  const y = (yy >> (level - tileRange.level)) | 0;
+
+  if (x >= tileRange.xRange[0] && x <= tileRange.xRange[1]) {
+    if (y >= tileRange.yRange[0] && y <= tileRange.yRange[1]) {
+
+      const maskRow = tileRange.mask[y - tileRange.yRange[0]];
+      const maskChar = maskRow[x - tileRange.xRange[0]];
+
+      if (maskChar === " ") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function selectDisplayedTileRange(viewer, {level, xRange, yRange}) {
   // need to access private variable otherwise a DeveloperError is thrown
-  var tilingScheme = viewer.scene.globe.terrainProvider._tilingScheme;
+  const tilingScheme = viewer.scene.globe.terrainProvider._tilingScheme;
 
   fixTilingScheme(tilingScheme, level);
 
@@ -23,8 +41,8 @@ export default function selectDisplayedTileRange(viewer, {level, xRange, yRange}
 
   function createZeroLevelTiles() {
     const result = [];
-    for (var x=xRange[0]; x<=xRange[1]; x++) {
-      for (var y=yRange[0]; y<=yRange[1]; y++) {
+    for (let x = xRange[0]; x <= xRange[1]; x++) {
+      for (let y = yRange[0]; y <= yRange[1]; y++) {
         const tile = new Cesium.QuadtreeTile({ tilingScheme, x, y, level });
         result.push(tile);
       }
@@ -39,5 +57,20 @@ export default function selectDisplayedTileRange(viewer, {level, xRange, yRange}
   surface.invalidateAllTiles = function() {
     origInvalidateAllTiles.call(this);
     surface._levelZeroTiles = createZeroLevelTiles();
+  };
+}
+
+export default function showCustomTileRange(viewer, tileRange) {
+  viewer.terrainProvider.readyPromise.then(() => {
+    selectDisplayedTileRange(viewer, tileRange);
+  });
+
+  const originalGetTileDataAvailable = Cesium.CesiumTerrainProvider.prototype.getTileDataAvailable;
+
+  viewer.terrainProvider.getTileDataAvailable = function(x, y, level) {
+    if (isInTileRange(tileRange, x, y, level)) {
+      return originalGetTileDataAvailable.call(this, x, y, level);
+    }
+    return false;
   };
 }

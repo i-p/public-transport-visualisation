@@ -136,17 +136,14 @@ export function calculateTripIndices(transitData) {
   let indexSize = 0;
 
   for (let trip of Object.values(transitData.trips)) {
-    let from = trip.stopTimes[0];
-    let to = trip.stopTimes[trip.stopTimes.length - 1];
-
-    events.push({type: EVENT_START, stopTime: from, time: from.arrivalTime },
-                {type: EVENT_END,   stopTime: to,   time: to.departureTime });
+    events.push({type: EVENT_START, trip, time: trip.firstArrivalTime },
+                {type: EVENT_END,   trip, time: trip.lastDepartureTime });
   }
 
   events.sort((e1, e2) => e1.time - e2.time);
 
   events.forEach(e => {
-    const trip = transitData.getTripById(e.stopTime.trip);
+    const trip = e.trip;
 
     if (e.type === EVENT_START) {
       if (unusedIndices.length > 0) {
