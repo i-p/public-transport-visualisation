@@ -174,9 +174,9 @@ viewer.scene.debugShowFramesPerSecond = options.showFramesPerSecond;
 dataPromise.then(([ data2]) => {
 
   //TODO process warnings
-  console.time("a");
+  console.time("Loading transit data");
   const [transitData] = loadCityData2(data2);
-  console.timeEnd("a");
+  console.timeEnd("Loading transit data");
 
   window.transitData = transitData;
 
@@ -190,8 +190,9 @@ dataPromise.then(([ data2]) => {
                                                           });
   });
 
-
+  console.time("Calculating trip indices");
   calculateTripIndices(transitData);
+  console.timeEnd("Calculating trip indices");
 
   transitData.calculateVehiclesInService();
 

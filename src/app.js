@@ -10,6 +10,9 @@ import { Route } from "./models/Route";
 import View from "./cesium/View";
 
 function init(viewer, transitData, start, stop, store, view, progressCallback) {
+
+  console.time("Initialization");
+
   console.log(start.toString(), stop.toString());
 
   let localDate = Cesium.JulianDate.toDate(start);
@@ -44,19 +47,28 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
   var stops = new Cesium.CustomDataSource("stops");
   stops.entities.suspendEvents();
 
+  console.time("Stop entities");
+
   Object.values(transitData.stops).slice(0).forEach((stop, i, arr) => {
     progressCallback("Creating stops", i, arr.length);
     const entity = stops.entities.add(createStopEntity(stop));
     view.registerEntity(stop, entity);
   });
 
+  console.timeEnd("Stop entities");
+
+
   stops.entities.resumeEvents();
+
+  console.time("Shape entities");
 
   Object.values(transitData.shapes).forEach((shape, i, arr) => {
     progressCallback("Creating routes", i, arr.length);
     const entity = entities.add(createShapeEntity(shape));
     view.registerEntity(shape, entity);
   });
+
+  console.timeEnd("Shape entities");
 
   viewer.dataSources.add(stops);
 
@@ -71,10 +83,14 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
   var vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
+  console.time("Vehicle entities");
+
   Object.values(transitData.trips).forEach((trip, i, arr) => {
     progressCallback("Creating vehicles", i, arr.length);
     return createVehicleEntity(viewer, vehicles, trip, toDate, transitData);
   });
+
+  console.timeEnd("Vehicle entities");
 
   vehicles.update = function(time) {
     for (var i=0; i<this.entities.values.length; i++) {
@@ -120,7 +136,7 @@ function init(viewer, transitData, start, stop, store, view, progressCallback) {
 
   entities.resumeEvents();
 
-  console.log(`Initialization completed in ${performance.now() - initStart} ms`);
+  console.timeEnd("Initialization");
 }
 
 export default { init };
