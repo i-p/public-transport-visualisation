@@ -12,13 +12,15 @@ export default function initializeCesium() {
   //   mapId: 'mapbox.streets'
   // });
 
-  imageryProvider.readyPromise.then(() => {
-    for (let x = tileRange.xRange[0]; x <= tileRange.xRange[1]; x++) {
-      for (let y = tileRange.yRange[0]; y <= tileRange.yRange[1]; y++) {
-        imageryProvider.requestImage(x, y, tileRange.level);
+  if (options.tileRange.enabled) {
+    imageryProvider.readyPromise.then(() => {
+      for (let x = tileRange.xRange[0]; x <= tileRange.xRange[1]; x++) {
+        for (let y = tileRange.yRange[0]; y <= tileRange.yRange[1]; y++) {
+          imageryProvider.requestImage(x, y, tileRange.level);
+        }
       }
-    }
-  });
+    });
+  }
 
   const viewer = new Cesium.Viewer("cesiumContainer", {
     terrainExaggeration: options.terrainExaggeration,

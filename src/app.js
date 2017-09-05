@@ -5,6 +5,15 @@ import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehi
 import updateStopLabelsVisibility from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
+import {secondsOfDayToDateConverter} from "./utils";
+import {loadCityData2} from "./cities/Bratislava";
+import {
+  createCesiumSubscriber, setupCameraAnimationOnTileLoaded, setupOnInputAction,
+  setupOnTickAction
+} from "./cesium/cesiumStoreSubscriber";
+import View from "./cesium/View";
+import {clockTick} from "./redux/actions";
+import options from "./options";
 
 function createStops(transitData, view, progressCallback) {
   const stops = new Cesium.CustomDataSource("stops");
@@ -79,8 +88,40 @@ function createVehicles(transitData, primitives, progressCallback) {
   return vehicles;
 }
 
-//TODO initEntities
-export default function init(viewer, transitData, toDate, store, view, progressCallback) {
+export default function init(viewer, store, history, serializedTransitData) {
+  const toDate = secondsOfDayToDateConverter(options.start);
+
+  //TODO process warnings
+  console.time("Loading transit data");
+  const [transitData] = loadCityData2(serializedTransitData, toDate);
+  console.timeEnd("Loading transit data");
+
+  window.transitData = transitData;
+  window.viewer = viewer;
+
+  const view = new View(viewer, transitData);
+
+  initEntities(viewer, transitData, view, (title, i, total) => {
+    //console.log(title, "(" + i + "/" + total + ")");
+  });
+
+  viewer.scene.preRender.addEventListener(() => updateStopLabelsVisibility(viewer, transitData));
+  viewer.scene.preRender.addEventListener(() => updateVehiclePositions(viewer));
+
+  store.dispatch(clockTick(viewer.clock.currentTime));
+
+  setupOnInputAction(viewer, store, history);
+  setupOnTickAction(viewer, store);
+
+  store.subscribe(createCesiumSubscriber(store, viewer, view));
+
+  setupCameraAnimationOnTileLoaded(viewer, {
+    onAnimationStart: () => document.getElementById("loading-overlay").style.display = "none",
+    onAnimationEnd: () => store.dispatch({type: "SET_TRANSIT_DATA", data: transitData})
+  });
+}
+
+function initEntities(viewer, transitData, view, progressCallback) {
   console.time("Initialization");
 
   //console.profile("init");
@@ -101,9 +142,6 @@ export default function init(viewer, transitData, toDate, store, view, progressC
   const vehicles = createVehicles(transitData, viewer.scene.primitives, progressCallback);
 
   viewer.dataSources.add(vehicles);
-
-  viewer.scene.preRender.addEventListener(() => updateStopLabelsVisibility(viewer, transitData));
-  viewer.scene.preRender.addEventListener(() => updateVehiclePositions(viewer));
 
   //console.profileEnd("init");
 

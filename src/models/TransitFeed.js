@@ -1,5 +1,8 @@
 import _ from "lodash";
 
+const EVENT_START = 0;
+const EVENT_END = 1;
+
 export class TransitFeed {
   constructor(normalize) {
     this.routes = {};
@@ -68,6 +71,36 @@ export class TransitFeed {
     }
 
     this.vehiclesInService = result;
+  }
+
+  calculateTripIndices() {
+    const events = [];
+    const unusedIndices = [];
+    let indexSize = 0;
+
+    for (let trip of Object.values(this.trips)) {
+      events.push({type: EVENT_START, trip, time: trip.firstArrivalTime },
+                  {type: EVENT_END,   trip, time: trip.lastDepartureTime });
+    }
+
+    events.sort((e1, e2) => e1.time - e2.time);
+
+    events.forEach(e => {
+      const trip = e.trip;
+
+      if (e.type === EVENT_START) {
+        if (unusedIndices.length > 0) {
+          trip.index = unusedIndices.pop();
+        } else {
+          trip.index = indexSize;
+          indexSize++;
+        }
+      } else {
+        unusedIndices.push(trip.index);
+      }
+    });
+
+    this.indexSize = indexSize;
   }
 
   removeRoutesWithoutTrips() {

@@ -1,5 +1,5 @@
 import OsmLoader from "../loaders/OsmLoader"
-import {addTrips} from "../loaders/tripLoader"
+import {addTrips, calculateTripIndices} from "../loaders/tripLoader"
 import newNormalizer from "./nameNormalizer"
 import {TransitFeed} from "../models/TransitFeed";
 import _ from "lodash";
@@ -115,6 +115,8 @@ export function loadCityData2(serialized, toDate) {
     t.speedProfile = new VehicleSpeedProfile(t, t.stopTimes, toDate, deserialized.getShapeById(t.shape));
   });
 
+  deserialized.calculateTripIndices();
+  deserialized.calculateVehiclesInService();
 
   return [deserialized, []];
 }

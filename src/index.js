@@ -9,18 +9,9 @@ import * as Selection from "./models/selectionTypes";
 import {TransitFeed} from "./models/TransitFeed";
 import options from "./options";
 import init from "./app";
-import {clockTick} from "./redux/actions";
-import {
-  createCesiumSubscriber, setupCameraAnimationOnTileLoaded, setupOnInputAction,
-  setupOnTickAction
-} from "./cesium/cesiumStoreSubscriber";
-import loadCityData, {loadCityData2} from "./cities/Bratislava"
 import { Provider } from "react-redux";
 import { Router} from "react-router-dom";
 import {createBrowserHistory} from "history";
-import {secondsOfDayToDateConverter, VehicleSimulator} from "./utils";
-import {calculateTripIndices} from "./loaders/tripLoader";
-import View from "./cesium/View";
 import initializeCesium from "./initializeCesium";
 
 let store = configureStore({
@@ -62,45 +53,9 @@ const dataPromise = Promise.all([
 
 const viewer = initializeCesium();
 
-
-
-
 //TODO add error handling
 dataPromise.then(([data2]) => {
-
-  const toDate = secondsOfDayToDateConverter(options.start);
-
-  //TODO process warnings
-  console.time("Loading transit data");
-  const [transitData] = loadCityData2(data2, toDate);
-  console.timeEnd("Loading transit data");
-
-  window.transitData = transitData;
-  window.viewer = viewer;
-
-  console.time("Calculating trip indices");
-  calculateTripIndices(transitData);
-  console.timeEnd("Calculating trip indices");
-
-  transitData.calculateVehiclesInService();
-
-  const view = new View(viewer, transitData);
-
-  init(viewer, transitData, toDate, store, view, (title, i, total) => {
-    //console.log(title, "(" + i + "/" + total + ")");
-  });
-
-  store.dispatch(clockTick(viewer.clock.currentTime));
-
-  setupOnInputAction(viewer, store, history);
-  setupOnTickAction(viewer, store);
-
-  store.subscribe(createCesiumSubscriber(store, viewer, view));
-
-  setupCameraAnimationOnTileLoaded(viewer, {
-    onAnimationStart: () => document.getElementById("loading-overlay").style.display = "none",
-    onAnimationEnd: () => store.dispatch({type: "SET_TRANSIT_DATA", data: transitData})
-  });
+  init(viewer, store, history, data2);
 });
 
 // Hot Module Replacement API
