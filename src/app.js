@@ -1,15 +1,10 @@
 import Cesium from "cesium"
 import createStopEntity from "./cesium/createStopEntity"
 import createShapeEntity from "./cesium/createShapeEntity"
-import createVehicleEntity, { updateVehicles, initUpdateVehicles } from "./cesium/createVehicleEntity"
-import options from "./options"
-import labelPresenter from "./cesium/labelPresenter";
+import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehicleEntity"
+import updateStopLabelsVisibility from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
-import { Route } from "./models/Route";
-import View from "./cesium/View";
-import {getMidnight, secondsOfDayToDateConverter} from "./utils";
-
 
 function createStops(transitData, view, progressCallback) {
   const stops = new Cesium.CustomDataSource("stops");
@@ -74,24 +69,22 @@ function createVehicles(transitData, toDate, progressCallback) {
   return vehicles;
 }
 
+//TODO initEntities
 export default function init(viewer, transitData, toDate, store, view, progressCallback) {
   console.time("Initialization");
-  
+
   //console.profile("init");
 
   const stops = createStops(transitData, view, progressCallback);
   viewer.dataSources.add(stops);
 
-  // This must come after viewer.dataSources.add(stops), otherwise the _visualizers field wouldn't be initialized
-  setupUpdateOnceVisualizers(stops,
+  // Points and billboards associated with stops don't need to be updated regularly.
+  replaceWithUpdateOnceVisualizer(stops,
                              v => v instanceof Cesium.PointVisualizer
                                || v instanceof Cesium.BillboardVisualizer);
 
   const shapes = createShapes(transitData, view, progressCallback);
   viewer.dataSources.add(shapes);
-
-  viewer.scene.preRender.addEventListener(() => labelPresenter(viewer, transitData));
-  viewer.scene.preRender.addEventListener(() => updateVehicles(viewer));
 
   optimizeEntityClusterBillboardProcessing(transitData.indexSize);
 
@@ -99,12 +92,18 @@ export default function init(viewer, transitData, toDate, store, view, progressC
 
   viewer.dataSources.add(vehicles);
 
+  viewer.scene.preRender.addEventListener(() => updateStopLabelsVisibility(viewer, transitData));
+  viewer.scene.preRender.addEventListener(() => updateVehiclePositions(viewer));
+
   //console.profileEnd("init");
 
   console.timeEnd("Initialization");
 }
 
-function setupUpdateOnceVisualizers(dataSource, predicate) {
+// This function must be called after the dataSource was added
+// to the data source collection in Viewer,
+// otherwise the _visualizers field wouldn't be initialized.
+function replaceWithUpdateOnceVisualizer(dataSource, predicate) {
   let visualizers = dataSource._visualizers;
   for (let i = 0; i < visualizers.length; i++) {
     const visualizer = visualizers[i];
@@ -114,22 +113,26 @@ function setupUpdateOnceVisualizers(dataSource, predicate) {
   }
 }
 
+function isVehicleEntity(entity) {
+  return entity.transit && entity.transit.trip;
+}
+
 function optimizeEntityClusterBillboardProcessing(indexSize) {
 
-  // Method removeBillboard called from returnPrimitive function in BillboardVisualizer was too expensive.
-  // By using precomputed mapping between entities and billboards
-  // this optimization reduced time of BillboardVisualizer.update() from 5.4 to 2.1ms.
+  // Method removeBillboard which is called from returnPrimitive function in BillboardVisualizer
+  // is too expensive. By using precomputed mapping between vehicle entities and associated billboards,
+  // this optimization reduced execution time of BillboardVisualizer.update() from 5.4 to 2.1ms.
   let originalRemoveBillboard = Cesium.EntityCluster.prototype.removeBillboard;
 
   Cesium.EntityCluster.prototype.removeBillboard = function(entity){
-    if (!(entity.transit && entity.transit.trip)) {
+    if (!isVehicleEntity(entity)) {
       return originalRemoveBillboard.call(this, entity);
     }
 
     if (this._billboardCollection) {
       let billboard = this._billboardCollection._billboards[entity.transit.trip.index];
 
-      // Hide billboard only if it's not already used by other entity
+      // Hide billboard only if it's not already used by other vehicle
       if (billboard.id === entity) {
         billboard.show = false;
       }
@@ -139,8 +142,7 @@ function optimizeEntityClusterBillboardProcessing(indexSize) {
   let originalGetBillboard = Cesium.EntityCluster.prototype.getBillboard;
 
   Cesium.EntityCluster.prototype.getBillboard = function(entity){
-
-    if (!(entity.transit && entity.transit.trip)) {
+    if (!isVehicleEntity(entity)) {
       return originalGetBillboard.call(this, entity);
     }
 
@@ -149,12 +151,11 @@ function optimizeEntityClusterBillboardProcessing(indexSize) {
       collection = this._billboardCollection = new Cesium.BillboardCollection({
         scene : this._scene
       });
-      for (var i=0; i<indexSize; i++) {
+      for (let i=0; i<indexSize; i++) {
         const billboard = collection.add();
         billboard.show = true;
       }
     }
-
     return collection.get(entity.transit.trip.index);
   };
 }

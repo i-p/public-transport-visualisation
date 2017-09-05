@@ -169,7 +169,7 @@ function classifyTimeInInterval(time, interval) {
   return BEFORE_INTERVAL;
 }
 
-export function updateVehicles(viewer) {
+export function updateVehiclePositions(viewer) {
 
   if (!viewer.vehiclePrimitivesOrderedByStart || viewer.vehiclePrimitivesOrderedByStart.length === 0) {
     initUpdateVehicles(viewer);
@@ -258,13 +258,8 @@ export function updateVehicles(viewer) {
 let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
 export default function createVehicleEntity(viewer, vehicles, trip, toDate, transitData) {
-  // TODO this should be calculated somewhere else
-
-  const speedProfile = new VehicleSpeedProfile(trip, trip.stopTimes, toDate, transitData.getShapeById(trip.shape));
-  transitData.speedProfiles[trip.id] = speedProfile;
-
-  const vehicleState = new VehicleState();
-  transitData.vehicleStates[trip.id] = vehicleState;
+  const speedProfile = trip.speedProfile;
+  const vehicleState = trip.vehicleState;
 
   const positionProperty = new Cesium.CallbackProperty((time, result) => {
     if (Cesium.JulianDate.lessThan(time, speedProfile._startTime)) return undefined;

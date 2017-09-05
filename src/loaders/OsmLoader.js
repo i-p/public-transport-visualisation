@@ -5,7 +5,6 @@ import {TransitFeed} from "../models/TransitFeed";
 import {Stop} from "../models/Stop";
 import {Shape} from "../models/Shape";
 import {Route} from "../models/Route";
-import {VehicleSimulator} from "../utils";
 
 function createMissingWay(id) {
   return {id, type: "way", nodes:[], missing: true}

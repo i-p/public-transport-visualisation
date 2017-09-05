@@ -63,30 +63,20 @@ const dataPromise = Promise.all([
 const viewer = initializeCesium();
 
 
-function createVehicleSimulator(shape, transitData) {
-  return new VehicleSimulator({
-    points: shape.toPositionArray(transitData.positions),
-    distances: shape.distances,
-    stepCount: 100,
-    wheelbase: 10,
-    storeResultPoints: false
-  });
-}
+
 
 //TODO add error handling
 dataPromise.then(([data2]) => {
 
+  const toDate = secondsOfDayToDateConverter(options.start);
+
   //TODO process warnings
   console.time("Loading transit data");
-  const [transitData] = loadCityData2(data2);
+  const [transitData] = loadCityData2(data2, toDate);
   console.timeEnd("Loading transit data");
 
   window.transitData = transitData;
   window.viewer = viewer;
-
-  _.forEach(transitData.shapes, s => {
-    transitData.simulators[s.id] = createVehicleSimulator(s, transitData);
-  });
 
   console.time("Calculating trip indices");
   calculateTripIndices(transitData);
@@ -95,7 +85,6 @@ dataPromise.then(([data2]) => {
   transitData.calculateVehiclesInService();
 
   const view = new View(viewer, transitData);
-  const toDate = secondsOfDayToDateConverter(options.start);
 
   init(viewer, transitData, toDate, store, view, (title, i, total) => {
     //console.log(title, "(" + i + "/" + total + ")");

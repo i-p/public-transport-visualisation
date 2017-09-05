@@ -5,8 +5,7 @@ const L = 10;
 export function updateVehicleState(vehicleEntity, time, transitData) {
   let trip = vehicleEntity.transit.trip;
   let index = trip.indexOfStop(time);
-
-  let vehicleState = transitData.vehicleStates[trip.id];
+  let vehicleState = trip.vehicleState;
 
   if (index == -1) {
     vehicleState.show = false;
@@ -16,8 +15,7 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
   vehicleState.show = true;
 
   const shape = transitData.getShapeById(trip.shape);
-
-  const simulator = transitData.simulators[trip.shape];
+  const simulator = shape.simulator;
 
   if (index % 2 == 0) {
     const stopTime = trip.stopTimes[index / 2];
@@ -30,7 +28,7 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
     let toPointIndex = transitData.indexOfPoint(trip, trip.stopTimes[(index - 1) / 2 + 1]);
 
     // TODO make it non-relative
-    let distance = transitData.speedProfiles[trip.id].getDistanceFromStartOfTripSegmentAt(time);
+    let distance = trip.speedProfile.getDistanceFromStartOfTripSegmentAt(time);
 
     let segmentIndex = shape.getSegmentIndexByDistance(distance, fromPointIndex, toPointIndex);
 

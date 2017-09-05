@@ -74,7 +74,7 @@ let cameraMoving = false;
 
 const labelIntersections = new LabelIntersections({ columns: 10, rows: 10 });
 
-export default function (viewer, transitData) {
+export default function updateStopLabelsVisibility(viewer, transitData) {
   frameNum++;
 
   let labels = findBillboardCollection(viewer);

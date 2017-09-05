@@ -7,6 +7,8 @@ export class Trip {
     this.route = route;
     this.shape = shape;
     this.stopTimes = [];
+    this.vehicleState = null;
+    this.speedProfile = null;
   }
   get firstArrivalTime() {
     return this.stopTimes[0].arrivalTime;

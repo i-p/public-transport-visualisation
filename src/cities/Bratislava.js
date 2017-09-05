@@ -8,6 +8,10 @@ import {Trip} from "../models/Trip";
 import {Route} from "../models/Route";
 import {StopTime} from "../models/StopTime";
 import {Shape} from "../models/Shape";
+import {VehicleSimulator} from "../models/VehicleSimulator";
+import {VehicleState} from "../models/VehicleState";
+import {VehicleSpeedProfile} from "../models/VehicleSpeedProfile";
+
 
 const normalizer = newNormalizer({
    initialEntries: [
@@ -56,7 +60,7 @@ export default function loadCityData(data, routeTimetables) {
   return [transitData, loader.warnings];
 }
 
-export function loadCityData2(serialized) {
+export function loadCityData2(serialized, toDate) {
   const deserialized = new TransitFeed(normalizer);
 
   // osmRelationId and shapes are not needed
@@ -89,6 +93,28 @@ export function loadCityData2(serialized) {
 
     deserialized.addTrip(trip);
   });
+
+  function createVehicleSimulator(shape) {
+    return new VehicleSimulator({
+                                  points: shape.toPositionArray(deserialized.positions),
+                                  distances: shape.distances,
+                                  stepCount: 100,
+                                  wheelbase: 10,
+                                  storeResultPoints: false
+                                });
+  }
+
+  _.forEach(deserialized.shapes, s => {
+    s.simulator = createVehicleSimulator(s);
+  });
+
+  _.forEach(deserialized.trips, t => {
+    t.vehicleState = new VehicleState();
+
+    //TODO rename Trip.shape -> shapeId
+    t.speedProfile = new VehicleSpeedProfile(t, t.stopTimes, toDate, deserialized.getShapeById(t.shape));
+  });
+
 
   return [deserialized, []];
 }
