@@ -14,5 +14,9 @@ export class StopTime {
   contains(time) {
     return time >= this.arrivalTime && time < this.departureTime;
   }
+
+  get indexOfPoint() {
+    return this.stopSequence - 1;
+  }
 }
 

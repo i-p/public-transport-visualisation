@@ -2,7 +2,7 @@
 //TODO add to options
 const L = 10;
 
-export function updateVehicleState(vehicleEntity, time, transitData) {
+export function updateVehicleState(vehicleEntity, time, shape) {
   let trip = vehicleEntity.transit.trip;
   let index = trip.indexOfStop(time);
   let vehicleState = trip.vehicleState;
@@ -14,7 +14,6 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
 
   vehicleState.show = true;
 
-  const shape = transitData.getShapeById(trip.shape);
   const simulator = shape.simulator;
 
   if (index % 2 == 0) {
@@ -24,8 +23,8 @@ export function updateVehicleState(vehicleEntity, time, transitData) {
     simulator.orientationAtPoint(pointIndex, vehicleState.orientation);
     simulator.positionAlongVehicleAtPoint(pointIndex, -L/2, vehicleState.position);
   } else {
-    let fromPointIndex = transitData.indexOfPoint(trip, trip.stopTimes[(index - 1) / 2]);
-    let toPointIndex = transitData.indexOfPoint(trip, trip.stopTimes[(index - 1) / 2 + 1]);
+    let fromPointIndex = trip.stopTimes[(index - 1) / 2].indexOfPoint;
+    let toPointIndex = trip.stopTimes[(index - 1) / 2 + 1].indexOfPoint;
 
     // TODO make it non-relative
     let distance = trip.speedProfile.getDistanceFromStartOfTripSegmentAt(time);

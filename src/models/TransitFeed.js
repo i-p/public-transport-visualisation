@@ -28,10 +28,6 @@ export class TransitFeed {
     return Object.keys(this.trips).length;
   }
 
-  indexOfPoint(trip, stopTime) {
-    return stopTime.stopSequence - 1;
-  }
-
   getRouteTrip(route, tripIndex) {
     return this.getTripById(route.trips[tripIndex]);
   }

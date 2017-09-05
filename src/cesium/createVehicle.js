@@ -1,6 +1,4 @@
 import Cesium from "cesium"
-import {VehicleSpeedProfile} from "../models/VehicleSpeedProfile";
-import {VehicleState} from "../models/VehicleState";
 import {updateVehicleState} from "./updateVehicleState";
 
 const scale = 3;
@@ -18,9 +16,47 @@ const colorsByType = {
   "trolleybus": "#007C1E"
 };
 
+function toAvailability(speedProfile) {
+  const availability = new Cesium.TimeIntervalCollection();
 
-//TODO rename to makeVehicle + fix transit.type
-function makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType) {
+  const interval = new Cesium.TimeInterval();
+  Cesium.JulianDate.clone(speedProfile._startTime, interval.start);
+  Cesium.JulianDate.clone(speedProfile._endTime, interval.stop);
+
+  interval.isStartIncluded = true;
+  interval.isStopIncluded = false;
+
+  availability.addInterval(interval);
+
+  return availability;
+}
+
+function createVehicleBillboard(route) {
+  if (billboardCache.has(route.id)) {
+    return billboardCache.get(route.id);
+  } else {
+    let canvas = Cesium.writeTextToCanvas(route.id, {
+      // don't use custom font here, it doesn't have to be loaded yet
+      font: "24px 'Verdana' ",
+      padding: 6,
+      fillColor: Cesium.Color.WHITE,
+      //TODO FIX
+      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[route.getType()])
+    });
+
+    let bg = new Cesium.BillboardGraphics({
+                                            scale: 0.5,
+                                            image: canvas,
+                                            pixelOffset : LABEL_PIXEL_OFFSET_PROPERTY,
+                                            distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,
+                                            eyeOffset: LABEL_EYE_OFFSET_PROPERTY
+                                          });
+    billboardCache.set(route.id, bg);
+    return bg;
+  }
+}
+
+function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState, route) {
 
   const propertyWithOffset = (zOffset, property) => new Cesium.CallbackProperty((time, result) => {
     let value = property.getValue(time, result);
@@ -35,18 +71,7 @@ function makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType
 
   const entity = new Cesium.Entity();
 
-  const availability = new Cesium.TimeIntervalCollection();
-
-  const interval = new Cesium.TimeInterval();
-  Cesium.JulianDate.clone(speedProfile._startTime, interval.start);
-  Cesium.JulianDate.clone(speedProfile._endTime, interval.stop);
-
-  interval.isStartIncluded = true;
-  interval.isStopIncluded = false;
-
-  availability.addInterval(interval);
-
-  entity._availability = availability;
+  entity._availability = toAvailability(speedProfile);
   entity._name = trip.route;
   entity._position = actualPosition;
   entity._orientation = new Cesium.CallbackProperty((time, result) => {
@@ -54,35 +79,11 @@ function makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType
     return vehicleState.getQuaternion(result);
   }, false);
   entity.transit = {
-    type: "bus",
+    type: route.getType(),
     trip: trip
   };
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
-
-  //entity._label = createVehicleLabel(trip);
-
-  if (billboardCache.has(trip.route)) {
-    entity._billboard = billboardCache.get(trip.route);
-  } else {
-    let canvas = Cesium.writeTextToCanvas(trip.route, {
-      // don't use custom font here, it doesn't have to be loaded yet
-      font: "24px 'Verdana' ",
-      padding: 6,
-      fillColor: Cesium.Color.WHITE,
-      //TODO FIX
-      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[vehicleType])
-    });
-
-    let bg = new Cesium.BillboardGraphics({
-      scale: 0.5,
-      image: canvas,
-      pixelOffset : LABEL_PIXEL_OFFSET_PROPERTY,
-      distanceDisplayCondition: LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY,
-      eyeOffset: LABEL_EYE_OFFSET_PROPERTY
-    });
-    billboardCache.set(trip.route, bg);
-    entity._billboard = bg;
-  }
+  entity._billboard = createVehicleBillboard(route);
 
   return entity;
 }
@@ -96,34 +97,8 @@ const LABEL_FILL_COLOR_PROPERTY = new Cesium.ConstantProperty(Cesium.Color.fromA
 const LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY = new Cesium.ConstantProperty(new Cesium.DistanceDisplayCondition(0, 3000));
 const LABEL_EYE_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian3(0, 0, -2));
 
-function createVehicleLabel(trip) {
-  const label = new Cesium.LabelGraphics();
-
-  label._text = new Cesium.ConstantProperty(trip.route.id);
-  label._font = LABEL_FONT_PROPERTY;
-  label._style = LABEL_STYLE_PROPERTY;
-  label._outlineWidth = LABEL_OUTLINE_WIDTH_PROPERTY;
-  label._verticalOrigin = LABEL_VERTICAL_ORIGIN_PROPERTY;
-  label._pixelOffset = LABEL_PIXEL_OFFSET_PROPERTY;
-  label._fillColor = LABEL_FILL_COLOR_PROPERTY;
-  label._distanceDisplayCondition = LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY;
-  return label;
-}
-
 const modelMatrixScratch = new Cesium.Matrix3();
 
-function createVehiclePrimitive(vehicleEntity, trip, type, speedProfile) {
-  vehicleEntity._getModelMatrix(speedProfile._startTime, modelMatrixScratch);
-
-  //TODO move model path to options
-  return Cesium.Model.fromGltf({
-                                 url: "/" + type + ".glb",
-                                 modelMatrix: modelMatrixScratch,
-                                 scale: 2.54/100 * 100,
-                                 id: vehicleEntity,
-                                 minimumPixelSize: 6
-                               });
-}
 
 let previousTime = new Cesium.JulianDate(0, 0);
 
@@ -257,7 +232,7 @@ export function updateVehiclePositions(viewer) {
 
 let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
-export default function createVehicleEntity(viewer, vehicles, trip, toDate, transitData) {
+export default function createVehiclePrimitive(route, shape, trip) {
   const speedProfile = trip.speedProfile;
   const vehicleState = trip.vehicleState;
 
@@ -270,22 +245,26 @@ export default function createVehicleEntity(viewer, vehicles, trip, toDate, tran
     return Cesium.Cartesian3.clone(vehicleState.position, result);
   }, false);
 
-  const vehicleType = transitData.getRouteById(trip.route).type;
-
-  const entity = makeBus(positionProperty, trip, speedProfile, vehicleState, vehicleType);
+  const entity = createVehicleEntity(positionProperty, trip, speedProfile, vehicleState, route);
 
   // Vehicle primitive needs correct initial values
-  updateVehicleState(entity, speedProfile._startTime, transitData);
+  updateVehicleState(entity, speedProfile._startTime, shape);
 
-  const route = transitData.getRouteById(trip.route);
-  const primitive = createVehiclePrimitive(entity, trip, route.getType(), speedProfile);
+  entity._getModelMatrix(speedProfile._startTime, modelMatrixScratch);
+
+  //TODO move model path to options
+  const primitive = Cesium.Model.fromGltf({
+    url: "/" + route.getType() + ".glb",
+    modelMatrix: modelMatrixScratch,
+    scale: 2.54/100 * 100,
+    id: entity,
+    minimumPixelSize: 6
+  });
 
   entity.show = false;
   primitive.show = false;
 
-  vehicles.entities.add(entity);
-  //viewer.entities.add(entity);
-  viewer.scene.primitives.add(primitive);
+  return primitive;
 }
 
 

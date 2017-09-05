@@ -1,7 +1,7 @@
 import Cesium from "cesium"
 import createStopEntity from "./cesium/createStopEntity"
 import createShapeEntity from "./cesium/createShapeEntity"
-import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehicleEntity"
+import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehicle"
 import updateStopLabelsVisibility from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
@@ -41,7 +41,7 @@ function createShapes(transitData, view, progressCallback) {
   return shapes;
 }
 
-function createVehicles(transitData, toDate, progressCallback) {
+function createVehicles(transitData, primitives, progressCallback) {
   const vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
@@ -49,7 +49,15 @@ function createVehicles(transitData, toDate, progressCallback) {
 
   Object.values(transitData.trips).forEach((trip, i, arr) => {
     progressCallback("Creating vehicles", i, arr.length);
-    return createVehicleEntity(viewer, vehicles, trip, toDate, transitData);
+
+    const shape = transitData.getShapeById(trip.shape);
+    const route = transitData.getRouteById(trip.route);
+
+    const primitive = createVehicleEntity(route, shape, trip);
+    const entity = primitive.id;
+
+    vehicles.entities.add(entity);
+    primitives.add(primitive);
   });
 
   console.timeEnd("Vehicle entities");
@@ -57,8 +65,10 @@ function createVehicles(transitData, toDate, progressCallback) {
   vehicles.update = function(time) {
     for (let i=0; i<this.entities.values.length; i++) {
       let entity = this.entities.values[i];
+
       if (entity.show) {
-        updateVehicleState(entity, time, transitData);
+        const shape = transitData.getShapeById(entity.transit.trip.shape);
+        updateVehicleState(entity, time, shape);
       }
     }
     return true;
@@ -88,7 +98,7 @@ export default function init(viewer, transitData, toDate, store, view, progressC
 
   optimizeEntityClusterBillboardProcessing(transitData.indexSize);
 
-  const vehicles = createVehicles(transitData, toDate, progressCallback);
+  const vehicles = createVehicles(transitData, viewer.scene.primitives, progressCallback);
 
   viewer.dataSources.add(vehicles);
 
