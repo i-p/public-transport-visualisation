@@ -93,7 +93,8 @@ export class BottomPanelComponent extends React.Component {
                    preserveAspectRatio="none" ref="svg"
                    onMouseMove={(e) => this.onMouseMove(e)}
                    onMouseDown={(e) => this.onMouseDown(e)}
-                   onMouseUp={(e) => this.onMouseUp(e)}>
+                   onMouseUp={(e) => this.onMouseUp(e)}
+                   onMouseLeave={(e) => this.onMouseLeave(e)}>
 
                 {
                   this.renderStat(width, height)
@@ -148,11 +149,16 @@ export class BottomPanelComponent extends React.Component {
   }
   onMouseMove(e) {
     if (this.moving && this.width) {
-      e.preventDefault();
       this.updateTime(e, this.width);
     }
+
+    e.preventDefault();
   }
+
   onMouseUp(e) {
+    this.moving = false
+  }
+  onMouseLeave(e) {
     this.moving = false
   }
   updateTime(e, width) {
