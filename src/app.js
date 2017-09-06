@@ -42,7 +42,9 @@ function createShapes(transitData, view, progressCallback) {
 
   Object.values(transitData.shapes).forEach((shape, i, arr) => {
     progressCallback("Creating routes", i, arr.length);
-    const entity = shapes.entities.add(createShapeEntity(shape));
+
+    const route = transitData.getRouteById(shape.route);
+    const entity = shapes.entities.add(createShapeEntity(shape, route));
     view.registerEntity(shape, entity);
   });
   console.timeEnd("Shape entities");

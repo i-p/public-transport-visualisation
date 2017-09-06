@@ -60,7 +60,7 @@ export default function loadCityData(data, routeTimetables) {
   return [transitData, loader.warnings];
 }
 
-export function loadCityData2(serialized, toDate) {
+export function loadCityData2(serialized, secondsOfDayToDate) {
   const deserialized = new TransitFeed(normalizer);
 
   // osmRelationId and shapes are not needed
@@ -112,7 +112,7 @@ export function loadCityData2(serialized, toDate) {
     t.vehicleState = new VehicleState();
 
     //TODO rename Trip.shape -> shapeId
-    t.speedProfile = new VehicleSpeedProfile(t, t.stopTimes, toDate, deserialized.getShapeById(t.shape));
+    t.speedProfile = new VehicleSpeedProfile(t, t.stopTimes, secondsOfDayToDate, deserialized.getShapeById(t.shape));
   });
 
   deserialized.calculateTripIndices();

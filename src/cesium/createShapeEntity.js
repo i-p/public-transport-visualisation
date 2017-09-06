@@ -7,18 +7,20 @@ const colorsByType = {
   "trolleybus": "#007C1E"
 };
 
-export default function createShapeEntity(shape) {
+export default function createShapeEntity(shape, route) {
   return {
     name : shape.id,
     polyline : {
       positions : shape.toPositionArray(),
-      width : 5,
+      width : 3,
       material :
-      //TODO FIX - add route as parameter
+        // For mapbox.streets imagery provider use simple color material
+        // for bing terrain use the glow material
         new Cesium.PolylineGlowMaterialProperty({
-          color : Cesium.Color.fromCssColorString(colorsByType["bus"]),
+          color : Cesium.Color.fromCssColorString(colorsByType[route.getType()]),
           glowPower: 0.5
         })
+        //Cesium.Color.fromCssColorString(colorsByType[route.getType()])
     },
     shape,
     show: false
