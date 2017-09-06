@@ -4,6 +4,7 @@ import RouteLink from "./RouteLink"
 import Panel from "./Panel"
 import _ from "lodash"
 import StopLink from "./StopLink";
+import {searchForStop} from "../redux/actions";
 
 
 
@@ -86,7 +87,7 @@ export class RoutesOverview extends React.Component {
 
 //TODO FIX
 let mapStateToProps = (state) => ({ routes: Object.values(state.transitData.routes), search: state.search, stops: Object.values(state.transitData.stops) });
-let mapDispatchToProps = (dispatch) => ({ searchFor: text => dispatch({type: "SEARCH", text}) });
+let mapDispatchToProps = (dispatch) => ({ searchFor: text => searchForStop(text) });
 
 export const AllRoutesOverview = connect(mapStateToProps, mapDispatchToProps)(RoutesOverview);
 

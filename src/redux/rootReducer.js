@@ -1,12 +1,13 @@
 import { combineReducers } from "redux";
 import timeReducer from "./timeReducer"
 import selectionReducer from "./selectionReducer"
+import {SEARCH, SET_DIRECTION, SET_SPEED, SET_TRANSIT_DATA} from "./actions";
 
 const defaultSpeed = { direction: 1, speed: 10 };
 
 const transitDataReducer = (s = null, action) => {
   switch (action.type) {
-    case "SET_TRANSIT_DATA":
+    case SET_TRANSIT_DATA:
       return action.data;
     default:
       return s;
@@ -15,9 +16,9 @@ const transitDataReducer = (s = null, action) => {
 
 const speedReducer = (s = defaultSpeed, action) => {
   switch (action.type) {
-    case "SET_SPEED":
+    case SET_SPEED:
       return {direction: s.direction, speed: action.speed};
-    case "SET_DIRECTION":
+    case SET_DIRECTION:
       return {direction: action.direction, speed: s.speed};
     default:
       return s;
@@ -26,7 +27,7 @@ const speedReducer = (s = defaultSpeed, action) => {
 
 const searchReducer = (s = "", action) => {
   switch (action.type) {
-    case "SEARCH":
+    case SEARCH:
       return action.text;
     default:
       return s;

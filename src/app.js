@@ -12,7 +12,7 @@ import {
   setupOnTickAction
 } from "./cesium/cesiumStoreSubscriber";
 import View from "./cesium/View";
-import {clockTick} from "./redux/actions";
+import {clockTick, setTransitData} from "./redux/actions";
 import options from "./options";
 
 function createStops(transitData, view, progressCallback) {
@@ -120,8 +120,9 @@ export default function init(viewer, store, history, serializedTransitData) {
   store.subscribe(createCesiumSubscriber(store, viewer, view));
 
   setupCameraAnimationOnTileLoaded(viewer, {
+    //TODO DOM shouldn't be accessed here
     onAnimationStart: () => document.getElementById("loading-overlay").style.display = "none",
-    onAnimationEnd: () => store.dispatch({type: "SET_TRANSIT_DATA", data: transitData})
+    onAnimationEnd: () => store.dispatch(setTransitData(transitData))
   });
 }
 

@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 import { connect } from "react-redux";
-import { selectRoute } from "../redux/actions"
+import {highlight, selectRoute} from "../redux/actions"
 import {Link} from "react-router-dom";
 
 const classForType = {
@@ -15,7 +15,7 @@ function getClasses(route) {
 }
 const mapDispatchToProps = dispatch => ({
   selectRoute: route => dispatch(selectRoute(route)),
-  highlight: object => dispatch({ type: "HIGHLIGHT", object })
+  highlight: object => dispatch(highlight(object))
 });
 
 const RouteLink = connect(null, mapDispatchToProps)(({route, children, useStyle="true", triggerHighlight=false, selectRoute, highlight}) =>

@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import _ from "lodash"
 import * as utils from "../utils"
 import classNames from "classnames"
+import {selectStopTime, setDirection, setSpeed} from "../redux/actions";
 
 export class BottomPanelComponent extends React.Component {
   constructor(props) {
@@ -210,8 +211,8 @@ let SpeedButton = ({currentSpeed, speed, onClick}) => {
 
 
 export default connect((state) => ({time: state.time, vehiclesInService: state.transitData.vehiclesInService, speed: state.speed.speed, direction: state.speed.direction }), (dispatch) => ({
-  setTime: (sec) => dispatch({ type: "SELECT_STOP_TIME",
-                               stopTime: { arrivalTime: sec }}),
-  setSpeed: (speed) => dispatch({type: "SET_SPEED", speed}),
-  setDirection: (direction) => dispatch({type: "SET_DIRECTION", direction})
+  //TODO FIX
+  setTime: (sec) => dispatch(selectStopTime({ arrivalTime: sec })),
+  setSpeed: (speed) => dispatch(setSpeed(speed)),
+  setDirection: (direction) => dispatch(setDirection(direction))
 }))(BottomPanelComponent);
