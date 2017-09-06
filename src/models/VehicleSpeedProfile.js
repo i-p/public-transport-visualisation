@@ -4,7 +4,7 @@ import {solveQuadratic} from "../utils";
 const resultsScratch = [null, null];
 
 export class VehicleSpeedProfile {
-  constructor(trip, stopTimes, toDate, shape) {
+  constructor(trip, stopTimes, secondsOfDayToDate, shape) {
     const intervalCollection = new Cesium.TimeIntervalCollection();
     const length = stopTimes.length;
 
@@ -18,7 +18,7 @@ export class VehicleSpeedProfile {
 
       if (i > 0) {
         const previousStopTime = trip.stopTimes[i - 1];
-        intervalCollection._intervals[i - 1] = makeInterval(shape, toDate, previousStopTime, stopTime);
+        intervalCollection._intervals[i - 1] = makeInterval(shape, secondsOfDayToDate, previousStopTime, stopTime);
       }
     }
 
@@ -27,8 +27,8 @@ export class VehicleSpeedProfile {
     this._startTime = new Cesium.JulianDate();
     this._endTime = new Cesium.JulianDate();
 
-    toDate(stopTimes[0].arrivalTime, this._startTime);
-    toDate(stopTimes[stopTimes.length - 1].departureTime, this._endTime);
+    secondsOfDayToDate(stopTimes[0].arrivalTime, this._startTime);
+    secondsOfDayToDate(stopTimes[stopTimes.length - 1].departureTime, this._endTime);
   }
   getDistanceFromStartOfTripSegmentAt(time) {
     const interval = this._intervalCollection.findIntervalContainingDate(time);
@@ -56,11 +56,11 @@ export class VehicleSpeedProfile {
   }
 }
 
-function makeInterval(shape, toDate, previous, current) {
+function makeInterval(shape, secondsOfDayToDate, previous, current) {
   const interval = new Cesium.TimeInterval();
 
-  toDate(previous.departureTime, interval.start);
-  toDate(current.arrivalTime, interval.stop);
+  secondsOfDayToDate(previous.departureTime, interval.start);
+  secondsOfDayToDate(current.arrivalTime, interval.stop);
 
   interval.data = calculateSpeedProfile(
     interval.start,

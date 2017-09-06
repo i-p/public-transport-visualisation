@@ -40,7 +40,7 @@ function getStartOfDay(date) {
   return Cesium.JulianDate.fromDate(newLocalDate);
 }
 
-export function secondsOfDayToDateConverter(date) {
+export function getSecondsOfDayToDate(date) {
   let startOfDay = getStartOfDay(date);
 
   return (secondsOfDay, result) => {

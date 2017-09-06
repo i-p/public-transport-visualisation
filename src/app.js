@@ -5,7 +5,7 @@ import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehi
 import updateStopLabelsVisibility from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
-import {secondsOfDayToDateConverter} from "./utils";
+import {getSecondsOfDayToDate} from "./utils";
 import {loadCityData2} from "./cities/Bratislava";
 import {
   createCesiumSubscriber, setupCameraAnimationOnTileLoaded, setupOnInputAction,
@@ -91,11 +91,11 @@ function createVehicles(transitData, view, primitives, progressCallback) {
 }
 
 export default function init(viewer, store, history, serializedTransitData) {
-  const toDate = secondsOfDayToDateConverter(options.start);
+  const secondsOfDayToDate = getSecondsOfDayToDate(options.start);
 
   //TODO process warnings
   console.time("Loading transit data");
-  const [transitData] = loadCityData2(serializedTransitData, toDate);
+  const [transitData] = loadCityData2(serializedTransitData, secondsOfDayToDate);
   console.timeEnd("Loading transit data");
 
   window.transitData = transitData;
