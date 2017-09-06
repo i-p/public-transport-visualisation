@@ -6,6 +6,8 @@ import {
   SELECTION_EMPTY, SELECTION_ROUTE, SELECTION_STOP, SELECTION_STOP_AND_ROUTE,
   SELECTION_VEHICLE
 } from "../models/selectionTypes";
+import {getVehicleTrip, isVehicleTrip} from "../cesium/createVehicle";
+import {getStop, isStop} from "../cesium/createStopEntity";
 
 const defaultState = { type: SELECTION_EMPTY, value:null };
 
@@ -14,11 +16,11 @@ export default (state = defaultState, action, transitData) => {
     case SELECT_ENTITY:
       const entity = action.entity;
 
-      if (entity.transit && entity.transit.trip) {
-        return { type: SELECTION_VEHICLE, value: entity.transit.trip };
+      if (isVehicleTrip(entity)) {
+        return { type: SELECTION_VEHICLE, value: getVehicleTrip(entity) };
       }
-      if (entity.transit && entity.transit.stop) {
-        return { type: SELECTION_STOP, value: entity.transit.stop };
+      if (isStop(entity)) {
+        return { type: SELECTION_STOP, value: getStop(entity) };
       }
       return state;
     case SELECT_NOTHING:

@@ -4,6 +4,8 @@ import {Route} from "../models/Route";
 import {Stop} from "../models/Stop";
 import {clockTick} from "../redux/actions";
 import options from "../options";
+import {getVehicleTrip, isVehicleTrip} from "./createVehicle";
+import {getStop, isStop} from "./createStopEntity";
 
 let currentSelection = { type: Selection.SELECTION_EMPTY, value: null };
 let currentHighlight = null;
@@ -87,20 +89,21 @@ export function setupOnInputAction(viewer, store, history) {
     if (Cesium.defined(picked)) {
       const id = Cesium.defaultValue(picked.id, picked.primitive.id);
 
-      if (id instanceof Cesium.Entity && id.transit && id.transit.type === "stop") {
-        history.push("/stop/" + id.transit.stop.id);
-        return;
-      }
-
-      if (id instanceof Cesium.Entity && id.transit && id.transit.trip) {
-        history.push("/trip/" + id.transit.trip.id);
-        return;
-      }
-
       if (id instanceof Cesium.Entity) {
+        if (isStop(id)) {
+          history.push("/stop/" + getStop(id).id);
+          return;
+        }
+
+        if (isVehicleTrip(id)) {
+          history.push("/trip/" + getVehicleTrip(id).id);
+          return;
+        }
+
         store.dispatch(selectEntity(id));
         return;
       }
+
       if (id && id.type) {
         store.dispatch(selectEntity({transit: id}));
         return;

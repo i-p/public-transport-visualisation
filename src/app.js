@@ -1,7 +1,7 @@
 import Cesium from "cesium"
 import createStopEntity from "./cesium/createStopEntity"
 import createShapeEntity from "./cesium/createShapeEntity"
-import createVehicleEntity, { updateVehiclePositions } from "./cesium/createVehicle"
+import createVehicleEntity, {getVehicleTrip, isVehicleTrip, updateVehiclePositions} from "./cesium/createVehicle"
 import updateStopLabelsVisibility from "./cesium/labelPresenter";
 import UpdateOnceVisualizer from "./cesium/UpdateOnceVisualizer";
 import {updateVehicleState} from "./cesium/updateVehicleState";
@@ -80,7 +80,7 @@ function createVehicles(transitData, view, primitives, progressCallback) {
       let entity = this.entities.values[i];
 
       if (entity.show) {
-        const shape = transitData.getShapeById(entity.transit.trip.shape);
+        const shape = transitData.getShapeById(getVehicleTrip(entity).shape);
         updateVehicleState(entity, time, shape);
       }
     }
@@ -166,10 +166,6 @@ function replaceWithUpdateOnceVisualizer(dataSource, predicate) {
   }
 }
 
-function isVehicleEntity(entity) {
-  return entity.transit && entity.transit.trip;
-}
-
 function optimizeEntityClusterBillboardProcessing(indexSize) {
 
   // Method removeBillboard which is called from returnPrimitive function in BillboardVisualizer
@@ -178,12 +174,12 @@ function optimizeEntityClusterBillboardProcessing(indexSize) {
   let originalRemoveBillboard = Cesium.EntityCluster.prototype.removeBillboard;
 
   Cesium.EntityCluster.prototype.removeBillboard = function(entity){
-    if (!isVehicleEntity(entity)) {
+    if (!isVehicleTrip(entity)) {
       return originalRemoveBillboard.call(this, entity);
     }
 
     if (this._billboardCollection) {
-      let billboard = this._billboardCollection._billboards[entity.transit.trip.index];
+      let billboard = this._billboardCollection._billboards[getVehicleTrip(entity).index];
 
       // Hide billboard only if it's not already used by other vehicle
       if (billboard.id === entity) {
@@ -195,7 +191,7 @@ function optimizeEntityClusterBillboardProcessing(indexSize) {
   let originalGetBillboard = Cesium.EntityCluster.prototype.getBillboard;
 
   Cesium.EntityCluster.prototype.getBillboard = function(entity){
-    if (!isVehicleEntity(entity)) {
+    if (!isVehicleTrip(entity)) {
       return originalGetBillboard.call(this, entity);
     }
 
@@ -209,6 +205,6 @@ function optimizeEntityClusterBillboardProcessing(indexSize) {
         billboard.show = true;
       }
     }
-    return collection.get(entity.transit.trip.index);
+    return collection.get(getVehicleTrip(entity).index);
   };
 }

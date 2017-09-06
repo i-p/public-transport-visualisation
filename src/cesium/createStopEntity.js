@@ -1,4 +1,5 @@
 import Cesium from "cesium"
+import {Stop} from "../models/Stop";
 
 const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
 const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
@@ -43,7 +44,22 @@ export default function createStopEntity(stop) {
   entity._position = new Cesium.ConstantProperty(stop.pos);
   entity._billboard = bg;
   entity._point = STOP_POINT;
-  entity.transit = {type: "stop", stop};
+
+  assignStopToEntity(entity, stop);
 
   return entity;
+}
+
+function assignStopToEntity(entity, stop) {
+  entity.transit = stop;
+}
+
+export function isStop(entity) {
+  return entity.transit instanceof Stop;
+}
+
+export function getStop(entity) {
+  if (isStop(entity))
+    return entity.transit;
+  throw Error(`Entity ${entity.id} doesn't represent a stop.`);
 }

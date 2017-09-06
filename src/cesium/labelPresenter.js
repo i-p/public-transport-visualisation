@@ -1,6 +1,7 @@
 import Cesium from "cesium"
 import "./computeScreenSpacePositionSafe"
 import {LabelIntersections} from "./LabelIntersections";
+import {getStop, isStop} from "./createStopEntity";
 
 function calculateLabelRect(billboard, viewer) {
 
@@ -81,14 +82,16 @@ export default function updateStopLabelsVisibility(viewer, transitData) {
 
   if (!labels) return;
 
+  window.labels = labels;
+
   var len = labels.length;
 
   if (!labelsInitialized) {
     for (let i = 0; i < len; i++) {
       var l = labels.get(i);
 
-      if (typeof l.routeCount === "undefined" && l.id.transit) {
-        l.routeCount = transitData.getRouteSetForStop(l.id.transit.stop).size;
+      if (typeof l.routeCount === "undefined" && isStop(l.id)) {
+        l.routeCount = transitData.getRouteSetForStop(getStop(l.id)).size;
         l.alpha = 0;
         l.next = HIDDEN;
         l.lastChange = 0;

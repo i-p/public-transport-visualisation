@@ -1,9 +1,11 @@
 
 //TODO add to options
+import {getVehicleTrip} from "./createVehicle";
+
 const L = 10;
 
 export function updateVehicleState(vehicleEntity, time, shape) {
-  let trip = vehicleEntity.transit.trip;
+  let trip = getVehicleTrip(vehicleEntity);
   let index = trip.indexOfStop(time);
   let vehicleState = trip.vehicleState;
 

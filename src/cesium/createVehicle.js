@@ -1,5 +1,6 @@
 import Cesium from "cesium"
 import {updateVehicleState} from "./updateVehicleState";
+import {Trip} from "../models/Trip";
 
 const scale = 3;
 const [height] = [2.0];
@@ -78,12 +79,10 @@ function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState,
     //TODO check time
     return vehicleState.getQuaternion(result);
   }, false);
-  entity.transit = {
-    type: route.getType(),
-    trip: trip
-  };
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
   entity._billboard = createVehicleBillboard(route);
+
+  assignVehicleTripToEntity(entity, trip);
 
   return entity;
 }
@@ -106,6 +105,20 @@ function getAvailabilityInterval(primitive) {
   return primitive.id.availability._intervals[0];
 }
 
+export function assignVehicleTripToEntity(entity, trip) {
+  entity.transit = trip;
+}
+
+export function isVehicleTrip(entity) {
+  return entity.transit instanceof Trip;
+}
+
+export function getVehicleTrip(entity) {
+  if (isVehicleTrip(entity))
+    return entity.transit;
+  throw Error(`Entity ${entity.id} doesn't represent a trip.`);
+}
+
 // index of first primitive where availability.start > previousTime
 let nextStartIndex = 0;
 // index of first primitive where availability.stop > previousTime
@@ -119,7 +132,7 @@ export function initUpdateVehicles(viewer) {
     const p = viewer.scene.primitives.get(i);
     const entity = p.id;
 
-    if (entity && entity.transit && entity.transit.trip) {
+    if (entity && isVehicleTrip(entity)) {
       viewer.vehiclePrimitivesOrderedByStart.push(p);
       viewer.vehiclePrimitivesOrderedByEnd.push(p);
     }
@@ -218,7 +231,7 @@ export function updateVehiclePositions(viewer) {
     const p = viewer.scene.primitives.get(i);
     const entity = p.id;
 
-    if (entity && entity.transit && entity.transit.trip) {
+    if (entity && isVehicleTrip(entity)) {
       if (p.show) {
         entity._getModelMatrix(time, p.modelMatrix);
 
