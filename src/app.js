@@ -50,7 +50,7 @@ function createShapes(transitData, view, progressCallback) {
   return shapes;
 }
 
-function createVehicles(transitData, primitives, progressCallback) {
+function createVehicles(transitData, view, primitives, progressCallback) {
   const vehicles = new Cesium.CustomDataSource("vehicles");
   vehicles.entities.suspendEvents();
 
@@ -67,6 +67,8 @@ function createVehicles(transitData, primitives, progressCallback) {
 
     vehicles.entities.add(entity);
     primitives.add(primitive);
+
+    view.registerEntity(trip, entity);
   });
 
   console.timeEnd("Vehicle entities");
@@ -139,7 +141,7 @@ function initEntities(viewer, transitData, view, progressCallback) {
 
   optimizeEntityClusterBillboardProcessing(transitData.indexSize);
 
-  const vehicles = createVehicles(transitData, viewer.scene.primitives, progressCallback);
+  const vehicles = createVehicles(transitData, view, viewer.scene.primitives, progressCallback);
 
   viewer.dataSources.add(vehicles);
 

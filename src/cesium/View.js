@@ -45,7 +45,7 @@ export default class View {
   track(trip) {
     const entity = trip == null ? null : this._entityMap.get(trip);
 
-    this._viewer.trackedEntity = trip;
+    this._viewer.trackedEntity = entity;
   }
 
   highlightStop(stop, highlight) {
