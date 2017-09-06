@@ -209,18 +209,10 @@ aside {
 .panel {
   padding: 15px 20px;
   flex:1;
-  border-right: 7px solid gray;
-
   display: flex;
   flex-direction: column;
 
   overflow-y: auto;
-}
-
-@each $type, $color in $colors {
-  .panel-#{$type} {
-    border-right-color: $color;
-  }
 }
 
 .heading {
