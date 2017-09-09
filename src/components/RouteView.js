@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from "classnames";
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import _ from "lodash"
@@ -44,7 +45,7 @@ export class RouteView extends React.Component {
     let selectedTrip = trips[this.state.index];
 
     return <Panel type={route.getType()}>
-      <div className="route-title">{route.id}</div>
+      <div className={classNames("route-title", `route-title-${route.getType()}`)}>{route.id}</div>
       {trips.map((t,i) =>
                           <Direction name={this.props.transitData.getStopById(t.lastStop).name}
                                      route={route}

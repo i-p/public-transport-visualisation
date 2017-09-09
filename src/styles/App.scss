@@ -282,6 +282,16 @@ a:hover {
   font-size: 48px;
 }
 
+@each $type, $color in $colors {
+  .route-title-#{$type} {
+    color: $color;
+
+    a {
+      color: $color;
+    }
+  }
+}
+
 .scr {
   flex-grow: 1;
   overflow-y: auto;
