@@ -60,14 +60,14 @@ export class RoutesOverview extends React.Component {
 
     //TODO constants
     return <Panel>
-      <div className="search-box">
-        <input type="text" value={this.props.search} onChange={e => this.props.searchFor(e.target.value)} placeholder="Enter a stop name"/>
+      {/*<div className="search-box">*/}
+        {/*<input type="text" value={this.props.search} onChange={e => this.props.searchFor(e.target.value)} placeholder="Enter a stop name"/>*/}
 
-        <ul>
-          {matchingStops.slice(0, 10).map(s => <li><StopLink stop={s[1][0]}>{s[1][0].name} ({s[1].length})</StopLink></li>)}
-          {matchingStops.length > 10 ? <li>5 more...</li> : null}
-        </ul>
-      </div>
+        {/*<ul>*/}
+          {/*{matchingStops.slice(0, 10).map(s => <li><StopLink stop={s[1][0]}>{s[1][0].name} ({s[1].length})</StopLink></li>)}*/}
+          {/*{matchingStops.length > 10 ? <li>5 more...</li> : null}*/}
+        {/*</ul>*/}
+      {/*</div>*/}
 
       <div className="heading heading-tram">Tram routes</div>
       <div className="route-list">
