@@ -32,6 +32,12 @@ body {
   font-family: "Open Sans";
 }
 
+.cesium-widget-credits {
+  /* Override bottom: 0 from CesiumWidget.css
+     so that contained elements don't overflow */
+  bottom: 1px;
+}
+
 main {
   height: 100%;
 }
