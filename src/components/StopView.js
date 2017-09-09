@@ -44,6 +44,17 @@ export const StopView = ({stop, time, transitData }) => {
       </RouteStopLink>
     )}</div>
     <table className="t" style={{width:"100%"}}>
+      <thead>
+      <tr>
+        <th>
+          ROUTE
+        </th>
+        <th></th>
+        <th style={{textAlign: "right"}}>
+          ARRIVAL
+        </th>
+      </tr>
+      </thead>
       <tbody>
       {nextStopTimes.map(([st, r]) => <NextStopTime key={st.arrivalTime} route={r} st={st} secondsOfDay={secondsOfDay} transitData={transitData}/>)}
       </tbody>

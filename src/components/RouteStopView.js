@@ -38,6 +38,12 @@ export const RouteStopView = ({route, stop, transitData}) => {
 
 let RouteTimetableAtStop = ({route, stopTimes}) => {
   return <table className="route-stop-timetable">
+    <thead>
+      <tr>
+        <th>HOUR</th>
+        <th>ARRIVALS</th>
+      </tr>
+    </thead>
     <tbody>{
       _.map(_.groupBy(stopTimes, st => Math.floor(st.arrivalTime / 3600)),
         (v,k) => <StopTimesAtHour key={k} hour={k} stopTimes={v}/>)

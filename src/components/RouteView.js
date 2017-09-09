@@ -72,6 +72,12 @@ let Direction = ({route, shapeId, name, isSelected}) => {
 //TODO fix key - sequence should be better
 let TripStops = ({trip, stopTimes, transitData}) => {
   return <table className="trip-stops">
+    <thead>
+      <tr>
+        <th>TIME</th>
+        <th>STOP</th>
+      </tr>
+    </thead>
     <tbody>
     {stopTimes.map(st => <tr key={st.stopSequence}>
       <td>{secondsToMinutes(st.arrivalTime - stopTimes[0].arrivalTime) + ""}</td>

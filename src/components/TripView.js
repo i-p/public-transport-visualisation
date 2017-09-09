@@ -28,6 +28,13 @@ const mapStateToProps = (state) => {
 export const SelectedTripView = connect(mapStateToProps)(TripView);
 
 let Timetable = ({stopTimes, time, transitData}) => (<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>STOP</th>
+      <th>ARRIVAL</th>
+    </tr>
+  </thead>
   <tbody>{stopTimes.map((st, i) =>
     <TimetableEntry key={i} stopTime={st} stop={transitData.getStopById(st.stop)} time={time} previous={stopTimes[i-1]} next={stopTimes[i+1]} />)}
   </tbody>
