@@ -51,6 +51,9 @@ main > div {
   position: relative;
   display: flex;
   flex-direction: column;
+
+  /* Hide help bar */
+  overflow: hidden;
 }
 aside {
   flex: 1;
@@ -463,5 +466,52 @@ a.stop-name:hover {
 
   ul {
     padding-left: 3px;
+  }
+}
+
+#help {
+  background-color: $color-neutral-dark;
+  color: $color-neutral-light;
+  font-size: 14px;
+  > div {
+    padding: 5px 15px 5px 15px;
+    margin: 5px 0 5px 0;
+    display: inline-block;
+    border-right: solid 1px $color-neutral-light;
+    > div { display: inline-block; vertical-align: middle; }
+    i { vertical-align: middle; font-size: 150%; margin-right: 5px; }
+  }
+  position: absolute;
+  top: 0;
+  width: 100%;
+  right: -100%;
+  z-index: 1;
+
+  transition: right 0.5s;
+
+  &.active {
+    right: 0;
+    transition: right 0.5s;
+  }
+}
+
+.help-command {
+  font-weight: bold;
+}
+
+#help-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  font-size: 25px;
+  color: $color-neutral-light;
+  background-color: $color-neutral-dark;
+  padding: 12px;
+
+  &:hover {
+    color: $color-neutral-dark;
+    background-color: $color-neutral-light;
+    cursor: pointer;
   }
 }

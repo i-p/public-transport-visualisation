@@ -33,7 +33,7 @@ export default function initializeCesium() {
     sceneModePicker: false,
     selectionIndicator: true,
     timeline: false,
-    navigationHelpButton: true,
+    navigationHelpButton: false,
     scene3DOnly: true,
 
     skyAtmosphere: false,

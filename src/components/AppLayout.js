@@ -8,11 +8,24 @@ import {selectNothing, selectRoute, selectRouteStop, selectStop, selectTrip} fro
 import BottomPanel from "./BottomPanel"
 import AppContainer from "./Main"
 import InfoPanel from "./InfoPanel"
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, browserHistory } from 'react-router'
+import classNames from "classnames"
+
+const HelpBlock = (props) =>
+  <div>
+    <i className={classNames("fa", props.classes)} aria-hidden="true"></i>
+    <div>
+      <div className="help-command">{props.command}</div>
+      <div className="help-controls">{props.action}</div>
+    </div>
+  </div>;
 
 class AppLayout extends React.Component {
   constructor() {
-    super()
+    super();
+    this.state = {
+      helpVisible: false
+    };
   }
 
   componentDidMount() {
@@ -21,9 +34,35 @@ class AppLayout extends React.Component {
   render() {
     return <div>
       <div className="viewer">
+        <div id="help" className={classNames({ active: this.state.helpVisible })}>
+
+          {<HelpBlock command="Move"
+                      action="Left click + drag"
+                      classes="fa-arrows"/>}
+
+          {<HelpBlock command="Zoom"
+                      action="Mouse wheel scroll / right click + drag"
+                      classes="fa-search-plus"/>}
+
+          {<HelpBlock command="Select a stop / vehicle"
+                      action="Left click"
+                      classes="fa-crosshairs"/>}
+
+          {<HelpBlock command="Change time"
+                      action="Click on timeline"
+                      classes="fa-clock-o"/>}
+
+
+        </div>
+        <div id="help-button" onClick={() => this.setState({helpVisible: !this.state.helpVisible}) }>
+          <i className="fa fa-question"></i>
+        </div>
         <div id="cesiumContainer"></div>
         <BottomPanel/>
         <div id="credits"></div>
+        <div id="loading-overlay">
+          Loading...
+        </div>
       </div>
       <aside id="panel">
         <InfoPanel/>
