@@ -24,18 +24,18 @@ const waitForTransitData = store => next => {
 
 
 
-const middleware = [thunk, waitForTransitData];
+const defaultMiddleware = [thunk, waitForTransitData];
 
 const storeEnhancers = [];
 
-const middlewareEnhancer = applyMiddleware(...middleware);
+const middlewareEnhancer = applyMiddleware(...defaultMiddleware);
 storeEnhancers.unshift(middlewareEnhancer);
 
-export default function configureStore(initialState) {
+export default function configureStore(initialState, middleware = defaultMiddleware) {
   const store = createStore(
     rootReducer,
     initialState,
-    compose(...storeEnhancers)
+    applyMiddleware(...middleware)
   );
 
   if (module.hot) {

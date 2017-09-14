@@ -4,6 +4,7 @@ import _ from "lodash"
 import * as utils from "../utils"
 import classNames from "classnames"
 import {selectStopTime, setDirection, setSpeed} from "../redux/actions";
+import PropTypes from "prop-types"
 
 export class BottomPanelComponent extends React.Component {
   constructor(props) {
@@ -12,6 +13,7 @@ export class BottomPanelComponent extends React.Component {
     this._lastSecondOfDay = 0;
     this.state = { speedSelectorVisible: false };
   }
+
   componentDidMount() {
     document.addEventListener("mousemove", this.onMouseMove);
   }
@@ -73,16 +75,22 @@ export class BottomPanelComponent extends React.Component {
                 <span ref="timeString">{timeString}</span>
               </div>
               <div className="modes">
-                <button className={classNames({active: this.props.direction == -1 })} onClick={()=>this.setDirection(-1)}>&lt;</button>
-                <button className={classNames({active: this.props.direction == 0 })} onClick={()=>this.setDirection(0)}>||</button>
-                <button className={classNames({active: this.props.direction == 1 })} onClick={()=>this.setDirection(1)}>&gt;</button>
+                <button className={classNames({active: this.props.direction == -1 })} onClick={()=>this.setDirection(-1)}>
+                  <i className="fa fa-backward"></i>
+                </button>
+                <button className={classNames({active: this.props.direction == 0 })} onClick={()=>this.setDirection(0)}>
+                  <i className="fa fa-pause"></i>
+                </button>
+                <button className={classNames({active: this.props.direction == 1 })} onClick={()=>this.setDirection(1)}>
+                  <i className="fa fa-forward"></i>
+                </button>
               </div>
               <div className="speed">
                 <div className={classNames({"speed-selector": true, "hidden": !this.state.speedSelectorVisible })}>
-                  <SpeedButton speed={20} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
-                  <SpeedButton speed={10} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
-                  <SpeedButton speed={5} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
-                  <SpeedButton speed={1} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(s)}/>
+                  <SpeedButton speed={20} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(20)}/>
+                  <SpeedButton speed={10} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(10)}/>
+                  <SpeedButton speed={5} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(5)}/>
+                  <SpeedButton speed={1} currentSpeed={this.props.speed} onClick={(s) => this.changeSpeed(1)}/>
                 </div>
                 <button className="speed-current" onClick={() => this.toggleSpeedSelector()}>
                   {
@@ -204,6 +212,12 @@ export class BottomPanelComponent extends React.Component {
     }
   }
 }
+
+BottomPanelComponent.propTypes = {
+  setDirection: PropTypes.func,
+  setTime: PropTypes.func,
+  setSpeed: PropTypes.func
+};
 
 let SpeedButton = ({currentSpeed, speed, onClick}) => {
   return <button onClick={() => onClick(speed)}>{speed + "x"}</button>;

@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
@@ -14,5 +15,13 @@ module.exports = {
     {
       cesium: "var Cesium"
     }
+  ],
+  plugins: [
+    // Conditional requires workaround
+    // https://github.com/airbnb/enzyme/issues/47
+    // https://github.com/airbnb/enzyme/blob/master/docs/guides/webpack.md
+    new webpack.IgnorePlugin(/react\/addons/),
+    new webpack.IgnorePlugin(/react\/lib\/ReactContext/),
+    new webpack.IgnorePlugin(/react\/lib\/ExecutionEnvironment/)
   ]
 };

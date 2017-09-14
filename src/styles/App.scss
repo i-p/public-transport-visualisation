@@ -163,11 +163,14 @@ aside {
 .modes {
   @extend .bottom-section;
 
+  font-size: 0.85em;
+
   button {
     @include bottom-button();
 
     margin-right: 2px;
     height: 100%;
+    color: $color-neutral-dark;
   }
 }
 

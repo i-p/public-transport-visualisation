@@ -64,8 +64,9 @@ export const StopView = ({stop, time, transitData }) => {
 
 const NextStopTime = ({st, route, secondsOfDay, transitData}) => {
   const trip = transitData.getTripById(st.trip);
+  const stop = transitData.getStopById(st.stop);
   return <tr>
-    <td><RouteStopLink route={route} stop={st.stop}>{route.id}</RouteStopLink></td>
+    <td><RouteStopLink route={route} stop={stop}>{route.id}</RouteStopLink></td>
     <td>{trip.lastStop.name}</td>
     <td style={{"textAlign": "right", padding: "5px"}}>{Math.ceil((st.arrivalTime - secondsOfDay) / 60) + " min"}</td>
     <td style={{"textAlign": "right"}}><StopTimeLink stopTime={st}/></td>
