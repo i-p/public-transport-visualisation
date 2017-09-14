@@ -66,7 +66,7 @@ export function mountStory(fn) {
   return result;
 }
 
-const data2 = require("../src/a.json");
+const data2 = require("../src/data_processed.json");
 const secondsOfDayToDate = getSecondsOfDayToDate(options.start);
 export const transitData = loadCityData2(data2, secondsOfDayToDate)[0];
 export const time = Cesium.JulianDate.fromDate(new Date(2017, 4, 24, 13, 11));

@@ -41,13 +41,11 @@ ReactDOM.render(
 
 //console.profile("startup");
 
-
-
 //TODO specify base path
 const dataPromise = Promise.all([
   // Cesium.loadJson("/data.json"),
   // Cesium.loadJson("/timetables.json"),
-  Cesium.loadJson("/a.json")
+  Cesium.loadJson("/data_processed.json")
 ]);
 
 
