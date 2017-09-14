@@ -61,6 +61,7 @@ export default function initializeCesium() {
   viewer.clock.currentTime = options.current.clone();
   viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
   viewer.clock.multiplier = options.defaultSpeed;
+  viewer.clock.shouldAnimate = false;
 
   const terrainProvider = new Cesium.CesiumTerrainProvider({
     url : "https://assets.agi.com/stk-terrain/world"

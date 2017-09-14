@@ -18,7 +18,7 @@ let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
    speed: {
      speed: options.defaultSpeed,
-     direction: 1
+     direction: 0
    },
    transitData: new TransitFeed(),
    selection: {
