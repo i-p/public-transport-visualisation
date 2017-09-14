@@ -52,10 +52,7 @@ export default function loadCityData(data, routeTimetables) {
 
   addTrips(loader.transitData, routeTimetables, STOP_SECONDS);
 
-
-
-  transitData.removeStopsWithoutRoutes();
-  transitData.removeRoutesWithoutTrips();
+  transitData.cleanup();
 
   return [transitData, loader.warnings];
 }

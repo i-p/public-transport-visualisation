@@ -1,15 +1,15 @@
 import Cesium from "cesium"
 import _ from "lodash"
 
-export const toAbsTime = (startTime, relativeTime) => {
-  let localDate = Cesium.JulianDate.toDate(startTime);
+export const toAbsTime = (day, secondsOfDay) => {
+  let localDate = Cesium.JulianDate.toDate(day);
 
   let newLocalDate = new Date(localDate.getFullYear(),
     localDate.getMonth(),
     localDate.getDate(),
-    Math.floor(relativeTime / 3600),
-    Math.floor((relativeTime % 3600) / 60),
-    Math.floor(relativeTime % 60));
+    Math.floor(secondsOfDay / 3600),
+    Math.floor((secondsOfDay % 3600) / 60),
+    Math.floor(secondsOfDay % 60));
 
   return Cesium.JulianDate.fromDate(newLocalDate);
 }

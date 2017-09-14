@@ -3,7 +3,6 @@ export const SELECT_ROUTE = "SELECT_ROUTE";
 export const SELECT_STOP = "SELECT_STOP";
 export const SELECT_TRIP = "SELECT_TRIP";
 export const SELECT_STOP_TIME = "SELECT_STOP_TIME";
-export const SELECT_ENTITY = "SELECT_ENTITY";
 export const SELECT_NOTHING = "SELECT_NOTHING";
 export const CLOCK_TICK = "CLOCK_TICK";
 export const SET_TRANSIT_DATA = "SET_TRANSIT_DATA";
@@ -26,9 +25,6 @@ export const selectTrip =
 
 export const selectStopTime =
   (stopTime) => ({ type: SELECT_STOP_TIME, stopTime });
-
-export const selectEntity =
-  (entity) => ({ type: SELECT_ENTITY, entity });
 
 export const selectNothing =
   (entity) => ({ type: SELECT_NOTHING, entity });

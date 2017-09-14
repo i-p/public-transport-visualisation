@@ -103,6 +103,10 @@ export class TransitFeed {
     this.indexSize = indexSize;
   }
 
+  cleanup() {
+    this.removeRoutesWithoutTrips();
+    this.removeStopsWithoutRoutes();
+  }
   removeRoutesWithoutTrips() {
     this.routes = _.pickBy(this.routes, r => r.trips.length > 0);
   }

@@ -13,16 +13,6 @@ const defaultState = { type: SELECTION_EMPTY, value:null };
 
 export default (state = defaultState, action, transitData) => {
   switch (action.type) {
-    case SELECT_ENTITY:
-      const entity = action.entity;
-
-      if (isVehicleTrip(entity)) {
-        return { type: SELECTION_VEHICLE, value: getVehicleTrip(entity) };
-      }
-      if (isStop(entity)) {
-        return { type: SELECTION_STOP, value: getStop(entity) };
-      }
-      return state;
     case SELECT_NOTHING:
       return { type: SELECTION_EMPTY, value: null };
     case SELECT_TRIP:

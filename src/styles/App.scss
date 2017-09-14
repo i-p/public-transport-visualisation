@@ -472,6 +472,19 @@ a.stop-name:hover {
   }
 }
 
+#loading-overlay {
+  background-color: #343D46;
+  z-index: 100;
+  color: #b9dafa;
+  text-align: center;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
 #help {
   background-color: $color-neutral-dark;
   color: $color-neutral-light;

@@ -44,24 +44,6 @@ export function findShapeByOsmRoute(transitData, routeId, fromStopName,
                "Candidates:", candidates.map(c => c.osmRelationId + " - " + c.osmRelationId).join(", "))
 }
 
-
-export function* enumerateTrips(arrivalTimesAtFirstStop, tripTimetable, dwellTime) {
-  for (let [hour, minutes] of arrivalTimesAtFirstStop) {
-    for (const minute of minutes) {
-      let arrivalTimeAtFirstStop = hour * 3600 + minute * 60;
-
-      yield (tripTimetable.map(tt => {
-        return {
-          name: tt.name,
-          stop: tt.stop,
-          arrivalTime: arrivalTimeAtFirstStop + tt.time,
-          departureTime: arrivalTimeAtFirstStop + tt.time + dwellTime
-        };
-      }));
-    }
-  }
-}
-
 export function addTrips(transitData, routeTimetables, stopSeconds) {
   routeTimetables.forEach(({name, timetables}) => {
     let route = transitData.getRouteById(name);

@@ -84,7 +84,7 @@ export function createCesiumSubscriber(store, viewer, view) {
 
 export function setupOnInputAction(viewer, store, history) {
   viewer.screenSpaceEventHandler.setInputAction((e) => {
-    let picked = viewer.scene.pick(e.position)
+    let picked = viewer.scene.pick(e.position);
 
     if (Cesium.defined(picked)) {
       const id = Cesium.defaultValue(picked.id, picked.primitive.id);
@@ -99,14 +99,6 @@ export function setupOnInputAction(viewer, store, history) {
           history.push("/trip/" + getVehicleTrip(id).id);
           return;
         }
-
-        store.dispatch(selectEntity(id));
-        return;
-      }
-
-      if (id && id.type) {
-        store.dispatch(selectEntity({transit: id}));
-        return;
       }
     }
     history.push("/");
