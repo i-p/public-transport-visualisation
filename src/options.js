@@ -28,17 +28,18 @@ export default {
 
   displayTileCoordinates: false,
 
-  initialCameraView: {
+  cameraAnimationStart: {
     // This is the view that shows everything.
     // Use viewer.zoomTo(viewer.entities) to find the correct values.
-    //
-    // destination : Cesium.Cartesian3.fromRadians(0.29864424512457216, 0.8360228569437709, 31913.387238814907),
-    // orientation: {
-    //   heading: Cesium.Math.toRadians(0),
-    //   pitch: Cesium.Math.toRadians(-50.238364688475),
-    //   roll: 0.0
-    // }
-    
+    destination : Cesium.Cartesian3.fromRadians(0.29864424512457216, 0.8360228569437709, 31913.387238814907),
+    orientation: {
+       heading: Cesium.Math.toRadians(0),
+       pitch: Cesium.Math.toRadians(-50.238364688475),
+       roll: 0.0
+    }
+  },
+
+  initialCameraView: {
     destination: new Cesium.Cartesian3(4077250.7898052568, 1254835.7269374384, 4728019.434778197),
     orientation: {
       heading: 0.00045070733250351935,

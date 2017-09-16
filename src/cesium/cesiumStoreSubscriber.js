@@ -114,6 +114,8 @@ export function setupOnTickAction(viewer, store) {
 export function setupCameraAnimationOnTileLoaded(viewer, {onAnimationStart, onAnimationEnd}) {
   let initialCameraAnimationStarted = false;
 
+  viewer.camera.setView(options.cameraAnimationStart);
+
   viewer.scene.globe.tileLoadProgressEvent.addEventListener((length) => {
     if (length === 0 && !initialCameraAnimationStarted) {
       initialCameraAnimationStarted = true;
