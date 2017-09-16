@@ -89,6 +89,8 @@ function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState,
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
   entity._billboard = createVehicleBillboard(route);
 
+  entity._id = "T" + trip.id;
+
   assignVehicleTripToEntity(entity, trip);
 
   return entity;
@@ -117,7 +119,7 @@ export function assignVehicleTripToEntity(entity, trip) {
 }
 
 export function isVehicleTrip(entity) {
-  return entity.transit instanceof Trip;
+  return entity.id[0] === "T";
 }
 
 export function getVehicleTrip(entity) {
