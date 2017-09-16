@@ -91,7 +91,7 @@ export default function updateStopLabelsVisibility(viewer, transitData) {
       var l = labels.get(i);
 
       if (typeof l.routeCount === "undefined" && isStop(l.id)) {
-        l.routeCount = transitData.getRouteSetForStop(getStop(l.id)).size;
+        l.routeCount = transitData.getRouteSetForStop(getStop(l.id).id).size;
         l.alpha = 0;
         l.next = HIDDEN;
         l.lastChange = 0;

@@ -114,6 +114,7 @@ export function loadCityData2(serialized, secondsOfDayToDate) {
 
   deserialized.calculateTripIndices();
   deserialized.calculateVehiclesInService();
+  deserialized.calculateRouteSetsForStops();
 
   return [deserialized, []];
 }

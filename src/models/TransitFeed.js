@@ -20,6 +20,8 @@ export class TransitFeed {
     this.osmElements = {};
 
     this.positions = [];
+
+    this.routeSetsByStop = {};
   }
 
   getTripById(trip) {
@@ -166,19 +168,25 @@ export class TransitFeed {
     }
   }
 
-  //TODO it is used only for count
-  getRouteSetForStop(stop) {
-    const routes = new Set();
+  calculateRouteSetsForStops() {
+    let result = {};
 
-    for (let t of Object.values(this.trips)) {
-      const route = this.getRouteById(t.route);
+    Object.values(this.stops).forEach(s => {
+      result[s.id] = [];
+    });
+
+    Object.values(this.trips).forEach(t => {
       for (let st of t.stopTimes) {
-        if (st.stop === stop) {
-          routes.add(route);
+        if (result[st.stop].indexOf(t.route) < 0) {
+          result[st.stop].push(t.route);
         }
       }
-    }
+    });
 
-    return routes;
+    this.routeSetsByStop = result;
+  }
+
+  getRouteSetForStop(stopId) {
+    return this.routeSetsByStop[stopId];
   }
 }
