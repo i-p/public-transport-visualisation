@@ -48,6 +48,10 @@ function createVehicleBillboard(route) {
       textMeasurementsCache
     });
 
+    // Ensure that TextureAtlas won't store the same canvas multiple times
+    // See Billboard.prototype.image property for details.
+    canvas.src = route.id;
+
     let bg = new Cesium.BillboardGraphics({
                                             scale: 0.5,
                                             image: canvas,
