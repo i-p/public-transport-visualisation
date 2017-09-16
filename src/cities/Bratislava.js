@@ -95,7 +95,7 @@ export function loadCityData2(serialized, secondsOfDayToDate) {
     return new VehicleSimulator({
                                   points: shape.toPositionArray(deserialized.positions),
                                   distances: shape.distances,
-                                  stepCount: 100,
+                                  stepCount: 50,
                                   wheelbase: 10,
                                   storeResultPoints: false
                                 });
