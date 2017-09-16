@@ -1,6 +1,8 @@
 import Cesium from "cesium"
 import {updateVehicleState} from "./updateVehicleState";
 import {Trip} from "../models/Trip";
+import writeTextToCanvasOptimized from "./writeTextToCanvasOptimized";
+import {routeNames as textMeasurementsCache} from "../textMeasurementsCache";
 
 const scale = 3;
 const [height] = [2.0];
@@ -36,13 +38,14 @@ function createVehicleBillboard(route) {
   if (billboardCache.has(route.id)) {
     return billboardCache.get(route.id);
   } else {
-    let canvas = Cesium.writeTextToCanvas(route.id, {
+    let canvas = writeTextToCanvasOptimized(route.id, {
       // don't use custom font here, it doesn't have to be loaded yet
       font: "24px 'Verdana' ",
       padding: 6,
       fillColor: Cesium.Color.WHITE,
       //TODO FIX
-      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[route.getType()])
+      backgroundColor: Cesium.Color.fromCssColorString(colorsByType[route.getType()]),
+      textMeasurementsCache
     });
 
     let bg = new Cesium.BillboardGraphics({

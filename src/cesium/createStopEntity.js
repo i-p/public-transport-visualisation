@@ -1,5 +1,7 @@
 import Cesium from "cesium"
 import {Stop} from "../models/Stop";
+import writeTextToCanvasOptimized from "./writeTextToCanvasOptimized";
+import {stopNames as textMeasurementsCache} from "../textMeasurementsCache";
 
 const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
 const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
@@ -16,14 +18,15 @@ const cache = {};
 export default function createStopEntity(stop) {
 
   if (!cache[stop.name]) {
-    let canvas = Cesium.writeTextToCanvas(stop.name, {
+    let canvas = writeTextToCanvasOptimized(stop.name, {
       // don't use custom font here, it doesn't have to be loaded yet
       font: "24px 'Verdana' ",
       stroke: true,
       strokeWidth: 0,
       padding: 6,
       fillColor: Cesium.Color.WHITE,
-      backgroundColor: new Cesium.Color(0.3,0.3,0.3,1)
+      backgroundColor: new Cesium.Color(0.3,0.3,0.3,1),
+      textMeasurementsCache
     });
 
     let bg = new Cesium.BillboardGraphics({
