@@ -1,7 +1,6 @@
 import Cesium from "cesium"
 import {Stop} from "../models/Stop";
 import writeTextToCanvasOptimized from "./writeTextToCanvasOptimized";
-import {stopNames as textMeasurementsCache} from "../textMeasurementsCache";
 
 const STOP_LABEL_PIXEL_OFFSET = new Cesium.Cartesian2(0, -14);
 const STOP_LABEL_EYE_OFFSET = new Cesium.Cartesian3(0, 0, -5);
@@ -15,7 +14,7 @@ const STOP_POINT = new Cesium.PointGraphics({
 
 const cache = {};
 
-export default function createStopEntity(stop) {
+export default function createStopEntity(stop, textMeasurementsCache) {
 
   if (!cache[stop.name]) {
     let canvas = writeTextToCanvasOptimized(stop.name, {

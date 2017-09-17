@@ -2,7 +2,6 @@ import Cesium from "cesium"
 import {updateVehicleState} from "./updateVehicleState";
 import {Trip} from "../models/Trip";
 import writeTextToCanvasOptimized from "./writeTextToCanvasOptimized";
-import {routeNames as textMeasurementsCache} from "../textMeasurementsCache";
 
 const scale = 3;
 const [height] = [2.0];
@@ -34,7 +33,7 @@ function toAvailability(speedProfile) {
   return availability;
 }
 
-function createVehicleBillboard(route) {
+function createVehicleBillboard(route, textMeasurementsCache) {
   if (billboardCache.has(route.id)) {
     return billboardCache.get(route.id);
   } else {
@@ -87,7 +86,6 @@ function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState,
     return vehicleState.getQuaternion(result);
   }, false);
   entity._viewFrom = ENTITY_VIEWFROM_PROPERTY;
-  entity._billboard = createVehicleBillboard(route);
 
   entity._id = "T" + trip.id;
 
@@ -254,7 +252,7 @@ export function updateVehiclePositions(viewer) {
 
 let offsetRev = new Cesium.Cartesian3(0, 0, -zOffset);
 
-export default function createVehiclePrimitive(route, shape, trip) {
+export default function createVehiclePrimitive(route, shape, trip, textMeasurementsCache) {
   const speedProfile = trip.speedProfile;
   const vehicleState = trip.vehicleState;
 
@@ -268,6 +266,8 @@ export default function createVehiclePrimitive(route, shape, trip) {
   }, false);
 
   const entity = createVehicleEntity(positionProperty, trip, speedProfile, vehicleState, route);
+
+  entity._billboard = createVehicleBillboard(route, textMeasurementsCache);
 
   // Vehicle primitive needs correct initial values
   updateVehicleState(entity, speedProfile._startTime, shape);

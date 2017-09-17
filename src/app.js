@@ -23,7 +23,7 @@ function createStops(transitData, view, progressCallback) {
 
   Object.values(transitData.stops).slice(0).forEach((stop, i, arr) => {
     progressCallback("Creating stops", i, arr.length);
-    const entity = stops.entities.add(createStopEntity(stop));
+    const entity = stops.entities.add(createStopEntity(stop, view.textMeasurementsCache.stopNames));
     view.registerEntity(stop, entity);
   });
 
@@ -64,7 +64,7 @@ function createVehicles(transitData, view, primitives, progressCallback) {
     const shape = transitData.getShapeById(trip.shape);
     const route = transitData.getRouteById(trip.route);
 
-    const primitive = createVehicleEntity(route, shape, trip);
+    const primitive = createVehicleEntity(route, shape, trip, view.textMeasurementsCache.routeNames);
     const entity = primitive.id;
 
     vehicles.entities.add(entity);
@@ -92,7 +92,7 @@ function createVehicles(transitData, view, primitives, progressCallback) {
   return vehicles;
 }
 
-export default function init(viewer, store, history, serializedTransitData) {
+export default function init(viewer, store, history, serializedTransitData, textMeasurementsCache) {
   const secondsOfDayToDate = getSecondsOfDayToDate(options.start);
 
   //TODO process warnings
@@ -104,6 +104,8 @@ export default function init(viewer, store, history, serializedTransitData) {
   window.viewer = viewer;
 
   const view = new View(viewer, transitData);
+
+  view.textMeasurementsCache = textMeasurementsCache;
 
   initEntities(viewer, transitData, view, (title, i, total) => {
     //console.log(title, "(" + i + "/" + total + ")");
