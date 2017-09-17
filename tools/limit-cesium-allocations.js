@@ -1,3 +1,11 @@
+/*
+   This rule checks that specific Cesium classes are not created
+   inside functions. A scratch module-level variable should be used instead
+   (where applicable).
+
+   To disable this rule, use:
+   // eslint-disable-next-line limit-cesium-allocations
+ */
 
 function isCesiumIdentifier(obj) {
   return obj.type === "Identifier"
@@ -37,8 +45,6 @@ function isTopLevelVariableDeclaration(node) {
     && node.parent.type === "VariableDeclaration"
     && node.parent.parent.type === "Program";
 }
-
-//TODO tie bez argumentov by mali byt pomenovane ako scratch
 
 module.exports = function (context) {
   return {

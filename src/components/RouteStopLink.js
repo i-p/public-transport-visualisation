@@ -1,7 +1,6 @@
 import React from "react";
 import classNames from "classnames";
 import { connect } from "react-redux";
-import { selectRouteStop } from "../redux/actions"
 import {Link} from "react-router-dom";
 
 const classForType = {
@@ -11,7 +10,7 @@ const classForType = {
 };
 
 //TODO merge with RouteLink
-const RouteStopLink = connect()(({route, stop, isActive, children, dispatch}) =>
+const RouteStopLink = connect()(({route, stop, isActive, children}) =>
   <Link to={`/stop/${stop.id}/route/${route.id}`}
      className={classNames("route-stop-link",classForType[route.getType()],{"route-link-active": isActive })}
      >{children}</Link>);

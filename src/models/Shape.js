@@ -1,4 +1,3 @@
-import * as OsmElement from "./OsmElement";
 import Cesium from 'cesium';
 import _ from "lodash";
 
@@ -7,8 +6,6 @@ export class Shape {
     this.id = id;
     this.osmRelationId = osmRelationId;
 
-    //TODO no write usage
-    this.pointByName = {};
     this.normalize = normalize;
     this.route = route;
 

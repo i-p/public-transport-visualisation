@@ -1,6 +1,5 @@
 import Cesium from "cesium"
 import {updateVehicleState} from "./updateVehicleState";
-import {Trip} from "../models/Trip";
 import writeTextToCanvasOptimized from "./writeTextToCanvasOptimized";
 
 const scale = 3;
@@ -63,7 +62,7 @@ function createVehicleBillboard(route, textMeasurementsCache) {
   }
 }
 
-function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState, route) {
+function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState) {
 
   const propertyWithOffset = (zOffset, property) => new Cesium.CallbackProperty((time, result) => {
     let value = property.getValue(time, result);
@@ -94,12 +93,7 @@ function createVehicleEntity(positionProperty, trip, speedProfile, vehicleState,
   return entity;
 }
 
-const LABEL_FONT_PROPERTY = new Cesium.ConstantProperty("12pt monospace");
-const LABEL_STYLE_PROPERTY = new Cesium.ConstantProperty(Cesium.LabelStyle.FILL_AND_OUTLINE);
-const LABEL_OUTLINE_WIDTH_PROPERTY = new Cesium.ConstantProperty(2);
-const LABEL_VERTICAL_ORIGIN_PROPERTY = new Cesium.ConstantProperty(Cesium.VerticalOrigin.BOTTOM);
 const LABEL_PIXEL_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, -9));
-const LABEL_FILL_COLOR_PROPERTY = new Cesium.ConstantProperty(Cesium.Color.fromAlpha(Cesium.Color.WHITE, 1.0));
 const LABEL_DISTANCE_DISPLAY_CONDITION_PROPERTY = new Cesium.ConstantProperty(new Cesium.DistanceDisplayCondition(0, 3000));
 const LABEL_EYE_OFFSET_PROPERTY = new Cesium.ConstantProperty(new Cesium.Cartesian3(0, 0, -2));
 
@@ -265,7 +259,7 @@ export default function createVehiclePrimitive(route, shape, trip, textMeasureme
     return Cesium.Cartesian3.clone(vehicleState.position, result);
   }, false);
 
-  const entity = createVehicleEntity(positionProperty, trip, speedProfile, vehicleState, route);
+  const entity = createVehicleEntity(positionProperty, trip, speedProfile, vehicleState);
 
   entity._billboard = createVehicleBillboard(route, textMeasurementsCache);
 

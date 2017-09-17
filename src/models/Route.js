@@ -1,4 +1,3 @@
-import * as OsmElement from "./OsmElement";
 //TODO type constants for route
 
 export class Route {

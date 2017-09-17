@@ -36,7 +36,7 @@ export const RouteStopView = ({route, stop, transitData}) => {
   </Panel>;
 };
 
-let RouteTimetableAtStop = ({route, stopTimes}) => {
+let RouteTimetableAtStop = ({stopTimes}) => {
   return <table className="route-stop-timetable">
     <thead>
       <tr>

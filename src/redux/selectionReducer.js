@@ -1,13 +1,11 @@
 import {
-  HIGHLIGHT, SELECT_ENTITY, SELECT_NOTHING, SELECT_ROUTE, SELECT_ROUTE_AND_STOP, SELECT_STOP,
+  HIGHLIGHT, SELECT_NOTHING, SELECT_ROUTE, SELECT_ROUTE_AND_STOP, SELECT_STOP,
   SELECT_TRIP
 } from "./actions";
 import {
   SELECTION_EMPTY, SELECTION_ROUTE, SELECTION_STOP, SELECTION_STOP_AND_ROUTE,
   SELECTION_VEHICLE
 } from "../models/selectionTypes";
-import {getVehicleTrip, isVehicleTrip} from "../cesium/createVehicle";
-import {getStop, isStop} from "../cesium/createStopEntity";
 
 const defaultState = { type: SELECTION_EMPTY, value:null };
 

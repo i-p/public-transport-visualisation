@@ -12,7 +12,7 @@ import {
   setupOnTickAction
 } from "./cesium/cesiumStoreSubscriber";
 import View from "./cesium/View";
-import {clockTick, setDirection, setSpeed, setTransitData} from "./redux/actions";
+import {clockTick, setDirection, setTransitData} from "./redux/actions";
 import options from "./options";
 
 function createStops(transitData, view, progressCallback) {
@@ -107,7 +107,7 @@ export default function init(viewer, store, history, serializedTransitData, text
 
   view.textMeasurementsCache = textMeasurementsCache;
 
-  initEntities(viewer, transitData, view, (title, i, total) => {
+  initEntities(viewer, transitData, view, (_title, _i, _total) => {
     //console.log(title, "(" + i + "/" + total + ")");
   });
 

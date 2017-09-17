@@ -89,7 +89,7 @@ export default class OsmLoader {
     this.warnings.push({type, message});
   }
 
-  loadAll(osmElements, elementFilter = (el) => true) {
+  loadAll(osmElements, elementFilter = (_el) => true) {
 
     const getElementById = toTypeAndIdMap(osmElements);
 

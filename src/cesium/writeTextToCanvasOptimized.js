@@ -18,7 +18,7 @@ let imageSmoothingEnabledName;
 export default function writeTextToCanvasOptimized(text, options) {
   //>>includeStart('debug', pragmas.debug);
   if (!defined(text)) {
-    throw new DeveloperError('text is required.');
+    throw new Cesium.DeveloperError('text is required.');
   }
   //>>includeEnd('debug');
   if (text === '') {

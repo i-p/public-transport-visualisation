@@ -40,6 +40,7 @@ export default {
   },
 
   initialCameraView: {
+    // eslint-disable-next-line limit-cesium-allocations
     destination: new Cesium.Cartesian3(4077250.7898052568, 1254835.7269374384, 4728019.434778197),
     orientation: {
       heading: 0.00045070733250351935,

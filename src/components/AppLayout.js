@@ -2,18 +2,17 @@ require('normalize.css/normalize.css');
 require('styles/App.scss');
 
 import React from "react"
-import {Switch} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import {connect} from "react-redux";
 import {selectNothing, selectRoute, selectRouteStop, selectStop, selectTrip} from "../redux/actions";
 import BottomPanel from "./BottomPanel"
 import AppContainer from "./Main"
 import InfoPanel from "./InfoPanel"
-import { Router, Route, browserHistory } from 'react-router'
 import classNames from "classnames"
 
 const HelpBlock = (props) =>
   <div>
-    <i className={classNames("fa", props.classes)} aria-hidden="true"></i>
+    <i className={classNames("fa", props.classes)} aria-hidden="true"/>
     <div>
       <div className="help-command">{props.command}</div>
       <div className="help-controls">{props.action}</div>
@@ -55,11 +54,11 @@ class AppLayout extends React.Component {
 
         </div>
         <div id="help-button" onClick={() => this.setState({helpVisible: !this.state.helpVisible}) }>
-          <i className="fa fa-question"></i>
+          <i className="fa fa-question"/>
         </div>
-        <div id="cesiumContainer"></div>
+        <div id="cesiumContainer"/>
         <BottomPanel/>
-        <div id="credits"></div>
+        <div id="credits"/>
         <div id="loading-overlay">
           Loading...
         </div>

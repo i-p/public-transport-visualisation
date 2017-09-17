@@ -3,10 +3,7 @@ import { connect } from "react-redux"
 import RouteLink from "./RouteLink"
 import Panel from "./Panel"
 import _ from "lodash"
-import StopLink from "./StopLink";
 import {searchForStop} from "../redux/actions";
-
-
 
 function routeScore(route) {
   let id = route.id;
@@ -39,24 +36,24 @@ export class RoutesOverview extends React.Component {
     //TODO do grouping and sorting in OsmLoader (scoring function is city-specific, move it to city module)
     const routesByType = _.groupBy(this.props.routes, r => r.getType());
 
-    _.forEach(routesByType, (routes, type) => {
+    _.forEach(routesByType, (routes) => {
       routes.sort((r1, r2) => {
         return routeScore(r1) - routeScore(r2);
       });
     });
 
     //TODO move out
-    const toSearchableString = str =>
-      Array.from(str.toLowerCase().normalize("NFD")).filter(c => /[a-zA-Z0-9]/.test(c)).join("");
-
-    const stopsByName = _.toPairs(_.groupBy(this.props.stops, s => toSearchableString(s.normalizedName)));
-
-    const compareStrings = (s1, s2) => s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
-
-    stopsByName.sort((s1, s2) => compareStrings(s1[0], s2[0]));
-
-    const searchString = toSearchableString(this.props.search);
-    const matchingStops = stopsByName.filter(s => searchString !== "" && s[0].startsWith(searchString));
+    // const toSearchableString = str =>
+    //   Array.from(str.toLowerCase().normalize("NFD")).filter(c => /[a-zA-Z0-9]/.test(c)).join("");
+    //
+    // const stopsByName = _.toPairs(_.groupBy(this.props.stops, s => toSearchableString(s.normalizedName)));
+    //
+    // const compareStrings = (s1, s2) => s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
+    //
+    // stopsByName.sort((s1, s2) => compareStrings(s1[0], s2[0]));
+    //
+    // const searchString = toSearchableString(this.props.search);
+    // const matchingStops = stopsByName.filter(s => searchString !== "" && s[0].startsWith(searchString));
 
     //TODO constants
     return <Panel>
@@ -87,7 +84,7 @@ export class RoutesOverview extends React.Component {
 
 //TODO FIX
 let mapStateToProps = (state) => ({ routes: Object.values(state.transitData.routes), search: state.search, stops: Object.values(state.transitData.stops) });
-let mapDispatchToProps = (dispatch) => ({ searchFor: text => searchForStop(text) });
+let mapDispatchToProps = (dispatch) => ({ searchFor: text => dispatch(searchForStop(text)) });
 
 export const AllRoutesOverview = connect(mapStateToProps, mapDispatchToProps)(RoutesOverview);
 

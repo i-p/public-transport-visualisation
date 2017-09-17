@@ -66,9 +66,6 @@ export function addTrips(transitData, routeTimetables, stopSeconds) {
         const pointIndex = shape.getNextPointByStopName(s.name, lastPoint, transitData.getStopById.bind(transitData));
         if (pointIndex < 0) {
           console.warn(`${route.id} - cannot find point for ${s.name}`);
-
-          //TODO FIX osmNode -> osmNodeId
-//Available points: ${Array.from(Object.values(shape.pointByName), p => p.osmNode.tags.name).join(",")}`);
           return;
         }
         lastPoint = pointIndex;

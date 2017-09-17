@@ -1,5 +1,3 @@
-import Cesium from "cesium"
-
 export class StopTime {
   constructor({trip, arrivalTime, departureTime, stop, stopSequence}) {
     if (!stop) throw new Error("stop");

@@ -1,5 +1,6 @@
+import Cesium from "cesium"
 import OsmLoader from "../loaders/OsmLoader"
-import {addTrips, calculateTripIndices} from "../loaders/tripLoader"
+import {addTrips} from "../loaders/tripLoader"
 import newNormalizer from "./nameNormalizer"
 import {TransitFeed} from "../models/TransitFeed";
 import _ from "lodash";
@@ -64,6 +65,7 @@ export function loadCityData2(serialized, secondsOfDayToDate) {
   _.forEach(serialized.routes, r => deserialized.addRoute(new Route({route_id: r.id, route_type: r.type})));
 
   // osmNodeId is not needed
+  // eslint-disable-next-line limit-cesium-allocations
   _.forEach(serialized.stops, s => deserialized.addStop(new Stop({stop_id: s.id, stop_name: s.name,pos: new Cesium.Cartesian3(s.pos.x, s.pos.y, s.pos.z), normalizedName: s.normalizedName })))
 
   _.forEach(serialized.shapes, s => {

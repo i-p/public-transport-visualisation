@@ -1,5 +1,6 @@
-import options from "./options";
+import options from "./options"
 import showCustomTileRange from "./cesium/selectDisplayedTileRange"
+import Cesium from "cesium"
 
 export default function initializeCesium() {
   Cesium.BingMapsApi.defaultKey = "AjCgBPI90qGuC4qk0K75MVgl6HCdbVkH_r7jJWtiPq8VBmcb74aGvUOekz-7hBuE";
@@ -56,6 +57,7 @@ export default function initializeCesium() {
   }
 
   //TODO move value to options
+  // eslint-disable-next-line limit-cesium-allocations
   viewer.camera.setView({destination: new Cesium.Cartesian3(9075216.322398473, 1601349.1706513234, 8430794.265876785) });
 
   viewer.scene.fxaa = false;
@@ -71,8 +73,6 @@ export default function initializeCesium() {
   viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
   viewer.clock.multiplier = options.defaultSpeed;
   viewer.clock.shouldAnimate = false;
-
-;
 
   //viewer.scene.globe.enableLighting = true;
 

@@ -1,9 +1,10 @@
+import Cesium from "cesium"
 import * as Selection from "../models/selectionTypes"
 
 let selectionActions = {
   [Selection.SELECTION_ROUTE] : {
     entry: (selection, view) => {
-      let {route, shape} = selection.value;
+      let {shape} = selection.value;
 
       view.showShape(shape.id, true);
       view.showFirstAndLastStop(shape.id, true);
@@ -11,7 +12,7 @@ let selectionActions = {
       view.flyTo(shape, 1.5);
     },
     exit: (selection, view) => {
-      let {route, shape} = selection.value;
+      let {shape} = selection.value;
 
       view.showShape(shape.id, false);
       view.showFirstAndLastStop(shape.id, false);

@@ -1,4 +1,3 @@
-import { combineReducers } from "redux";
 import timeReducer from "./timeReducer"
 import selectionReducer from "./selectionReducer"
 import {SEARCH, SET_DIRECTION, SET_SPEED, SET_TRANSIT_DATA} from "./actions";

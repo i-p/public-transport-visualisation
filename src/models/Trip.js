@@ -1,4 +1,3 @@
-import Cesium from "cesium"
 import {toSecondsOfDay} from "../utils";
 
 export class Trip {

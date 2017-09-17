@@ -1,9 +1,9 @@
-import { createStore, applyMiddleware, compose } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import rootReducer from "./rootReducer";
 import thunk from "redux-thunk";
 
 
-const waitForTransitData = store => next => {
+const waitForTransitData = _store => next => {
   let queuedActions = [];
   let transitDataSet = false;
 

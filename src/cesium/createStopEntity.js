@@ -36,7 +36,7 @@ export default function createStopEntity(stop, textMeasurementsCache) {
         scale: 0.5,
         image: canvas,
         pixelOffset : new Cesium.ConstantProperty(STOP_LABEL_PIXEL_OFFSET),
-        eyeOffset : new Cesium.ConstantProperty(STOP_LABEL_EYE_OFFSET),
+        eyeOffset : new Cesium.ConstantProperty(STOP_LABEL_EYE_OFFSET)
       });
 
     cache[stop.name] = bg;

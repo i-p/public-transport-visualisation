@@ -9,9 +9,9 @@ import * as Selection from "./models/selectionTypes";
 import {TransitFeed} from "./models/TransitFeed";
 import options from "./options";
 import init from "./app";
-import { Provider } from "react-redux";
-import { Router} from "react-router-dom";
-import {createBrowserHistory, createHashHistory} from "history";
+import {Provider} from "react-redux";
+import {Router} from "react-router-dom";
+import {createHashHistory} from "history";
 import initializeCesium from "./initializeCesium";
 
 let store = configureStore({

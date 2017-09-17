@@ -2,7 +2,6 @@ import React from "react";
 import classNames from "classnames";
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
-import _ from "lodash"
 import StopLink from "./StopLink"
 import Panel from "./Panel"
 import {selectRoute} from "../redux/actions"
@@ -10,10 +9,6 @@ import {Link} from "react-router-dom";
 import {createSelector} from "reselect";
 
 const secondsToMinutes = s => Math.floor(s / 60);
-
-const getTripStops = (transitData, trip) => {
-  return trip.stopTimes.map(st => transitData.getStopById(st.stop));
-};
 
 const getTransitData = state => state.transitData;
 const getSelectedRoute = state => state.selection.value.route;
@@ -68,9 +63,7 @@ let Direction = ({route, shapeId, name, isSelected}) => {
   return <Link to={`/route/${route.id}/shape/${shapeId}`} style={{"display": "block", "fontWeight": isSelected ? "bold" : ""}}>{name}</Link>
 };
 
-
-//TODO fix key - sequence should be better
-let TripStops = ({trip, stopTimes, transitData}) => {
+let TripStops = ({stopTimes, transitData}) => {
   return <table className="trip-stops">
     <thead>
       <tr>

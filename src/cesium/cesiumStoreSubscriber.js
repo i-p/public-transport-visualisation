@@ -1,5 +1,6 @@
+import Cesium from "cesium"
 import * as Selection from "../models/selectionTypes"
-import updateCesiumSelection, {displayFirstAndLastStop, displayShape} from "./updateCesiumSelection"
+import updateCesiumSelection from "./updateCesiumSelection"
 import {Route} from "../models/Route";
 import {Stop} from "../models/Stop";
 import {clockTick} from "../redux/actions";
@@ -7,22 +8,9 @@ import options from "../options";
 import {getVehicleTrip, isVehicleTrip} from "./createVehicle";
 import {getStop, isStop} from "./createStopEntity";
 
+//TODO this should be stored in View
 let currentSelection = { type: Selection.SELECTION_EMPTY, value: null };
 let currentHighlight = null;
-
-
-function setRouteHighlight(route, highlight, transitData) {
-  route.shapes.forEach((s, i) => {
-    displayShape(s, transitData, highlight);
-
-    // Labels for both directions would be overlapping,
-    // so highlight stops for one direction only.
-    if (i === 0) {
-      displayFirstAndLastStop(s, transitData, highlight);
-    }
-  });
-}
-
 
 export function createCesiumSubscriber(store, viewer, view) {
 
@@ -59,10 +47,9 @@ export function createCesiumSubscriber(store, viewer, view) {
       viewer.clock.currentTime = store.getState().time.clone();
     }
 
-    var speed = store.getState().speed;
+    const speed = store.getState().speed;
 
-
-    if (speed.direction == 0) {
+    if (speed.direction === 0) {
       if (viewer.clock.shouldAnimate) {
         viewer.clock.shouldAnimate = false;
       }
