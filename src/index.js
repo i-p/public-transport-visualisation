@@ -11,7 +11,7 @@ import options from "./options";
 import init from "./app";
 import { Provider } from "react-redux";
 import { Router} from "react-router-dom";
-import {createBrowserHistory} from "history";
+import {createBrowserHistory, createHashHistory} from "history";
 import initializeCesium from "./initializeCesium";
 
 let store = configureStore({
@@ -27,7 +27,7 @@ let store = configureStore({
    }
  });
 
-const history = createBrowserHistory();
+const history = createHashHistory();
 
 ReactDOM.render(
   <AppContainer>

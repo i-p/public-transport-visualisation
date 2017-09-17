@@ -26,7 +26,12 @@ let config = Object.assign({}, baseConfig, {
     new webpack.optimize.AggressiveMergingPlugin(),
     new webpack.NoErrorsPlugin()
   ],
-  module: defaultSettings.getDefaultModules()
+  module: defaultSettings.getDefaultModules(),
+  externals: [
+    {
+      cesium: "var Cesium"
+    }
+  ]
 });
 
 // Add needed loaders to the defaults here

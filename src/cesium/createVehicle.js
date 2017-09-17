@@ -276,7 +276,7 @@ export default function createVehiclePrimitive(route, shape, trip, textMeasureme
 
   //TODO move model path to options
   const primitive = Cesium.Model.fromGltf({
-    url: "/" + route.getType() + ".glb",
+    url: route.getType() + ".glb",
     modelMatrix: modelMatrixScratch,
     scale: 2.54/100 * 100,
     id: entity,
