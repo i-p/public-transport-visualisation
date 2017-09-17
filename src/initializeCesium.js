@@ -1,5 +1,5 @@
 import options from "./options";
-import { showCustomTileRange } from "./cesium/selectDisplayedTileRange"
+import showCustomTileRange from "./cesium/selectDisplayedTileRange"
 
 export default function initializeCesium() {
   Cesium.BingMapsApi.defaultKey = "AjCgBPI90qGuC4qk0K75MVgl6HCdbVkH_r7jJWtiPq8VBmcb74aGvUOekz-7hBuE";
@@ -22,6 +22,11 @@ export default function initializeCesium() {
     });
   }
 
+  const terrainProvider = new Cesium.CesiumTerrainProvider({
+    url : "https://assets.agi.com/stk-terrain/world"
+    //requestVertexNormals: true
+  });
+
   const viewer = new Cesium.Viewer("cesiumContainer", {
     terrainExaggeration: options.terrainExaggeration,
     animation: false,
@@ -38,9 +43,13 @@ export default function initializeCesium() {
 
     skyAtmosphere: false,
     imageryProvider,
-
+    terrainProvider,
     creditContainer: "credits"
   });
+
+  if (options.tileRange.enabled) {
+    showCustomTileRange(viewer, options.tileRange);
+  }
 
   if (options.displayTileCoordinates) {
     viewer.imageryLayers.add(new Cesium.ImageryLayer(new Cesium.TileCoordinatesImageryProvider()));
@@ -63,16 +72,7 @@ export default function initializeCesium() {
   viewer.clock.multiplier = options.defaultSpeed;
   viewer.clock.shouldAnimate = false;
 
-  const terrainProvider = new Cesium.CesiumTerrainProvider({
-    url : "https://assets.agi.com/stk-terrain/world"
-    //requestVertexNormals: true
-  });
-
-  if (options.tileRange.enabled) {
-    showCustomTileRange(viewer, options.tileRange);
-  }
-
-  viewer.terrainProvider = terrainProvider;
+;
 
   //viewer.scene.globe.enableLighting = true;
 
