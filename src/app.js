@@ -107,6 +107,8 @@ export default function init(viewer, store, history, serializedTransitData, text
 
   view.textMeasurementsCache = textMeasurementsCache;
 
+  const loadingText = document.getElementById("loading-text");
+
   initEntities(viewer, transitData, view, (_title, _i, _total) => {
     //console.log(title, "(" + i + "/" + total + ")");
   });
@@ -127,6 +129,9 @@ export default function init(viewer, store, history, serializedTransitData, text
     onAnimationEnd: () => {
       store.dispatch(setTransitData(transitData));
       store.dispatch(setDirection(1));
+    },
+    onTilesPreloaded: (count) => {
+      loadingText.textContent = "Loading map... " + count;
     }
   });
 }

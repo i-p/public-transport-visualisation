@@ -14,6 +14,16 @@ import {Router} from "react-router-dom";
 import {createHashHistory} from "history";
 import initializeCesium from "./initializeCesium";
 
+function notifyUserOfError() {
+  document.getElementById("loading-overlay").style.display = "visible";
+  document.getElementById("loading-text").textContent = "Sorry, something went wrong!";
+}
+
+window.addEventListener("error", function(e) {
+  console.error(e.message, e.error);
+  notifyUserOfError();
+});
+
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
    speed: {
@@ -39,22 +49,18 @@ ReactDOM.render(
   </AppContainer>,
   document.getElementsByTagName("main")[0]);
 
-//console.profile("startup");
-
-//TODO specify base path
 const dataPromise = Promise.all([
-  // Cesium.loadJson("/data.json"),
-  // Cesium.loadJson("/timetables.json"),
   Cesium.loadJson("data_processed.json"),
   Cesium.loadJson("textMeasurementsCache.json")
 ]);
 
-
 const viewer = initializeCesium();
 
-//TODO add error handling
 dataPromise.then(([data2, textMeasurementsCache]) => {
   init(viewer, store, history, data2, textMeasurementsCache);
+}).catch(err => {
+  console.error("Failed to initialize visualisation", err);
+  notifyUserOfError();
 });
 
 // Hot Module Replacement API

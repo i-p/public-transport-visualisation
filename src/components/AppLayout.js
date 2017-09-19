@@ -60,7 +60,9 @@ class AppLayout extends React.Component {
         <BottomPanel/>
         <div id="credits"/>
         <div id="loading-overlay">
-          Loading...
+          <div id="loading-text">
+            Loading...
+          </div>
         </div>
       </div>
       <aside id="panel">

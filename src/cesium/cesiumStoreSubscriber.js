@@ -98,12 +98,20 @@ export function setupOnTickAction(viewer, store) {
   });
 }
 
-export function setupCameraAnimationOnTileLoaded(viewer, {onAnimationStart, onAnimationEnd}) {
+export function setupCameraAnimationOnTileLoaded(viewer, {onAnimationStart, onAnimationEnd, onTilesPreloaded}) {
   let initialCameraAnimationStarted = false;
 
   viewer.camera.setView(options.cameraAnimationStart);
 
+  let totalLength = 0;
+
   viewer.scene.globe.tileLoadProgressEvent.addEventListener((length) => {
+
+    if (!initialCameraAnimationStarted) {
+      totalLength += length;
+      onTilesPreloaded(totalLength);
+    }
+
     if (length === 0 && !initialCameraAnimationStarted) {
       initialCameraAnimationStarted = true;
 
