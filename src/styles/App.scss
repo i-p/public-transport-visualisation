@@ -113,6 +113,13 @@ aside {
   }
 }
 
+/* paint-order is not supported in every browser (Edge).
+   In that case don't use stroke at all, because it makes
+   the text nearly invisible. */
+.no-paint-order .timeline text {
+  stroke: none;
+}
+
 #credits {
   // Cesium logo height + padding
   height: 30px;

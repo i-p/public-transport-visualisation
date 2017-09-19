@@ -24,6 +24,10 @@ window.addEventListener("error", function(e) {
   notifyUserOfError();
 });
 
+if (!("paintOrder" in document.createElement('svg').style)) {
+  document.documentElement.classList.add("no-paint-order");
+}
+
 let store = configureStore({
    time: Cesium.JulianDate.fromDate(new Date()),
    speed: {
